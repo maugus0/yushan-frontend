@@ -1,7 +1,7 @@
 This is the frontend application for Yushan, built using React and initialized with Create React App. It provides the user interface for the application, following a modular structure with reusable components, pages, and services.
 This repository is intended to serve as the foundation for further feature development, ensuring a clean codebase with standard React best practices.
 
-#Key Features
+# Key Features
 - Bootstrapped with Create React App for a fast development setup.
 - Organized project structure (src/components, src/pages, src/services, src/utils).
 - Initial components included (Home.js, Login.js).
