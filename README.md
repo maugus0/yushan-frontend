@@ -1,79 +1,214 @@
-This is the frontend application for Yushan, built using React and initialized with Create React App. It provides the user interface for the application, following a modular structure with reusable components, pages, and services.
-This repository is intended to serve as the foundation for further feature development, ensuring a clean codebase with standard React best practices.
+# Yushan Frontend
 
-# Key Features
-- Bootstrapped with Create React App for a fast development setup.
-- Organized project structure (src/components, src/pages, src/services, src/utils).
-- Initial components included (Home.js, Login.js).
-- Ready for integration with backend APIs and state management.
+> 🌟 **Frontend application for Yushan** - A gamified web novel reading platform that transforms reading into an engaging, social experience.
 
-# Getting Started with Create React App
+## 🚀 Tech Stack
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- **Framework**: React 18+
+- **Build Tool**: Create React App
+- **Language**: JavaScript/TypeScript
+- **Styling**: CSS Modules / Styled Components
+- **State Management**: Context API / Redux (planned)
+- **HTTP Client**: Axios
+- **Testing**: Jest, React Testing Library
 
-## Available Scripts
+## ✨ Key Features
 
-In the project directory, you can run:
+### 📖 Core Platform
+- Interactive novel reading interface
+- User authentication and registration
+- Novel discovery and search
+- Reading progress tracking
+- Bookmarks and favorites management
 
-### `npm start`
+### 🎮 Gamification UI
+- XP and level progress displays
+- Achievement badges and notifications
+- Reading streak counters
+- Leaderboard rankings
+- Social interaction components
 
-Runs the app in the development mode.\
+### 🔧 Technical Features
+- Responsive design for all devices
+- Component-based architecture
+- API integration with backend
+- Real-time updates
+- Progressive Web App capabilities
+- Performance optimized builds
+
+## 🏗️ Project Structure
+
+```
+src/
+├── components/          # Reusable UI components
+│   ├── common/         # Shared components (Button, Modal, etc.)
+│   ├── novel/          # Novel-related components
+│   └── user/           # User interface components
+├── pages/              # Route-based page components
+│   ├── Home.js         # Landing page
+│   ├── Login.js        # Authentication
+│   ├── Novel.js        # Novel reading page
+│   └── Profile.js      # User profile
+├── services/           # API integration layer
+│   ├── api.js          # Base API configuration
+│   ├── novelService.js # Novel-related API calls
+│   └── userService.js  # User-related API calls
+├── utils/              # Utility functions
+├── hooks/              # Custom React hooks
+├── context/            # React Context providers
+└── assets/             # Static assets (images, fonts)
+```
+
+## 🚦 Getting Started
+
+### Prerequisites
+- Node.js 16+ 
+- npm 8+ or yarn
+- Yushan Backend running (for full functionality)
+
+### Quick Setup
+```bash
+# Clone the repository
+git clone https://github.com/your-username/yushan-frontend.git
+cd yushan-frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+```
+
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Environment Configuration
+Create a `.env` file in the root directory:
+```env
+REACT_APP_API_BASE_URL=http://localhost:8080/api
+REACT_APP_APP_NAME=Yushan
+```
+
+## 📜 Available Scripts
+
+### `npm start`
+Runs the app in development mode. The page will reload when you make changes.
 
 ### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Launches the test runner in interactive watch mode.
 
 ### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Builds the app for production to the `build` folder. Optimized and minified for deployment.
 
 ### `npm run eject`
+⚠️ **One-way operation!** Ejects from Create React App for full configuration control.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 🧪 Development
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Component Development
+```bash
+# Create new component
+mkdir src/components/ComponentName
+touch src/components/ComponentName/ComponentName.js
+touch src/components/ComponentName/ComponentName.css
+touch src/components/ComponentName/index.js
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Testing
+```bash
+# Run all tests
+npm test
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# Run tests with coverage
+npm test -- --coverage
+```
 
-## Learn More
+### Code Quality
+```bash
+# Lint code
+npm run lint
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# Format code
+npm run format
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 🎨 UI/UX Features
 
-### Code Splitting
+- **Novel Reader**: Immersive reading experience with customizable themes
+- **Progress Tracking**: Visual progress bars and reading statistics
+- **Gamification Elements**: XP bars, achievement popups, streak counters
+- **Responsive Design**: Optimized for desktop, tablet, and mobile
+- **Dark/Light Mode**: Theme switching for comfortable reading
+- **Accessibility**: WCAG compliant components
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 🔗 API Integration
 
-### Analyzing the Bundle Size
+The frontend connects to the Yushan Backend API:
+- Authentication endpoints
+- Novel and chapter management
+- User progress tracking
+- Gamification features
+- Social interactions
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 📱 Deployment
 
-### Making a Progressive Web App
+### Development
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Production Build
+```bash
+npm run build
+# Deploy the 'build' folder to your hosting service
+```
 
-### Advanced Configuration
+### Hosting Options
+- Vercel (recommended)
+- Netlify
+- GitHub Pages
+- AWS S3 + CloudFront
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 🛠️ Built With
 
-### Deployment
+- [React](https://reactjs.org/) - Frontend framework
+- [Create React App](https://create-react-app.dev/) - Build toolchain
+- [React Router](https://reactrouter.com/) - Client-side routing
+- [Axios](https://axios-http.com/) - HTTP client
+- [React Testing Library](https://testing-library.com/react) - Testing utilities
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## 🤝 Contributing
 
-### `npm run build` fails to minify
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Development Guidelines
+- Follow React best practices
+- Write tests for new components
+- Maintain consistent code style
+- Update documentation for new features
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🌟 Roadmap
+
+- [ ] TypeScript migration
+- [ ] Advanced state management (Redux Toolkit)
+- [ ] PWA features (offline reading)
+- [ ] Real-time chat and comments
+- [ ] Advanced theming system
+- [ ] Mobile app (React Native)
+
+## 📚 Learn More
+
+- [Create React App Documentation](https://facebook.github.io/create-react-app/docs/getting-started)
+- [React Documentation](https://reactjs.org/)
+- [Deployment Guide](https://facebook.github.io/create-react-app/docs/deployment)
+
+---
+
+**Yushan Frontend** - Bringing gamified reading to life 🚀
