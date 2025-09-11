@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Home Page Component
-const HomePage = ({ onNavigate }) => {
+const Home = () => {
+  const navigate = useNavigate();
   const featuredNovels = [
     { id: 1, title: "The Cultivator's Journey", author: "Author A", genre: "Fantasy", rating: 4.8, chapters: 156 },
     { id: 2, title: "Digital Realm Chronicles", author: "Author B", genre: "Sci-Fi", rating: 4.6, chapters: 89 },
@@ -62,7 +64,7 @@ const HomePage = ({ onNavigate }) => {
             marginTop: '2rem'
           }}>
             <button 
-              onClick={() => onNavigate('login')}
+              onClick={() => navigate('login')}
               style={{
                 backgroundColor: '#e74c3c',
                 color: 'white',
@@ -389,7 +391,7 @@ const HomePage = ({ onNavigate }) => {
             Join thousands of readers and discover your next favorite story today.
           </p>
           <button 
-            onClick={() => onNavigate('login')}
+            onClick={() => navigate('login')}
             style={{
               backgroundColor: '#e74c3c',
               color: 'white',
@@ -419,4 +421,4 @@ const HomePage = ({ onNavigate }) => {
   );
 };
 
-export default HomePage;
+export default Home;

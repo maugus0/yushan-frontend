@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const LoginPage = ({ onNavigate }) => {
+const Login = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -71,7 +73,7 @@ const LoginPage = ({ onNavigate }) => {
     }}>
       {/* Back to Home Button */}
       <button
-        onClick={() => onNavigate('home')}
+        onClick={() => navigate('/')}
         style={{
           position: 'absolute',
           top: '2rem',
@@ -329,7 +331,7 @@ const LoginPage = ({ onNavigate }) => {
           <p style={{ color: '#7f8c8d', fontSize: '0.95rem' }}>
             Don't have an account?{' '}
             <button 
-              onClick={() => onNavigate('register')}
+              onClick={() => navigate('/register')}
               style={{ 
                 color: '#3498db', 
                 background: 'none', 
@@ -424,4 +426,4 @@ const LoginPage = ({ onNavigate }) => {
   );
 };
 
-export default LoginPage;
+export default Login;
