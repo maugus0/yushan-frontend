@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/yushan-frontend/static/css/main.d6479019.css",
+    "main.js": "/yushan-frontend/static/js/main.0d5e2ec1.js",
+    "static/js/453.84d2c3a2.chunk.js": "/yushan-frontend/static/js/453.84d2c3a2.chunk.js",
+    "index.html": "/yushan-frontend/index.html",
+    "main.d6479019.css.map": "/yushan-frontend/static/css/main.d6479019.css.map",
+    "main.0d5e2ec1.js.map": "/yushan-frontend/static/js/main.0d5e2ec1.js.map",
+    "453.84d2c3a2.chunk.js.map": "/yushan-frontend/static/js/453.84d2c3a2.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d6479019.css",
+    "static/js/main.0d5e2ec1.js"
+  ]
+}
