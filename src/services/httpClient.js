@@ -4,9 +4,9 @@ import rateLimit from 'axios-rate-limit';
 
 // Base configuration for axios
 const baseConfig = {
-  timeout: 10000,           // 10 second timeout
+  timeout: 10000, // 10 second timeout
   maxContentLength: 10000000, // 10MB max response size
-  maxBodyLength: 10000000,    // 10MB max request size
+  maxBodyLength: 10000000, // 10MB max request size
   // Add your base URL if you have one
   // baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001',
 };
@@ -14,11 +14,11 @@ const baseConfig = {
 // Create different clients for different use cases
 const createRateLimitedClient = (maxRequests, perMilliseconds) => {
   const baseClient = axios.create(baseConfig);
-  
+
   return rateLimit(baseClient, {
     maxRequests,
     perMilliseconds,
-    maxRPS: Math.floor(maxRequests / (perMilliseconds / 1000)) // Calculate RPS
+    maxRPS: Math.floor(maxRequests / (perMilliseconds / 1000)), // Calculate RPS
   });
 };
 
@@ -53,7 +53,7 @@ const addInterceptors = (client, clientName = 'httpClient') => {
       if (error.code === 'ECONNABORTED') {
         console.error(`${clientName}: Request timeout - resource exhaustion prevented`);
       }
-      
+
       if (error.message?.includes('rate limit')) {
         console.warn(`${clientName}: Rate limit exceeded - throttling in effect`);
         // You could dispatch a toast notification here

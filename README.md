@@ -15,6 +15,7 @@
 ## ✨ Key Features
 
 ### 📖 Core Platform
+
 - Interactive novel reading interface
 - User authentication and registration
 - Novel discovery and search
@@ -22,6 +23,7 @@
 - Bookmarks and favorites management
 
 ### 🎮 Gamification UI
+
 - XP and level progress displays
 - Achievement badges and notifications
 - Reading streak counters
@@ -29,6 +31,7 @@
 - Social interaction components
 
 ### 🔧 Technical Features
+
 - Responsive design for all devices
 - Component-based architecture
 - API integration with backend
@@ -62,11 +65,13 @@ src/
 ## 🚦 Getting Started
 
 ### Prerequisites
-- Node.js 16+ 
+
+- Node.js 16+
 - npm 8+ or yarn
 - Yushan Backend running (for full functionality)
 
 ### Quick Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/your-username/yushan-frontend.git
@@ -82,7 +87,9 @@ npm start
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
 ### Environment Configuration
+
 Create a `.env` file in the root directory:
+
 ```env
 REACT_APP_API_BASE_URL=http://localhost:8080/api
 REACT_APP_APP_NAME=Yushan
@@ -91,20 +98,25 @@ REACT_APP_APP_NAME=Yushan
 ## 📜 Available Scripts
 
 ### `npm start`
+
 Runs the app in development mode. The page will reload when you make changes.
 
 ### `npm test`
+
 Launches the test runner in interactive watch mode.
 
 ### `npm run build`
+
 Builds the app for production to the `build` folder. Optimized and minified for deployment.
 
 ### `npm run eject`
+
 ⚠️ **One-way operation!** Ejects from Create React App for full configuration control.
 
 ## 🧪 Development
 
 ### Component Development
+
 ```bash
 # Create new component
 mkdir src/components/ComponentName
@@ -114,6 +126,7 @@ touch src/components/ComponentName/index.js
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 npm test
@@ -123,6 +136,7 @@ npm test -- --coverage
 ```
 
 ### Code Quality
+
 ```bash
 # Lint code
 npm run lint
@@ -143,6 +157,7 @@ npm run format
 ## 🔗 API Integration
 
 The frontend connects to the Yushan Backend API:
+
 - Authentication endpoints
 - Novel and chapter management
 - User progress tracking
@@ -152,17 +167,20 @@ The frontend connects to the Yushan Backend API:
 ## 📱 Deployment
 
 ### Development
+
 ```bash
 npm start
 ```
 
 ### Production Build
+
 ```bash
 npm run build
 # Deploy the 'build' folder to your hosting service
 ```
 
 ### Hosting Options
+
 - Vercel (recommended)
 - Netlify
 - GitHub Pages
@@ -185,6 +203,7 @@ npm run build
 5. Open a Pull Request
 
 ### Development Guidelines
+
 - Follow React best practices
 - Write tests for new components
 - Maintain consistent code style

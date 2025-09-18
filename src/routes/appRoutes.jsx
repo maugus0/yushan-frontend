@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createHashRouter } from 'react-router-dom';
 import Home from '../pages/Home/Home';
 import Login from '../pages/Login/Login';
 import Register from '../pages/Register/Register';
@@ -6,17 +6,17 @@ import Register from '../pages/Register/Register';
 export const routes = [
   {
     path: '/',
-    element: <Home />
+    element: <Home />,
   },
   {
     path: '/login',
-    element: <Login />
+    element: <Login />,
   },
   {
     path: '/register',
-    element: <Register />
-  }
+    element: <Register />,
+  },
 ];
 
-const router = createBrowserRouter(routes);
+const router = createHashRouter(routes);
 export default router;
