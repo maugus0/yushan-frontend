@@ -247,7 +247,7 @@ jobs:
 
   deploy-pages:
     name: Deploy GitHub Pages (gh-pages CLI)
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main')
     runs-on: ubuntu-latest
     needs: [zap-dast]
     permissions:
