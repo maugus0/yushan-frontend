@@ -1,4 +1,3 @@
-
 const Register = () => {
   return (
     <div>
@@ -6,6 +5,6 @@ const Register = () => {
       {/* Registration form elements go here */}
     </div>
   );
-}
+};
 
 export default Register;
