@@ -239,7 +239,7 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
                 onClick={() => navigate('/register')}
                 className="signup-btn"
               >
-                SIGN IN
+                Register
               </Button>
             </div>
           )}

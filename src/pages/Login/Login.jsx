@@ -1,20 +1,8 @@
-
-// const Login = () => {
-//   return (
-//     <div>
-//       <h1>Login Page</h1>
-//       {/* Registration form elements go here */}
-//     </div>
-//   );
-// }
-
-// export default Login;
-
 import React from 'react';
-import { Breadcrumb, Card } from 'antd';
+import { Breadcrumb, Card, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import AuthForm from '../../components/auth/AuthForm';
-import './Login.css'; // 如果你已有样式文件
+import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -24,7 +12,7 @@ const Login = () => {
       <Breadcrumb
         items={[
           { title: 'Home', href: '/' },
-          { title: 'Auth' },
+          //{ title: 'Auth' },
           { title: 'Login' }
         ]}
         style={{ marginBottom: 16 }}
@@ -33,12 +21,16 @@ const Login = () => {
         <AuthForm
           mode="login"
           onSuccess={() => {
-            // 静态模式：只是控制台打印。将来可 navigate('/dashboard')
+            // Replace with navigation when backend is ready
+            // navigate('/dashboard');
             console.log('Login static success');
           }}
         />
         <div style={{ marginTop: 12, textAlign: 'right' }}>
-          <a onClick={() => navigate('/register')}>No account? Register</a>
+          {/* Use accessible link-style button instead of bare <a> without href */}
+          <Button type="link" onClick={() => navigate('/register')}>
+            No account? Register
+          </Button>
         </div>
       </Card>
     </div>
