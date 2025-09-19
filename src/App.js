@@ -12,7 +12,7 @@ import Login from './pages/login/login';
 import Register from './pages/register/register';
 
 // Global Styles
-import './App.css';
+import './app.css';
 
 // Ant Design Theme Configuration
 const themeConfig = {
