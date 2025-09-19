@@ -1,0 +1,60 @@
+/* Layout Wrapper Styles */
+.layout-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  background: #f5f5f5;
+  min-height: calc(100vh - 64px - 200px); /* viewport - header - footer */
+}
+
+.content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  background: white;
+  min-height: 500px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .content-container {
+    margin: 16px;
+    padding: 16px;
+    border-radius: 0;
+    box-shadow: none;
+    background: #f5f5f5;
+  }
+
+  .main-content {
+    background: #f5f5f5;
+  }
+}
+
+/* Full width content option */
+.layout-wrapper.full-width .content-container {
+  max-width: 100%;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Landing page style */
+.layout-wrapper.landing .main-content {
+  background: white;
+}
+
+.layout-wrapper.landing .content-container {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  max-width: 100%;
+  margin: 0;
+}

@@ -1,0 +1,423 @@
+/* Modern Navbar Styles */
+.modern-navbar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  border-bottom: none;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 10vh; /* Set navbar height to 20% of viewport height */
+  min-height: 80px; /* Minimum height for smaller screens */
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 100%;
+  width: 100%;
+}
+
+/* Logo Section */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.navbar-logo:hover {
+  transform: scale(1.05);
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+}
+
+.logo-text {
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* Navigation Menu */
+.navbar-nav {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  margin: 0 40px;
+}
+
+.nav-menu {
+  background: transparent !important;
+  border-bottom: none !important;
+  display: flex;
+  justify-content: center;
+  min-width: 300px;
+}
+
+.nav-menu .ant-menu-item {
+  color: rgba(255, 255, 255, 0.85) !important;
+  border-bottom: 2px solid transparent !important;
+  margin: 0 8px !important;
+  padding: 0 16px !important;
+  height: 48px !important;
+  line-height: 48px !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  border-radius: 6px;
+}
+
+.nav-menu .ant-menu-item:hover {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-bottom-color: #4facfe !important;
+}
+
+.nav-menu .ant-menu-item-selected {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-bottom-color: #4facfe !important;
+}
+
+.nav-menu .ant-menu-item .anticon {
+  margin-right: 6px;
+}
+
+/* Search Section */
+.navbar-search {
+  display: flex;
+  align-items: center;
+  margin-right: 24px;
+  transition: all 0.3s ease;
+}
+
+.search-button {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  backdrop-filter: blur(10px);
+  border-radius: 20px !important;
+  height: 36px !important;
+  padding: 0 16px !important;
+  transition: all 0.3s ease;
+}
+
+.search-button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-search.expanded {
+  width: 350px;
+}
+
+.search-input-container {
+  width: 100%;
+  position: relative;
+}
+
+.search-input {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: none !important;
+  border-radius: 20px !important;
+  height: 40px !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.search-input .ant-input {
+  background: transparent !important;
+  border: none !important;
+  padding-right: 80px !important;
+}
+
+.search-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.search-submit,
+.search-close {
+  color: #666 !important;
+  padding: 0 8px !important;
+}
+
+/* Right Actions */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.nav-button {
+  color: rgba(255, 255, 255, 0.85) !important;
+  border: none !important;
+  height: 36px !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-button:hover {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  transform: translateY(-1px);
+}
+
+.nav-button.icon-only {
+  width: 36px;
+  padding: 0 !important;
+  justify-content: center;
+}
+
+.user-avatar {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.user-avatar:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+/* Auth Buttons */
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-btn {
+  color: rgba(255, 255, 255, 0.9) !important;
+  border: none !important;
+  height: 36px !important;
+  padding: 0 16px !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.signup-btn {
+  background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%) !important;
+  border: none !important;
+  height: 36px !important;
+  padding: 0 20px !important;
+  border-radius: 18px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+  transition: all 0.3s ease;
+}
+
+.signup-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4) !important;
+}
+
+/* Mobile Menu Button */
+.mobile-menu-button {
+  display: none !important;
+  color: white !important;
+  border: none !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 6px !important;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .navbar-nav {
+    display: none;
+  }
+
+  .navbar-search {
+    display: none;
+  }
+
+  .nav-button:not(.icon-only) span {
+    display: none;
+  }
+
+  .nav-button {
+    width: 36px !important;
+    padding: 0 !important;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .modern-navbar {
+    height: 15vh; /* Slightly smaller on mobile */
+    min-height: 60px;
+  }
+
+  .navbar-container {
+    padding: 0 16px;
+  }
+
+  .navbar-actions {
+    display: none;
+  }
+
+  .mobile-menu-button {
+    display: flex !important;
+  }
+
+  .logo-text {
+    font-size: 20px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modern-navbar {
+    height: 12vh;
+    min-height: 50px;
+  }
+
+  .navbar-container {
+    padding: 0 12px;
+  }
+}
+
+/* Mobile Drawer Styles */
+.mobile-drawer .ant-drawer-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-drawer .ant-drawer-header .ant-drawer-title {
+  color: white;
+}
+
+.mobile-drawer .ant-drawer-body {
+  background: #1f1f1f;
+  padding: 24px;
+}
+
+.logo-icon.mobile {
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+}
+
+.mobile-search {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 6px !important;
+}
+
+.mobile-search .ant-input {
+  background: transparent !important;
+  color: white !important;
+}
+
+.mobile-search .ant-input::placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.mobile-auth {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* User Dropdown */
+.user-dropdown .ant-dropdown-menu {
+  background: #1f1f1f !important;
+  border: 1px solid #333 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  min-width: 180px;
+}
+
+.user-dropdown .ant-dropdown-menu-item {
+  color: rgba(255, 255, 255, 0.85) !important;
+  padding: 8px 16px !important;
+}
+
+.user-dropdown .ant-dropdown-menu-item:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+.user-dropdown .ant-dropdown-menu-item-divider {
+  background: #333 !important;
+}
+
+/* Badge Styles */
+.ant-badge-count {
+  background: #ff4757 !important;
+  border: 2px solid #1f1f1f !important;
+  color: white !important;
+  font-size: 10px !important;
+  min-width: 16px !important;
+  height: 16px !important;
+  line-height: 12px !important;
+}
+
+/* Animation for search expand */
+.navbar-search {
+  overflow: hidden;
+}
+
+.navbar-search.expanded .search-input-container {
+  animation: searchExpand 0.3s ease-out;
+}
+
+@keyframes searchExpand {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+/* Fix for Ant Design Menu horizontal alignment */
+.ant-menu-horizontal {
+  line-height: inherit !important;
+}
+
+.ant-menu-horizontal > .ant-menu-item,
+.ant-menu-horizontal > .ant-menu-submenu {
+  top: 0 !important;
+}

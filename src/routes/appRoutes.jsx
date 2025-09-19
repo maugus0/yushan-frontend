@@ -1,7 +1,7 @@
-import { createHashRouter } from 'react-router-dom';
-import Home from '../pages/Home/Home';
-import Login from '../pages/Login/Login';
-import Register from '../pages/Register/Register';
+import { createBrowserRouter } from 'react-router-dom';
+import Home from '../pages/home/Home';
+import Login from '../pages/login/Login';
+import Register from '../pages/register/Register';
 
 export const routes = [
   {
@@ -18,5 +18,5 @@ export const routes = [
   },
 ];
 
-const router = createHashRouter(routes);
+const router = createBrowserRouter(routes);
 export default router;
