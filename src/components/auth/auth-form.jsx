@@ -30,9 +30,7 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
       console.log('[STATIC SUBMIT] login values:', values);
 
       if (USE_STATIC_DEMO_CHECK) {
-        const ok =
-          values.username === DEMO_USER.username &&
-          values.password === DEMO_USER.password;
+        const ok = values.username === DEMO_USER.username && values.password === DEMO_USER.password;
 
         if (!ok) {
           message.error('Invalid username or password');
@@ -47,7 +45,6 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
           if (res?.data?.token) localStorage.setItem('token', res.data.token);
           message.success('Login successful');
           onSuccess && onSuccess(res); **/
-
     } catch (e) {
       message.error('Unexpected error (static)');
     } finally {
@@ -66,8 +63,8 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
   const loginValidateTrigger = isRegister
     ? undefined
     : liveValidate
-    ? ['onChange', 'onBlur']
-    : ['onSubmit'];
+      ? ['onChange', 'onBlur']
+      : ['onSubmit'];
 
   return (
     <Form
@@ -88,7 +85,7 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
             ? [
                 { required: true, message: 'Username is required' },
                 { min: 3, message: 'Minimum 3 characters' },
-                { max: 20, message: 'Maximum 20 characters' }
+                { max: 20, message: 'Maximum 20 characters' },
               ]
             : [{ required: true, message: 'Username is required' }]
         }
@@ -103,7 +100,7 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
           name="email"
           rules={[
             { required: true, message: 'Email is required' },
-            { type: 'email', message: 'Invalid email format' }
+            { type: 'email', message: 'Invalid email format' },
           ]}
         >
           <Input placeholder="Enter email" type="email" />
@@ -128,8 +125,8 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
                       );
                     }
                     return Promise.resolve();
-                  }
-                }
+                  },
+                },
               ]
             : [{ required: true, message: 'Password is required' }]
         }
@@ -151,8 +148,8 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
                   return Promise.resolve();
                 }
                 return Promise.reject('Passwords do not match');
-              }
-            })
+              },
+            }),
           ]}
         >
           <Input.Password placeholder="Confirm password" />

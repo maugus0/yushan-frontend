@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Badge } from 'antd';
-import { 
-  MenuOutlined, 
-  UserOutlined, 
-  LoginOutlined, 
+import {
+  MenuOutlined,
+  UserOutlined,
+  LoginOutlined,
   LogoutOutlined,
   SearchOutlined,
   BellOutlined,
@@ -13,10 +13,10 @@ import {
   BookOutlined,
   SettingOutlined,
   EditOutlined,
-  CloseOutlined
+  CloseOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
-import './Navbar.css';
+import './navbar.css';
 
 const { Header } = Layout;
 const { Search } = Input;
@@ -54,20 +54,20 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
       key: 'browse',
       icon: <CompassOutlined />,
       label: 'Browse',
-      onClick: () => navigate('/browse')
+      onClick: () => navigate('/browse'),
     },
     {
       key: 'rankings',
       icon: <BarChartOutlined />,
       label: 'Rankings',
-      onClick: () => navigate('/rankings')
+      onClick: () => navigate('/rankings'),
     },
     {
       key: 'create',
       icon: <EditOutlined />,
       label: 'Create',
-      onClick: () => navigate('/create')
-    }
+      onClick: () => navigate('/create'),
+    },
   ];
 
   // User dropdown menu
@@ -76,22 +76,22 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
       key: 'profile',
       icon: <UserOutlined />,
       label: 'Profile',
-      onClick: () => navigate('/profile')
+      onClick: () => navigate('/profile'),
     },
     {
       key: 'library',
       icon: <BookOutlined />,
       label: 'My Library',
-      onClick: () => navigate('/library')
+      onClick: () => navigate('/library'),
     },
     {
       key: 'settings',
       icon: <SettingOutlined />,
       label: 'Settings',
-      onClick: () => navigate('/settings')
+      onClick: () => navigate('/settings'),
     },
     {
-      type: 'divider'
+      type: 'divider',
     },
     {
       key: 'logout',
@@ -100,8 +100,8 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
       onClick: () => {
         localStorage.removeItem('authToken');
         window.location.reload();
-      }
-    }
+      },
+    },
   ];
 
   const handleSearch = (value) => {
@@ -189,8 +189,8 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
           {isAuthenticated ? (
             <>
               {/* Library */}
-              <Button 
-                type="text" 
+              <Button
+                type="text"
                 icon={<BookOutlined />}
                 className="nav-button"
                 onClick={() => navigate('/library')}
@@ -200,8 +200,8 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
 
               {/* Notifications */}
               <Badge count={3} size="small">
-                <Button 
-                  type="text" 
+                <Button
+                  type="text"
                   icon={<BellOutlined />}
                   className="nav-button icon-only"
                   onClick={() => navigate('/notifications')}
@@ -216,9 +216,9 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
                 overlayClassName="user-dropdown"
               >
                 <div className="user-avatar">
-                  <Avatar 
+                  <Avatar
                     size={32}
-                    icon={<UserOutlined />} 
+                    icon={<UserOutlined />}
                     src={user?.avatar}
                     style={{ cursor: 'pointer' }}
                   />
@@ -227,18 +227,10 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
             </>
           ) : (
             <div className="auth-buttons">
-              <Button 
-                type="text" 
-                onClick={() => navigate('/login')}
-                className="login-btn"
-              >
+              <Button type="text" onClick={() => navigate('/login')} className="login-btn">
                 Login
               </Button>
-              <Button 
-                type="primary" 
-                onClick={() => navigate('/register')}
-                className="signup-btn"
-              >
+              <Button type="primary" onClick={() => navigate('/register')} className="signup-btn">
                 Register
               </Button>
             </div>
@@ -290,16 +282,16 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
           <div className="mobile-auth">
             {isAuthenticated ? (
               <div>
-                <Button 
-                  block 
+                <Button
+                  block
                   icon={<BookOutlined />}
                   onClick={() => navigate('/library')}
                   style={{ marginBottom: '12px' }}
                 >
                   Library
                 </Button>
-                <Button 
-                  block 
+                <Button
+                  block
                   icon={<LogoutOutlined />}
                   onClick={() => {
                     localStorage.removeItem('authToken');
@@ -311,18 +303,10 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
               </div>
             ) : (
               <div>
-                <Button 
-                  block 
-                  onClick={() => navigate('/login')}
-                  style={{ marginBottom: '12px' }}
-                >
+                <Button block onClick={() => navigate('/login')} style={{ marginBottom: '12px' }}>
                   Login
                 </Button>
-                <Button 
-                  block 
-                  type="primary"
-                  onClick={() => navigate('/register')}
-                >
+                <Button block type="primary" onClick={() => navigate('/register')}>
                   Sign Up
                 </Button>
               </div>
