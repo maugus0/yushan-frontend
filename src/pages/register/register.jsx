@@ -1,8 +1,8 @@
 import React from 'react';
 import { Breadcrumb, Card, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import AuthForm from '../../components/auth/auth-form';
-import './register.css';
+import AuthForm from '../../components/auth/AuthForm';
+import './Register.css';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ const Register = () => {
         items={[
           { title: 'Home', href: '/' },
           //{ title: 'Auth' },
-          { title: 'Register' },
+          { title: 'Register' }
         ]}
         style={{ marginBottom: 16 }}
       />
@@ -24,6 +24,7 @@ const Register = () => {
             // Replace with navigation after backend integration
             // navigate('/Register');
             console.log('Register static success');
+
           }}
         />
         <div style={{ marginTop: 12, textAlign: 'right' }}>

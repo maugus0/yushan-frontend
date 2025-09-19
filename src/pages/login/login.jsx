@@ -1,8 +1,8 @@
 import React from 'react';
 import { Breadcrumb, Card, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import AuthForm from '../../components/auth/auth-form';
-import './login.css';
+import AuthForm from '../../components/auth/AuthForm';
+import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ const Login = () => {
         items={[
           { title: 'Home', href: '/' },
           //{ title: 'Auth' },
-          { title: 'Login' },
+          { title: 'Login' }
         ]}
         style={{ marginBottom: 16 }}
       />
