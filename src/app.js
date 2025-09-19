@@ -7,7 +7,7 @@ import 'antd/dist/reset.css'; // Import Ant Design styles
 import LayoutWrapper from './components/common/layout-wrapper';
 
 // Page Components - Fixed to lowercase
-import Home from './pages/Home/home';
+import Home from './pages/home/home';
 import Login from './pages/login/login';
 import Register from './pages/register/register';
 
