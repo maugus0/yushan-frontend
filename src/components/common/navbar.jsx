@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Badge } from 'antd';
 import {
