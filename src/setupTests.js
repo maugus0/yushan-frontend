@@ -7,7 +7,7 @@ import '@testing-library/jest-dom';
 // Mock window.matchMedia for Ant Design components
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -43,8 +43,8 @@ beforeAll(() => {
     if (
       typeof args[0] === 'string' &&
       (args[0].includes('Warning: ReactDOM.render is deprecated') ||
-       args[0].includes('Warning: An invalid form control') ||
-       args[0].includes('matchMedia'))
+        args[0].includes('Warning: An invalid form control') ||
+        args[0].includes('matchMedia'))
     ) {
       return;
     }
