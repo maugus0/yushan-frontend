@@ -63,14 +63,13 @@ function App() {
 
   return (
     <ConfigProvider theme={themeConfig}>
-      {/* <Router
+      <Router
         basename={process.env.NODE_ENV === 'production' ? '/yushan-frontend' : ''}
         future={{
           v7_startTransition: true,
           v7_relativeSplatPath: true,
         }}
-      > */}
-      <Router basename="/yushan-frontend">
+      >
         <div className="App">
           <Routes>
             {/* Routes that use the common layout */}

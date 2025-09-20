@@ -232,18 +232,14 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
               <Button
                 type={location.pathname === '/login' ? 'primary' : 'text'}
                 onClick={() => navigate('/login')}
-                className={`login-btn${
-                  location.pathname === '/login' ? ' active' : ''
-                }`}
+                className={`login-btn${location.pathname === '/login' ? ' active' : ''}`}
               >
                 Login
               </Button>
               <Button
                 type={location.pathname === '/register' ? 'primary' : 'text'}
                 onClick={() => navigate('/register')}
-                className={`signup-btn${
-                  location.pathname === '/register' ? ' active' : ''
-                }`}
+                className={`signup-btn${location.pathname === '/register' ? ' active' : ''}`}
               >
                 Register
               </Button>
