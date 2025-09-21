@@ -11,10 +11,7 @@ const Register = () => {
     <div style={{ maxWidth: 480, margin: '48px auto', padding: '0 16px' }}>
       <Breadcrumb
         // Use React Router <Link> to respect basename on GitHub Pages
-        items={[
-          { title: <Link to="/">Home</Link> },
-          { title: 'Register' },
-        ]}
+        items={[{ title: <Link to="/">Home</Link> }, { title: 'Register' }]}
         style={{ marginBottom: 16 }}
       />
       <Card title="Create Account">
