@@ -6,17 +6,17 @@ function splitToColumns(arr, colCount = 3, maxPerCol = 9) {
   arr.forEach((item, idx) => {
     columns[Math.floor(idx / maxPerCol)]?.push(item);
   });
-  return columns.filter(col => col.length > 0);
+  return columns.filter((col) => col.length > 0);
 }
 
 const ContentPopover = ({ data }) => {
   const [activeKey, setActiveKey] = useState(data[0]?.key || '');
-  const activeItem = data.find(item => item.key === activeKey);
+  const activeItem = data.find((item) => item.key === activeKey);
 
   return (
     <div className="browse-popover">
       <div className="browse-popover-left">
-        {data.map(item => (
+        {data.map((item) => (
           <div
             key={item.key}
             className={`browse-popover-left-item${activeKey === item.key ? ' active' : ''}`}
@@ -34,14 +34,14 @@ const ContentPopover = ({ data }) => {
                 const columns = splitToColumns(col.types, 3, 9);
                 return (
                   <div className="browse-popover-novels-col" key={colIdx}>
-                    {col.title && (
-                      <div className="browse-popover-novels-title">{col.title}</div>
-                    )}
+                    {col.title && <div className="browse-popover-novels-title">{col.title}</div>}
                     <div className="browse-popover-novels-list">
                       {columns.map((types, idx) => (
                         <div key={idx}>
-                          {types.map(type => (
-                            <div key={type} className="browse-popover-type">{type}</div>
+                          {types.map((type) => (
+                            <div key={type} className="browse-popover-type">
+                              {type}
+                            </div>
                           ))}
                         </div>
                       ))}
@@ -54,8 +54,10 @@ const ContentPopover = ({ data }) => {
             <div className="browse-popover-types-list">
               {splitToColumns(activeItem.right[0].types, 3, 9).map((types, idx) => (
                 <div key={idx}>
-                  {types.map(type => (
-                    <div key={type} className="browse-popover-type">{type}</div>
+                  {types.map((type) => (
+                    <div key={type} className="browse-popover-type">
+                      {type}
+                    </div>
                   ))}
                 </div>
               ))}

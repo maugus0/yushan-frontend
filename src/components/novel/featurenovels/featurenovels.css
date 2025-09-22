@@ -38,7 +38,7 @@
   overflow: hidden;
 }
 
-.feature-novel-card img{
+.feature-novel-card img {
   height: 8.72rem;
   width: 6.56rem;
 }
@@ -49,8 +49,8 @@
   object-fit: cover;
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
-  box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.08);
-  transition: transform 0.25s cubic-bezier(.4,1.4,.6,1);
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s cubic-bezier(0.4, 1.4, 0.6, 1);
   display: block;
 }
 

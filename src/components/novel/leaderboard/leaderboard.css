@@ -10,7 +10,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.0rem;
+  margin-bottom: 1rem;
 }
 
 .leaderboard-title {
@@ -62,7 +62,7 @@
 .leaderboard-item .novel-card-img .novel-card-cover:hover,
 .leaderboard-item .novel-card-img img:hover {
   transform: scale(1.15);
-  transition: transform 0.25s cubic-bezier(.4,1.4,.6,1);
+  transition: transform 0.25s cubic-bezier(0.4, 1.4, 0.6, 1);
 }
 
 .leaderboard-item .novel-card-title:hover {

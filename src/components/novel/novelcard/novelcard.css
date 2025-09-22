@@ -28,7 +28,7 @@
 
 .novel-card-img img,
 .novel-card-cover {
-  transition: transform 0.25s cubic-bezier(.4,1.4,.6,1);
+  transition: transform 0.25s cubic-bezier(0.4, 1.4, 0.6, 1);
 }
 
 .novel-card-content {
@@ -39,7 +39,6 @@
   margin-left: 0.5rem;
   height: 4rem;
 }
-
 
 .novel-card-title {
   font-size: 1rem;

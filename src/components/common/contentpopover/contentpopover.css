@@ -24,7 +24,9 @@
   font-weight: 600;
   padding: 12px 24px;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
   border: none;
   color: #333;
 }
@@ -74,7 +76,9 @@
   color: #222;
   display: block;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
   border: none;
 }
 
@@ -136,7 +140,6 @@
     grid-template-columns: 1fr;
     gap: 6px 0;
   }
-
 }
 @media (max-width: 600px) {
   .browse-popover {
@@ -155,5 +158,4 @@
     grid-template-columns: 1fr;
     gap: 6px 0;
   }
-
 }

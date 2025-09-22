@@ -81,7 +81,7 @@
   border-radius: 0 !important;
   overflow: hidden;
   min-height: 260px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -123,7 +123,7 @@
   height: 224px;
   object-fit: cover;
   border-radius: 0 !important;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
 }
 
 .home-hero-content {
@@ -159,7 +159,7 @@
   height: 100%;
   border-radius: 0 !important;
   border: none !important;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
 }
 
 .home-feature-title {
@@ -226,5 +226,5 @@
   height: 224px;
   object-fit: cover;
   border-radius: 0 !important;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
 }
