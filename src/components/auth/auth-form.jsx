@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, message } from 'antd';
+import { Form, Input, Button, message, Select, DatePicker } from 'antd';
+import dayjs from 'dayjs';
+
+const { Option } = Select;
 
 // Static demo toggle for login without backend.
 const USE_STATIC_DEMO_CHECK = true;
@@ -7,6 +10,12 @@ const DEMO_USER = { username: 'demo', password: 'Demo1234' };
 
 // Password strength rule for registration only (not used on login).
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+
+// Disable future dates for the birthday field.
+const disabledFutureDate = (current) => {
+  if (!current) return false;
+  return current.endOf('day').isAfter(dayjs().endOf('day'));
+};
 
 const AuthForm = ({ mode = 'login', onSuccess }) => {
   const [form] = Form.useForm();
@@ -20,18 +29,26 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
   const handleFinish = async (values) => {
     setSubmitting(true);
     try {
+      // Normalize birthday to "YYYY-MM-DD" if provided.
+      const payload = {
+        ...values,
+        birthday: values.birthday ? values.birthday.format('YYYY-MM-DD') : undefined,
+      };
+
       if (isRegister) {
-        console.log('[STATIC SUBMIT] register values:', values);
+        // Simulate successful registration in the current static demo setup.
+        console.log('[STATIC SUBMIT] register values:', payload);
         message.success('Registration form validated (static)');
-        onSuccess && onSuccess(values);
+        onSuccess && onSuccess(payload);
         return;
       }
 
-      console.log('[STATIC SUBMIT] login values:', values);
+      // Login (static demo)
+      console.log('[STATIC SUBMIT] login values:', payload);
 
       if (USE_STATIC_DEMO_CHECK) {
-        const ok = values.username === DEMO_USER.username && values.password === DEMO_USER.password;
-
+        const ok =
+          payload.username === DEMO_USER.username && payload.password === DEMO_USER.password;
         if (!ok) {
           message.error('Invalid username or password');
           return;
@@ -39,9 +56,10 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
       }
 
       message.success('Login validated (static)');
-      onSuccess && onSuccess(values);
+      onSuccess && onSuccess(payload);
+
       // Replace with real API calls when backend is ready:
-      /** const res = await apiLogin(values);
+      /** const res = await apiLogin(payload);
           if (res?.data?.token) localStorage.setItem('token', res.data.token);
           message.success('Login successful');
           onSuccess && onSuccess(res); **/
@@ -57,9 +75,9 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
     if (!isRegister && !liveValidate) setLiveValidate(true);
   };
 
-  // For login:
+  // For login UX:
   // - before any failed submit: validate only on submit
-  // - after first failed submit: validate on change & blur (smarter UX)
+  // - after first failed submit: validate on change & blur
   const loginValidateTrigger = isRegister
     ? undefined
     : liveValidate
@@ -71,11 +89,12 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
       form={form}
       layout="vertical"
       autoComplete="off"
-      requiredMark="optional"
+      // Show AntD built-in red asterisk on required fields.
+      requiredMark={true}
       onFinish={handleFinish}
       onFinishFailed={handleFinishFailed}
     >
-      {/* Username */}
+      {/* Username (required) */}
       <Form.Item
         label="Username"
         name="username"
@@ -93,7 +112,7 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
         <Input placeholder="Enter username" />
       </Form.Item>
 
-      {/* Email (registration only) */}
+      {/* Email (registration only, required) */}
       {isRegister && (
         <Form.Item
           label="Email"
@@ -103,62 +122,79 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
             { type: 'email', message: 'Invalid email format' },
           ]}
         >
-          <Input placeholder="Enter email" type="email" />
+          <Input placeholder="Enter email" />
         </Form.Item>
       )}
 
-      {/* Password */}
+      {/* Password (required) */}
       <Form.Item
         label="Password"
         name="password"
-        validateTrigger={loginValidateTrigger}
         rules={
           isRegister
             ? [
                 { required: true, message: 'Password is required' },
                 {
-                  validator: (_, value) => {
-                    if (!value) return Promise.resolve(); // covered by required
-                    if (!passwordRegex.test(value)) {
-                      return Promise.reject(
-                        'At least 8 characters and include uppercase, lowercase, and a number'
-                      );
-                    }
-                    return Promise.resolve();
-                  },
+                  pattern: passwordRegex,
+                  message: 'At least 8 characters with uppercase, lowercase and a number',
                 },
               ]
             : [{ required: true, message: 'Password is required' }]
         }
+        hasFeedback={isRegister}
       >
         <Input.Password placeholder="Enter password" />
       </Form.Item>
 
-      {/* Confirm Password (registration only) */}
+      {/* Confirm Password (registration only, required) */}
       {isRegister && (
         <Form.Item
           label="Confirm Password"
           name="confirmPassword"
           dependencies={['password']}
+          hasFeedback
           rules={[
-            { required: true, message: 'Please confirm password' },
+            { required: true, message: 'Please confirm your password' },
             ({ getFieldValue }) => ({
               validator(_, value) {
                 if (!value || getFieldValue('password') === value) {
                   return Promise.resolve();
                 }
-                return Promise.reject('Passwords do not match');
+                return Promise.reject(new Error('Passwords do not match'));
               },
             }),
           ]}
         >
-          <Input.Password placeholder="Confirm password" />
+          <Input.Password placeholder="Re-enter password" />
+        </Form.Item>
+      )}
+
+      {/* Gender (registration only, optional; no required rule => no asterisk) */}
+      {isRegister && (
+        <Form.Item label="Gender" name="gender">
+          <Select placeholder="Select gender (optional)" allowClear>
+            <Option value="male">Male</Option>
+            <Option value="female">Female</Option>
+            <Option value="prefer_not_to_say">Prefer not to say</Option>
+          </Select>
+        </Form.Item>
+      )}
+
+      {/* Birthday (registration only, optional; future dates disabled) */}
+      {isRegister && (
+        <Form.Item label="Birthday" name="birthday">
+          <DatePicker
+            style={{ width: '100%' }}
+            placeholder="Select birthday (optional)"
+            format="YYYY-MM-DD"
+            disabledDate={disabledFutureDate}
+          />
         </Form.Item>
       )}
 
       <Form.Item>
-        <Button type="primary" htmlType="submit" block loading={submitting}>
-          {isRegister ? 'Register' : 'Login'}
+        <Button type="primary" htmlType="submit" loading={submitting} block>
+          {isRegister ? 'Create Account' : 'Login'}
         </Button>
       </Form.Item>
     </Form>

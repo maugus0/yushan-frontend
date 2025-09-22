@@ -229,10 +229,18 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
             </>
           ) : (
             <div className="auth-buttons">
-              <Button type="text" onClick={() => navigate('/login')} className="login-btn">
+              <Button
+                type={location.pathname === '/login' ? 'primary' : 'text'}
+                onClick={() => navigate('/login')}
+                className={`login-btn${location.pathname === '/login' ? ' active' : ''}`}
+              >
                 Login
               </Button>
-              <Button type="primary" onClick={() => navigate('/register')} className="signup-btn">
+              <Button
+                type={location.pathname === '/register' ? 'primary' : 'text'}
+                onClick={() => navigate('/register')}
+                className={`signup-btn${location.pathname === '/register' ? ' active' : ''}`}
+              >
                 Register
               </Button>
             </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Breadcrumb, Card, Button } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AuthForm from '../../components/auth/auth-form';
 import './register.css';
 
@@ -10,11 +10,8 @@ const Register = () => {
   return (
     <div style={{ maxWidth: 480, margin: '48px auto', padding: '0 16px' }}>
       <Breadcrumb
-        items={[
-          { title: 'Home', href: '/' },
-          //{ title: 'Auth' },
-          { title: 'Register' },
-        ]}
+        // Use React Router <Link> to respect basename on GitHub Pages
+        items={[{ title: <Link to="/">Home</Link> }, { title: 'Register' }]}
         style={{ marginBottom: 16 }}
       />
       <Card title="Create Account">
@@ -22,7 +19,7 @@ const Register = () => {
           mode="register"
           onSuccess={() => {
             // Replace with navigation after backend integration
-            // navigate('/Register');
+            // navigate('/dashboard');
             console.log('Register static success');
           }}
         />
