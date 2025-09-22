@@ -107,7 +107,6 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
   const menuItems = [
     {
       key: 'browse',
-      icon: <CompassOutlined style={{ fontSize: 28 }} />,
       label: (
         <Popover
           placement="bottomLeft"
@@ -115,14 +114,16 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
           overlayClassName="popover-overlay"
           content={<ContentPopover data={browseMenuData} />}
         >
-          <span style={{ fontSize: 20, fontWeight: 600, cursor: 'pointer' }}>Browse</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <CompassOutlined style={{ fontSize: 28 }} />
+            <span style={{ fontSize: 20, fontWeight: 600 }}>Browse</span>
+          </div>
         </Popover>
       ),
       onClick: () => navigate('/browse'),
     },
     {
       key: 'rankings',
-      icon: <BarChartOutlined style={{ fontSize: 28 }} />,
       label: (
         <Popover
           placement="bottomLeft"
@@ -130,7 +131,10 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
           overlayClassName="popover-overlay"
           content={<ContentPopover data={rankingsMenuData} />}
         >
-          <span style={{ fontSize: 20, fontWeight: 600, cursor: 'pointer' }}>Rankings</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <BarChartOutlined style={{ fontSize: 28 }} />
+            <span style={{ fontSize: 20, fontWeight: 600 }}>Rankings</span>
+          </div>
         </Popover>
       ),
       onClick: () => navigate('/rankings'),

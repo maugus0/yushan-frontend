@@ -5,6 +5,7 @@ import './home.css';
 import HeroSection from '../../components/novel/herosection/herosection';
 import FeatureNovels from '../../components/novel/featurenovels/featurenovels';
 import Leaderboard from '../../components/novel/leaderboard/leaderboard';
+import Categories from '../../components/novel/categories/categories';
 
 const { Title, Paragraph } = Typography;
 
@@ -180,6 +181,42 @@ const features = [
   },
 ];
 
+const browseMenuData = [
+  {
+    key: 'novels',
+    label: 'Novels',
+    right: [
+      {
+        title: 'MALELEAD',
+        types: [
+          'Action',
+          'Adventure',
+          'Martial Arts',
+          'Fantasy',
+          'Sci-Fi',
+          'Urban'
+        ],
+      },
+      {
+        title: 'FEMALELEAD',
+        types: ['Romance', 'Drama', 'Slice of Life', 'School Life', 'Comedy'],
+      },
+    ],
+  },
+  {
+    key: 'comics',
+    label: 'Comics',
+    right: [
+      { title: '', types: ['Manga', 'Manhua', 'Webtoon', 'Superhero', 'Fantasy', 'Romance'] },
+    ],
+  },
+  {
+    key: 'fanfics',
+    label: 'Fan-fics',
+    right: [{ title: '', types: ['Anime', 'Game', 'Movie', 'TV', 'Book', 'Original'] }],
+  },
+];
+
 const Homepage = () => {
   return (
     <div className="home-bg">
@@ -260,11 +297,17 @@ const Homepage = () => {
         </Row>
       </section>
 
+      {/* Browse Menu Section */}
+      <Categories data={browseMenuData} />
+
       {/* Weekly Features Section */}
       <FeatureNovels title="Weekly Featured" novels={featureNovelsData} />
 
       {/* Top Books Section */}
       <Leaderboard data={books} />
+
+      {/* Browse Menu Section */}
+      <Categories data={browseMenuData} />
 
       {/* Ongoing Novels Section */}
       <FeatureNovels title="Ongoing Novels" novels={featureNovelsData} />
