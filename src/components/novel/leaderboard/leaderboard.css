@@ -1,0 +1,102 @@
+.leaderboard-container {
+  background: #fff;
+  padding: 2rem 1.5rem;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.leaderboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.0rem;
+}
+
+.leaderboard-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+.leaderboard-divider {
+  width: 100%;
+  height: 0.125rem;
+  background: linear-gradient(90deg, #e0e7ef 0%, #f3f3f3 100%);
+  margin-bottom: 1.5rem;
+  border-radius: 0.0625rem;
+}
+
+.leaderboard-more {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1890ff;
+}
+
+.leaderboard-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.125rem 0.75rem;
+}
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+}
+
+.leaderboard-rank {
+  font-size: 1.5rem;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-weight: 700;
+  width: 2.375rem;
+  text-align: right;
+  margin-right: 1.125rem;
+  flex-shrink: 0;
+  transition: color 0.2s;
+  letter-spacing: 0.0625rem;
+}
+
+/* NovelCard hover effects for leaderboard */
+.leaderboard-item .novel-card-img .novel-card-cover:hover,
+.leaderboard-item .novel-card-img img:hover {
+  transform: scale(1.15);
+  transition: transform 0.25s cubic-bezier(.4,1.4,.6,1);
+}
+
+.leaderboard-item .novel-card-title:hover {
+  text-decoration: underline;
+}
+
+.leaderboard-item .novel-card-category:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 1100px) {
+  .leaderboard-container {
+    padding: 1.5rem 0.5rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .leaderboard-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem 0.75rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .leaderboard-list {
+    grid-template-columns: 1fr;
+    gap: 1rem 0;
+  }
+  .leaderboard-container {
+    padding: 0.75rem 0.125rem;
+  }
+  .leaderboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
