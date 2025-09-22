@@ -142,25 +142,25 @@
   .footer {
     padding: 30px 0 0;
   }
-
+  
   .footer-container {
     padding: 0 16px;
   }
-
+  
   .footer-section {
     text-align: center;
     margin-bottom: 30px;
   }
-
+  
   .footer-bottom-right {
     text-align: center;
     margin-top: 10px;
   }
-
+  
   .contact-item {
     justify-content: center;
   }
-
+  
   .footer-links {
     text-align: center;
   }
@@ -170,11 +170,11 @@
   .footer-title {
     font-size: 20px !important;
   }
-
+  
   .footer-section-title {
     font-size: 16px !important;
   }
-
+  
   .social-links .ant-space {
     justify-content: center;
   }

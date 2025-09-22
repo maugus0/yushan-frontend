@@ -4,7 +4,7 @@ import { ConfigProvider } from 'antd';
 import 'antd/dist/reset.css'; // Import Ant Design styles
 
 // Layout Components - Fixed to lowercase
-import LayoutWrapper from './components/common/layout-wrapper';
+import LayoutWrapper from './components/common/layoutwrapper/layoutwrapper';
 
 // Page Components - Fixed to lowercase
 import Home from './pages/home/home';

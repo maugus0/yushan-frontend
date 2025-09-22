@@ -1,13 +1,13 @@
 import React from 'react';
 import { Layout, Row, Col, Typography, Space, Divider } from 'antd';
-import {
-  MailOutlined,
-  PhoneOutlined,
+import { 
+  MailOutlined, 
+  PhoneOutlined, 
   EnvironmentOutlined,
   GithubOutlined,
   TwitterOutlined,
   LinkedinOutlined,
-  FacebookOutlined,
+  FacebookOutlined
 } from '@ant-design/icons';
 import './footer.css';
 
@@ -49,8 +49,8 @@ const Footer = () => {
                 Yushan
               </Title>
               <Text className="footer-description">
-                A gamified platform where stories come alive. Read, write, and play your way through
-                endless adventures.
+                A gamified platform where stories come alive. 
+                Read, write, and play your way through endless adventures.
               </Text>
               <div className="social-links">
                 <Space size="middle">
@@ -114,7 +114,9 @@ const Footer = () => {
               <Space direction="vertical" className="contact-info">
                 <div className="contact-item">
                   <EnvironmentOutlined className="contact-icon" />
-                  <Text className="contact-text">Yushan Interactive Pte. Ltd. Singapore</Text>
+                  <Text className="contact-text">
+                    Yushan Interactive Pte. Ltd. Singapore
+                  </Text>
                 </div>
                 <div className="contact-item">
                   <PhoneOutlined className="contact-icon" />
@@ -139,10 +141,14 @@ const Footer = () => {
         <div className="footer-bottom">
           <Row justify="space-between" align="middle">
             <Col xs={24} md={12}>
-              <Text className="copyright">© {currentYear} Yushan. All rights reserved.</Text>
+              <Text className="copyright">
+                © {currentYear} Yushan. All rights reserved.
+              </Text>
             </Col>
             <Col xs={24} md={12} className="footer-bottom-right">
-              <Text className="footer-credit">Made with ❤️ for readers & writers everywhere.</Text>
+              <Text className="footer-credit">
+                Made with ❤️ for readers & writers everywhere.
+              </Text>
             </Col>
           </Row>
         </div>

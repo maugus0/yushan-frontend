@@ -1,11 +1,9 @@
-/* eslint-disable no-unused-vars */
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Badge } from 'antd';
-import {
-  MenuOutlined,
-  UserOutlined,
-  LoginOutlined,
+import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Badge, Popover } from 'antd';
+import { 
+  MenuOutlined, 
+  UserOutlined, 
+  LoginOutlined, 
   LogoutOutlined,
   SearchOutlined,
   BellOutlined,
@@ -15,10 +13,11 @@ import {
   BookOutlined,
   SettingOutlined,
   EditOutlined,
-  CloseOutlined,
+  CloseOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './navbar.css';
+import ContentPopover from '../contentpopover/contentpopover';
 
 const { Header } = Layout;
 const { Search } = Input;
@@ -50,26 +49,90 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [searchExpanded]);
 
+  // mock data
+  const browseMenuData = [
+    {
+      key: 'novels',
+      label: 'Novels',
+      right: [
+        {
+          title: 'MALELEAD',
+          types: ['Action', 'Adventure', 'Martial Arts', 'Fantasy', 'Sci-Fi', 'Urban', 'Historical', 'Eastern Fantasy', 'Wuxia', 'Xianxia', 'Military', 'Sports']
+        },
+        {
+          title: 'FEMALELEAD',
+          types: ['Romance', 'Drama', 'Slice of Life', 'School Life', 'Comedy']
+        }
+      ]
+    },
+    {
+      key: 'comics',
+      label: 'Comics',
+      right: [
+        { title: '', types: ['Manga', 'Manhua', 'Webtoon', 'Superhero', 'Fantasy', 'Romance'] }
+      ]
+    },
+    {
+      key: 'fanfics',
+      label: 'Fan-fics',
+      right: [
+        { title: '', types: ['Anime', 'Game', 'Movie', 'TV', 'Book', 'Original'] }
+      ]
+    }
+  ];
+  const rankingsMenuData = [
+    {
+      key: 'novels rankings',
+      label: 'Novels rankings'
+    },
+    {
+      key: 'comics rankings',
+      label: 'Comics rankings'
+    },
+    {
+      key: 'fanfics rankings',
+      label: 'Fan-fics rankings'
+    }
+  ];
+
   // Main navigation items
   const menuItems = [
     {
       key: 'browse',
-      icon: <CompassOutlined />,
-      label: 'Browse',
-      onClick: () => navigate('/browse'),
+      icon: <CompassOutlined style={{ fontSize: 28 }} />,
+      label: (
+        <Popover
+          placement="bottomLeft"
+          trigger="hover"
+          overlayClassName="popover-overlay"
+          content={<ContentPopover data={browseMenuData} />}
+        >
+          <span style={{ fontSize: 20, fontWeight: 600, cursor: 'pointer' }}>Browse</span>
+        </Popover>
+      ),
+      onClick: () => navigate('/browse')
     },
     {
       key: 'rankings',
-      icon: <BarChartOutlined />,
-      label: 'Rankings',
-      onClick: () => navigate('/rankings'),
+      icon: <BarChartOutlined style={{ fontSize: 28 }} />,
+      label: (
+        <Popover
+          placement="bottomLeft"
+          trigger="hover"
+          overlayClassName="popover-overlay"
+          content={<ContentPopover data={rankingsMenuData} />}
+        >
+          <span style={{ fontSize: 20, fontWeight: 600, cursor: 'pointer' }}>Rankings</span>
+        </Popover>
+      ),
+      onClick: () => navigate('/rankings')
     },
     {
       key: 'create',
-      icon: <EditOutlined />,
-      label: 'Create',
-      onClick: () => navigate('/create'),
-    },
+      icon: <EditOutlined style={{ fontSize: 28 }} />,
+      label: <span style={{ fontSize: 20, fontWeight: 600 }}>Create</span>,
+      onClick: () => navigate('/create')
+    }
   ];
 
   // User dropdown menu
@@ -78,22 +141,22 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
       key: 'profile',
       icon: <UserOutlined />,
       label: 'Profile',
-      onClick: () => navigate('/profile'),
+      onClick: () => navigate('/profile')
     },
     {
       key: 'library',
       icon: <BookOutlined />,
       label: 'My Library',
-      onClick: () => navigate('/library'),
+      onClick: () => navigate('/library')
     },
     {
       key: 'settings',
       icon: <SettingOutlined />,
       label: 'Settings',
-      onClick: () => navigate('/settings'),
+      onClick: () => navigate('/settings')
     },
     {
-      type: 'divider',
+      type: 'divider'
     },
     {
       key: 'logout',
@@ -102,8 +165,8 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
       onClick: () => {
         localStorage.removeItem('authToken');
         window.location.reload();
-      },
-    },
+      }
+    }
   ];
 
   const handleSearch = (value) => {
@@ -191,8 +254,8 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
           {isAuthenticated ? (
             <>
               {/* Library */}
-              <Button
-                type="text"
+              <Button 
+                type="text" 
                 icon={<BookOutlined />}
                 className="nav-button"
                 onClick={() => navigate('/library')}
@@ -202,8 +265,8 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
 
               {/* Notifications */}
               <Badge count={3} size="small">
-                <Button
-                  type="text"
+                <Button 
+                  type="text" 
                   icon={<BellOutlined />}
                   className="nav-button icon-only"
                   onClick={() => navigate('/notifications')}
@@ -218,9 +281,9 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
                 overlayClassName="user-dropdown"
               >
                 <div className="user-avatar">
-                  <Avatar
+                  <Avatar 
                     size={32}
-                    icon={<UserOutlined />}
+                    icon={<UserOutlined />} 
                     src={user?.avatar}
                     style={{ cursor: 'pointer' }}
                   />
@@ -229,19 +292,19 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
             </>
           ) : (
             <div className="auth-buttons">
-              <Button
-                type={location.pathname === '/login' ? 'primary' : 'text'}
+              <Button 
+                type="text" 
                 onClick={() => navigate('/login')}
-                className={`login-btn${location.pathname === '/login' ? ' active' : ''}`}
+                className="login-btn"
               >
                 Login
               </Button>
-              <Button
-                type={location.pathname === '/register' ? 'primary' : 'text'}
+              <Button 
+                type="primary" 
                 onClick={() => navigate('/register')}
-                className={`signup-btn${location.pathname === '/register' ? ' active' : ''}`}
+                className="signup-btn"
               >
-                Register
+                SIGN IN
               </Button>
             </div>
           )}
@@ -292,16 +355,16 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
           <div className="mobile-auth">
             {isAuthenticated ? (
               <div>
-                <Button
-                  block
+                <Button 
+                  block 
                   icon={<BookOutlined />}
                   onClick={() => navigate('/library')}
                   style={{ marginBottom: '12px' }}
                 >
                   Library
                 </Button>
-                <Button
-                  block
+                <Button 
+                  block 
                   icon={<LogoutOutlined />}
                   onClick={() => {
                     localStorage.removeItem('authToken');
@@ -313,11 +376,19 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
               </div>
             ) : (
               <div>
-                <Button block onClick={() => navigate('/login')} style={{ marginBottom: '12px' }}>
+                <Button 
+                  block 
+                  onClick={() => navigate('/login')}
+                  style={{ marginBottom: '12px' }}
+                >
                   Login
                 </Button>
-                <Button block type="primary" onClick={() => navigate('/register')}>
-                  Sign Up
+                <Button 
+                  block 
+                  type="primary"
+                  onClick={() => navigate('/register')}
+                >
+                  Register
                 </Button>
               </div>
             )}
