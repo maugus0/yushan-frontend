@@ -36,7 +36,9 @@
   font-weight: 700;
   border: none !important;
   box-shadow: 0 6px 10px rgba(59, 102, 245, 0.08);
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
 }
 
 .categories-tag:hover {

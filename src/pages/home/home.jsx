@@ -188,14 +188,7 @@ const browseMenuData = [
     right: [
       {
         title: 'MALELEAD',
-        types: [
-          'Action',
-          'Adventure',
-          'Martial Arts',
-          'Fantasy',
-          'Sci-Fi',
-          'Urban'
-        ],
+        types: ['Action', 'Adventure', 'Martial Arts', 'Fantasy', 'Sci-Fi', 'Urban'],
       },
       {
         title: 'FEMALELEAD',
