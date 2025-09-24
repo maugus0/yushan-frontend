@@ -116,7 +116,7 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <CompassOutlined style={{ fontSize: 28 }} />
-            <span style={{ fontSize: 20, fontWeight: 600 }}>Browse</span>
+            <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Browse</span>
           </div>
         </Popover>
       ),
@@ -133,7 +133,7 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <BarChartOutlined style={{ fontSize: 28 }} />
-            <span style={{ fontSize: 20, fontWeight: 600 }}>Rankings</span>
+            <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Rankings</span>
           </div>
         </Popover>
       ),
@@ -142,7 +142,7 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
     {
       key: 'create',
       icon: <EditOutlined style={{ fontSize: 28 }} />,
-      label: <span style={{ fontSize: 20, fontWeight: 600 }}>Create</span>,
+      label: <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Create</span>,
       onClick: () => navigate('/create'),
     },
   ];

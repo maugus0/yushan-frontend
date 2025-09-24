@@ -3,7 +3,7 @@
 }
 
 .home-hero-section {
-  padding: 48px 0 32px 0;
+  padding: 48px 0 32px 32px;
 }
 
 .home-hero-section .ant-row {
@@ -24,8 +24,27 @@
     margin-bottom: 24px;
   }
   .home-hero-carousel-title-text {
-    font-size: 1.2rem !important;
+    font-size: 1.5rem !important;
   }
+  .home-hero-content {
+    height: 200px;
+    width: 300px;
+  }
+
+  .home-hero-title,
+  .home-hero-title-white {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .home-hero-desc,
+  .home-hero-desc-white {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
 }
 
 .home-hero-carousel-wrapper {
@@ -180,7 +199,7 @@
 }
 
 .home-cta-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667AC0 !important;
   border: none !important;
 }
 
@@ -198,7 +217,7 @@
 .home-cta-btn {
   background: white !important;
   border-color: white !important;
-  color: #667eea !important;
+  color: #283157 !important;
   font-weight: bold !important;
   border-radius: 6px !important;
 }
@@ -227,4 +246,49 @@
   object-fit: cover;
   border-radius: 0 !important;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+
+.home-hero-flex {
+  display: flex;
+  gap: 32px;
+  width: 100%;
+}
+.home-hero-flex-left,
+.home-hero-flex-right {
+  flex: 1 1 0;
+  min-width: 0;
+}
+@media (max-width: 768px) {
+  .home-hero-flex {
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+  }
+}
+
+/* Features section flex layout */
+.home-features-flex {
+  display: flex;
+  gap: 32px;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.home-feature-card-wrapper {
+  flex: 1 1 300px;
+  max-width: 400px;
+  min-width: 260px;
+  display: flex;
+}
+/* ...existing code... */
+
+/* CTA section flex layout */
+.home-cta-flex {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.home-cta-content {
+  max-width: 600px;
+  width: 100%;
 }

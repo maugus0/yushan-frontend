@@ -39,7 +39,7 @@
 }
 
 .hero-section-item:hover {
-  background: #e6f7ff;
+  background: #E1E6F5;
 }
 
 .hero-section-item-left {
@@ -100,15 +100,16 @@
   z-index: 1;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .hero-section-container {
     width: 100%;
     border-radius: 8px;
     padding: 16px 0 0 0;
   }
   .hero-section-title {
-    font-size: 1rem;
+    font-size: 1.5rem;
     padding: 0 12px;
+    margin-bottom: 16px;
   }
   .hero-section-item {
     padding: 0 12px;

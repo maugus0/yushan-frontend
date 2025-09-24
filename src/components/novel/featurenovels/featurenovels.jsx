@@ -11,7 +11,7 @@ const FeatureNovels = ({ title = 'Featured Novels', novels = [] }) => (
           <img src={novel.cover} alt={novel.title} className="feature-novel-cover" />
           <div className="feature-novel-title">{novel.title}</div>
           <div className="feature-novel-category">{novel.category}</div>
-        </div>
+          </div>
       ))}
     </div>
   </div>

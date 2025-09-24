@@ -1,6 +1,6 @@
 /* Modern Navbar Styles */
 .modern-navbar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667AC0;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
   border-bottom: none;
   padding: 0;
@@ -103,6 +103,11 @@
   margin-right: 6px;
 }
 
+.nav-menu .ant-menu-item span {
+  font-size: 16px !important;
+  font-weight: 400 !important;
+}
+
 /* Search Section */
 .navbar-search {
   display: flex;
@@ -145,6 +150,7 @@
   height: 40px !important;
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  font-size: 12px !important;
 }
 
 .search-input .ant-input {
@@ -308,6 +314,11 @@
 
   .mobile-menu-button {
     display: flex !important;
+  }
+
+  .nav-menu .ant-menu-item span {
+    font-size: 14px;
+    font-weight: 400;
   }
 
   .logo-text {

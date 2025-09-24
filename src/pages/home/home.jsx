@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Typography, Button, Card, Space, Carousel } from 'antd';
+import { Typography, Button, Card, Space, Carousel, Row, Col } from 'antd';
 import { BookOutlined, EditOutlined, TrophyOutlined } from '@ant-design/icons';
 import './home.css';
 import HeroSection from '../../components/novel/herosection/herosection';
@@ -51,10 +51,10 @@ const heroItems = [
 const featureNovelsData = [
   {
     id: 1,
-    title: 'Legendary Dragon Awakens',
-    author: 'Master Chen',
+    title: 'Legendary Dragon Awakensssssssssss',
+    author: 'Master Chensssssss',
     cover: require('../../assets/images/testimg.png'),
-    category: 'Fantasy',
+    category: 'Fantasyssssssssssssssssssssssssssss',
     status: 'Ongoing',
     description: 'A new era begins as the dragon rises from the ashes. Witness the legend unfold.',
     rating: 4.8,
@@ -181,6 +181,7 @@ const features = [
   },
 ];
 
+// mock data for categories
 const browseMenuData = [
   {
     key: 'novels',
@@ -215,8 +216,8 @@ const Homepage = () => {
     <div className="home-bg">
       {/* Hero Section */}
       <section className="home-hero-section">
-        <Row gutter={[32, 32]} align="middle">
-          <Col xs={24} md={14}>
+        <div className="home-hero-flex">
+          <div className="home-hero-flex-left">
             <div className="home-hero-carousel-wrapper">
               <div className="home-hero-carousel-title">
                 <Typography.Title level={3} className="home-hero-carousel-title-text">
@@ -254,18 +255,18 @@ const Homepage = () => {
                 ))}
               </Carousel>
             </div>
-          </Col>
-          <Col xs={24} md={10}>
-            <HeroSection data={heroItems} title="Meet Webnovel" />
-          </Col>
-        </Row>
+          </div>
+          <div className="home-hero-flex-right">
+            <HeroSection data={heroItems} title="Meet Yushan" />
+          </div>
+        </div>
       </section>
 
       {/* 3 boxes Section */}
       <section className="home-features-section">
-        <Row gutter={[32, 32]} justify="center">
+        <div className="home-features-flex">
           {features.map((feature, index) => (
-            <Col xs={24} sm={12} lg={8} key={index}>
+            <div className="home-feature-card-wrapper" key={index}>
               <Card
                 hoverable
                 className="home-feature-card"
@@ -285,9 +286,9 @@ const Homepage = () => {
                   </Button>
                 </Space>
               </Card>
-            </Col>
+            </div>
           ))}
-        </Row>
+        </div>
       </section>
 
       {/* Browse Menu Section */}
@@ -305,7 +306,7 @@ const Homepage = () => {
       {/* Ongoing Novels Section */}
       <FeatureNovels title="Ongoing Novels" novels={featureNovelsData} />
 
-      {/* CTA Section */}
+     {/* CTA Section */}
       <section className="home-cta-section">
         <Row justify="center">
           <Col xs={24} sm={20} md={16} lg={12} style={{ textAlign: 'center' }}>
@@ -329,6 +330,7 @@ const Homepage = () => {
           </Col>
         </Row>
       </section>
+
 
       {/* Completed Novels Section */}
       <FeatureNovels title="Completed Novels" novels={featureNovelsData} />
