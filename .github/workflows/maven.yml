@@ -273,6 +273,13 @@ jobs:
       - name: Build app
         run: npm run build
 
+      - name: Record current gh-pages HEAD (for rollback)
+        shell: bash
+        run: |
+          set -euo pipefail
+          PREV_SHA=$(git ls-remote --heads origin gh-pages | awk '{print $1}' | head -n1 || true)
+          echo "PREV_GHPAGES_SHA=$PREV_SHA" >> "$GITHUB_ENV"
+
       - name: Deploy with gh-pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -286,6 +293,115 @@ jobs:
           npx --yes gh-pages -d build -b gh-pages \
             -r https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git \
             -u "github-actions <github-actions@github.com>"
+
+      - name: Health check GitHub Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://maugus0.github.io/yushan-frontend/"
+          echo "Checking $URL ..."
+          for i in {1..24}; do
+            # 1) index.html reachable and HTTP 200
+            if ! curl -fsS -o index_out.html "$URL"; then
+              echo "Attempt $i: index fetch failed"; sleep 10; continue
+            fi
+
+            # 2) Find main.*.js and main.*.css from HTML
+            MAIN_JS=$(grep -Eo 'src="[^"]*main\.[^"]*\.js"' index_out.html | head -n1 | sed -E 's/src="([^"]+)"/\1/') || true
+            MAIN_CSS=$(grep -Eo 'href="[^"]*main\.[^"]*\.css"' index_out.html | head -n1 | sed -E 's/href="([^"]+)"/\1/') || true
+
+            # Normalize to absolute URLs if relative
+            make_abs() {
+              local p="$1"
+              if [[ "$p" =~ ^https?:// ]]; then
+                echo "$p"
+              elif [[ "$p" =~ ^/ ]]; then
+                echo "${URL%/}$p"
+              else
+                echo "${URL%/}/$p"
+              fi
+            }
+            JS_URL=$(make_abs "${MAIN_JS:-}")
+            CSS_URL=$(make_abs "${MAIN_CSS:-}")
+
+            # 3) Ensure bundles respond 200 (not 404)
+            JS_OK=false; CSS_OK=false
+            if [ -n "${JS_URL}" ]; then curl -fsS -I "$JS_URL" | grep -q "^HTTP/.* 200" && JS_OK=true || JS_OK=false; fi
+            if [ -n "${CSS_URL}" ]; then curl -fsS -I "$CSS_URL" | grep -q "^HTTP/.* 200" && CSS_OK=true || CSS_OK=false; fi
+
+            if $JS_OK && $CSS_OK; then
+              echo "Health check passed on attempt $i"
+              rm -f index_out.html
+              exit 0
+            fi
+
+            echo "Attempt $i: JS_OK=$JS_OK CSS_OK=$CSS_OK (retrying)"; sleep 10
+          done
+          echo "Health check failed after retries"
+          exit 1
+
+      - name: Install Playwright (no-save) and Chromium
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save playwright@1.47.2
+          npx --yes playwright install --with-deps chromium
+
+      - name: Run Playwright smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://maugus0.github.io/yushan-frontend/"
+          cat > smoke.js << 'JS'
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch();
+            const context = await browser.newContext();
+            const page = await context.newPage();
+            const consoleErrors = [];
+            page.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
+            await page.goto(process.env.URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
+            // wait for some content to render under #root
+            try {
+              await page.waitForFunction(() => {
+                const root = document.getElementById('root');
+                return !!root && root.textContent && root.textContent.trim().length > 0;
+              }, { timeout: 15000 });
+            } catch (e) {
+              await browser.close();
+              console.error('Smoke: root content did not render in time');
+              process.exit(1);
+            }
+            if (consoleErrors.length > 0) {
+              await browser.close();
+              console.error('Smoke: console errors detected:\n' + consoleErrors.join('\n'));
+              process.exit(1);
+            }
+            await browser.close();
+            console.log('Smoke: page rendered without console errors');
+          })();
+          JS
+          node smoke.js
+
+      - name: Auto rollback gh-pages to previous commit on failure
+        if: failure()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${PREV_GHPAGES_SHA:-}" ]; then
+            echo "No previous gh-pages SHA found; cannot rollback"; exit 1
+          fi
+          echo "Rolling back gh-pages to $PREV_GHPAGES_SHA"
+          git fetch --prune origin gh-pages
+          if git show-ref --verify --quiet refs/heads/gh-pages; then
+            git checkout gh-pages
+          else
+            git checkout -b gh-pages origin/gh-pages
+          fi
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git reset --hard "$PREV_GHPAGES_SHA"
+          git push origin gh-pages --force
 
   reports-summary:
     name: Generate CI Summary & Collect Reports
