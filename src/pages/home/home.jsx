@@ -306,7 +306,7 @@ const Homepage = () => {
       {/* Ongoing Novels Section */}
       <FeatureNovels title="Ongoing Novels" novels={featureNovelsData} />
 
-     {/* CTA Section */}
+      {/* CTA Section */}
       <section className="home-cta-section">
         <Row justify="center">
           <Col xs={24} sm={20} md={16} lg={12} style={{ textAlign: 'center' }}>
@@ -330,7 +330,6 @@ const Homepage = () => {
           </Col>
         </Row>
       </section>
-
 
       {/* Completed Novels Section */}
       <FeatureNovels title="Completed Novels" novels={featureNovelsData} />

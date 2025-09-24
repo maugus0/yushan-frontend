@@ -44,7 +44,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
 }
 
 .home-hero-carousel-wrapper {
@@ -199,7 +198,7 @@
 }
 
 .home-cta-card {
-  background: #667AC0 !important;
+  background: #667ac0 !important;
   border: none !important;
 }
 
