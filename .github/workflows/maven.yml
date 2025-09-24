@@ -299,6 +299,7 @@ jobs:
         run: |
           set -euo pipefail
           URL="https://maugus0.github.io/yushan-frontend/"
+          ORIGIN=$(echo "$URL" | sed -E 's#^(https?://[^/]+)/.*#\1#')
           echo "Checking $URL ..."
           for i in {1..24}; do
             # 1) index.html reachable and HTTP 200
@@ -316,7 +317,7 @@ jobs:
               if [[ "$p" =~ ^https?:// ]]; then
                 echo "$p"
               elif [[ "$p" =~ ^/ ]]; then
-                echo "${URL%/}$p"
+                echo "${ORIGIN}$p"
               else
                 echo "${URL%/}/$p"
               fi
@@ -326,8 +327,8 @@ jobs:
 
             # 3) Ensure bundles respond 200 (not 404)
             JS_OK=false; CSS_OK=false
-            if [ -n "${JS_URL}" ]; then curl -fsS -I "$JS_URL" | grep -q "^HTTP/.* 200" && JS_OK=true || JS_OK=false; fi
-            if [ -n "${CSS_URL}" ]; then curl -fsS -I "$CSS_URL" | grep -q "^HTTP/.* 200" && CSS_OK=true || CSS_OK=false; fi
+            if [ -n "${JS_URL}" ]; then curl -fsSLI "$JS_URL" | grep -q "^HTTP/.* 200" && JS_OK=true || JS_OK=false; fi
+            if [ -n "${CSS_URL}" ]; then curl -fsSLI "$CSS_URL" | grep -q "^HTTP/.* 200" && CSS_OK=true || CSS_OK=false; fi
 
             if $JS_OK && $CSS_OK; then
               echo "Health check passed on attempt $i"
