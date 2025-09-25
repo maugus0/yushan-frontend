@@ -115,4 +115,10 @@
   .feature-novel-card {
     padding: 0;
   }
+  .feature-novel-title,
+  .feature-novel-category {
+    width: 100%;
+    padding: 0 4px;
+    margin: 0;
+  }
 }
