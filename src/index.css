@@ -9,3 +9,10 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+.popover-overlay,
+.popover-overlay .ant-popover-inner,
+.popover-overlay .ant-popover-inner-content {
+  min-width: 140px;
+  padding: 0;
+}

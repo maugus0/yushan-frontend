@@ -1,15 +1,11 @@
-/* eslint-disable no-unused-vars */
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Badge } from 'antd';
+import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Badge, Popover } from 'antd';
 import {
   MenuOutlined,
   UserOutlined,
-  LoginOutlined,
   LogoutOutlined,
   SearchOutlined,
   BellOutlined,
-  PlusOutlined,
   BarChartOutlined,
   CompassOutlined,
   BookOutlined,
@@ -19,9 +15,9 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './navbar.css';
+import ContentPopover from '../contentpopover/contentpopover';
 
 const { Header } = Layout;
-const { Search } = Input;
 
 const Navbar = ({ isAuthenticated = false, user = null }) => {
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
@@ -50,24 +46,103 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [searchExpanded]);
 
+  // mock data
+  const browseMenuData = [
+    {
+      key: 'novels',
+      label: 'Novels',
+      right: [
+        {
+          title: 'MALELEAD',
+          types: [
+            'Action',
+            'Adventure',
+            'Martial Arts',
+            'Fantasy',
+            'Sci-Fi',
+            'Urban',
+            'Historical',
+            'Eastern Fantasy',
+            'Wuxia',
+            'Xianxia',
+            'Military',
+            'Sports',
+          ],
+        },
+        {
+          title: 'FEMALELEAD',
+          types: ['Romance', 'Drama', 'Slice of Life', 'School Life', 'Comedy'],
+        },
+      ],
+    },
+    {
+      key: 'comics',
+      label: 'Comics',
+      right: [
+        { title: '', types: ['Manga', 'Manhua', 'Webtoon', 'Superhero', 'Fantasy', 'Romance'] },
+      ],
+    },
+    {
+      key: 'fanfics',
+      label: 'Fan-fics',
+      right: [{ title: '', types: ['Anime', 'Game', 'Movie', 'TV', 'Book', 'Original'] }],
+    },
+  ];
+  const rankingsMenuData = [
+    {
+      key: 'novels rankings',
+      label: 'Novels rankings',
+    },
+    {
+      key: 'comics rankings',
+      label: 'Comics rankings',
+    },
+    {
+      key: 'fanfics rankings',
+      label: 'Fan-fics rankings',
+    },
+  ];
+
   // Main navigation items
   const menuItems = [
     {
       key: 'browse',
-      icon: <CompassOutlined />,
-      label: 'Browse',
+      label: (
+        <Popover
+          placement="bottomLeft"
+          trigger="hover"
+          overlayClassName="popover-overlay"
+          content={<ContentPopover data={browseMenuData} />}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <CompassOutlined style={{ fontSize: 28 }} />
+            <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Browse</span>
+          </div>
+        </Popover>
+      ),
       onClick: () => navigate('/browse'),
     },
     {
       key: 'rankings',
-      icon: <BarChartOutlined />,
-      label: 'Rankings',
+      label: (
+        <Popover
+          placement="bottomLeft"
+          trigger="hover"
+          overlayClassName="popover-overlay"
+          content={<ContentPopover data={rankingsMenuData} />}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <BarChartOutlined style={{ fontSize: 28 }} />
+            <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Rankings</span>
+          </div>
+        </Popover>
+      ),
       onClick: () => navigate('/rankings'),
     },
     {
       key: 'create',
-      icon: <EditOutlined />,
-      label: 'Create',
+      icon: <EditOutlined style={{ fontSize: 28 }} />,
+      label: <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Create</span>,
       onClick: () => navigate('/create'),
     },
   ];
@@ -317,7 +392,7 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
                   Login
                 </Button>
                 <Button block type="primary" onClick={() => navigate('/register')}>
-                  Sign Up
+                  Register
                 </Button>
               </div>
             )}
