@@ -1,0 +1,161 @@
+.browse-popover {
+  display: flex;
+  min-width: 140px;
+  min-height: 220px;
+  background: #f7f8fa;
+  border-radius: 12px;
+  overflow: hidden;
+  border: none;
+  box-shadow: none;
+}
+
+.browse-popover-left {
+  width: 190px;
+  background: #e6e8ef;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 0;
+  border: none;
+}
+
+.browse-popover-left-item {
+  font-size: 1.15rem;
+  font-weight: 600;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+  border: none;
+  color: #333;
+}
+
+.browse-popover-left-item.active,
+.browse-popover-left-item:hover {
+  background: #d3d6e0;
+  color: #1890ff;
+}
+
+.browse-popover-right {
+  flex: 1;
+  background: #f7f8fa;
+  color: #222;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+  border: none;
+}
+
+.browse-popover-novels {
+  width: 100%;
+  display: flex;
+  gap: 16px;
+}
+
+.browse-popover-novels-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.browse-popover-novels-title {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #888;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.browse-popover-type {
+  font-size: 0.95rem;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: none;
+  color: #222;
+  display: block;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+  border: none;
+}
+
+.browse-popover-type:hover {
+  background: #e6e8ef;
+  color: #1890ff;
+}
+
+.browse-popover-novels-list {
+  display: flex;
+  gap: 16px;
+}
+
+.browse-popover-novels-list > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.browse-popover-types-list {
+  display: flex;
+  gap: 16px;
+}
+
+.browse-popover-types-list > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.browse-popover-overlay .ant-popover-inner {
+  background: #f7f8fa !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.browse-popover-overlay .ant-popover-inner-content {
+  padding: 0 !important;
+  background: #f7f8fa !important;
+  border-radius: 12px !important;
+}
+
+@media (max-width: 600px) {
+  .browse-popover {
+    width: 100vw;
+    min-width: 0;
+    border-radius: 0;
+  }
+  .browse-popover-right {
+    padding: 12px 8px;
+  }
+  .browse-popover-novels {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .browse-popover-types-list {
+    grid-template-columns: 1fr;
+    gap: 6px 0;
+  }
+}
+@media (max-width: 600px) {
+  .browse-popover {
+    width: 100vw;
+    min-width: 0;
+    border-radius: 0;
+  }
+  .browse-popover-right {
+    padding: 12px 8px;
+  }
+  .browse-popover-novels {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .browse-popover-types-list {
+    grid-template-columns: 1fr;
+    gap: 6px 0;
+  }
+}

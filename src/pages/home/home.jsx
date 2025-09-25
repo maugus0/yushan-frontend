@@ -1,262 +1,325 @@
 import React from 'react';
-import { Row, Col, Typography, Button, Card, Space, Carousel, Tag } from 'antd';
-import {
-  BookOutlined,
-  EditOutlined,
-  TrophyOutlined,
-  PlayCircleOutlined,
-  StarFilled,
-  UserOutlined,
-} from '@ant-design/icons';
+import { Typography, Button, Card, Space, Carousel, Row, Col } from 'antd';
+import { BookOutlined, EditOutlined, TrophyOutlined } from '@ant-design/icons';
+import './home.css';
+import HeroSection from '../../components/novel/herosection/herosection';
+import FeatureNovels from '../../components/novel/featurenovels/featurenovels';
+import Leaderboard from '../../components/novel/leaderboard/leaderboard';
+import Categories from '../../components/novel/categories/categories';
 
-const { Title, Paragraph, Text } = Typography;
+const { Title, Paragraph } = Typography;
+
+//mock data for hero carousel
+const heroSlides = [
+  {
+    img: require('../../assets/images/testimg.png'),
+    title: 'Legendary Dragon Awakens',
+    desc: 'A new era begins as the dragon rises from the ashes. Witness the legend unfold.',
+  },
+  {
+    img: require('../../assets/images/testimg2.png'),
+    title: 'Cultivation Journey',
+    desc: 'Embark on a journey of power, wisdom, and destiny in the world of cultivation.',
+  },
+  {
+    img: require('../../assets/images/testimg3.png'),
+    title: 'System Overlord',
+    desc: 'Reality and game merge. Can you survive the ultimate challenge?',
+  },
+];
+
+//mock data for hero section
+const heroItems = [
+  {
+    title: 'Read Thousands of Novels',
+    desc: 'Explore a vast library of web novels across all genres, updated daily.',
+    img: require('../../assets/images/testimg.png'),
+  },
+  {
+    title: 'Write and Share Stories',
+    desc: 'Become an author and share your imagination with millions of readers.',
+    img: require('../../assets/images/testimg2.png'),
+  },
+  {
+    title: 'Join the Community',
+    desc: 'Connect, discuss, and grow with fellow readers and writers.',
+    img: require('../../assets/images/testimg3.png'),
+  },
+];
+
+// mock data for featured novels
+const featureNovelsData = [
+  {
+    id: 1,
+    title: 'Legendary Dragon Awakensssssssssss',
+    author: 'Master Chensssssss',
+    cover: require('../../assets/images/testimg.png'),
+    category: 'Fantasyssssssssssssssssssssssssssss',
+    status: 'Ongoing',
+    description: 'A new era begins as the dragon rises from the ashes. Witness the legend unfold.',
+    rating: 4.8,
+    chapters: 156,
+    tags: ['Dragon', 'Adventure', 'Magic'],
+  },
+  {
+    id: 2,
+    title: 'Cultivation Journey',
+    author: 'Jade Phoenix',
+    cover: require('../../assets/images/testimg2.png'),
+    category: 'Cultivation',
+    status: 'Ongoing',
+    description: 'Embark on a journey of power, wisdom, and destiny in the world of cultivation.',
+    rating: 4.6,
+    chapters: 203,
+    tags: ['Cultivation', 'Growth', 'Eastern'],
+  },
+  {
+    id: 3,
+    title: 'System Overlord',
+    author: 'Digital Sage',
+    cover: require('../../assets/images/testimg3.png'),
+    category: 'System',
+    status: 'Completed',
+    description: 'Reality and game merge. Can you survive the ultimate challenge?',
+    rating: 4.9,
+    chapters: 89,
+    tags: ['System', 'Game', 'Survival'],
+  },
+  {
+    id: 4,
+    title: 'Romance in the City',
+    author: 'Lily Heart',
+    cover: require('../../assets/images/testimg2.png'),
+    category: 'Romance',
+    status: 'Ongoing',
+    description: 'A heartwarming story of love and life in the bustling city.',
+    rating: 4.5,
+    chapters: 120,
+    tags: ['Romance', 'Urban', 'Slice of Life'],
+  },
+  {
+    id: 5,
+    title: 'Martial Arts Legend',
+    author: 'Iron Fist',
+    cover: require('../../assets/images/testimg4.png'),
+    category: 'Martial Arts',
+    status: 'Completed',
+    description: 'From humble beginnings to martial arts legend, this is his story.',
+    rating: 4.7,
+    chapters: 200,
+    tags: ['Martial Arts', 'Action', 'Legend'],
+  },
+  {
+    id: 6,
+    title: 'School Life Diaries',
+    author: 'Sunny Day',
+    cover: require('../../assets/images/testimg3.png'),
+    category: 'School Life',
+    status: 'Ongoing',
+    description: 'Follow the ups and downs of students in a modern school.',
+    rating: 4.3,
+    chapters: 75,
+    tags: ['School', 'Youth', 'Comedy'],
+  },
+  {
+    id: 7,
+    title: 'Urban Fantasy',
+    author: 'Night Owl',
+    cover: require('../../assets/images/testimg2.png'),
+    category: 'Fantasy',
+    status: 'Ongoing',
+    description: 'Magic and mystery blend in the heart of the city.',
+    rating: 4.4,
+    chapters: 134,
+    tags: ['Urban', 'Fantasy', 'Magic'],
+  },
+  {
+    id: 8,
+    title: 'Comedy King',
+    author: 'Laugh Master',
+    cover: require('../../assets/images/testimg4.png'),
+    category: 'Comedy',
+    status: 'Completed',
+    description: 'A hilarious journey through the world of stand-up comedy.',
+    rating: 4.2,
+    chapters: 60,
+    tags: ['Comedy', 'Entertainment', 'Slice of Life'],
+  },
+];
+
+// Mock data for leaderboard
+const books = Array.from({ length: 15 }).map((_, idx) => ({
+  id: idx + 1,
+  cover: require('../../assets/images/testimg4.png'),
+  title: `Novel Title ${idx + 1}`,
+  category: 'Fantasy',
+  rating: (Math.random() * 2 + 3).toFixed(1),
+}));
+
+//3 box section
+const features = [
+  {
+    icon: <BookOutlined style={{ fontSize: '48px', color: '#1890ff' }} />,
+    title: 'Read Novels',
+    description:
+      'Discover thousands of captivating web novels across all genres. From cultivation to romance, fantasy to sci-fi.',
+    bgColor: '#f0f8ff',
+  },
+  {
+    icon: <EditOutlined style={{ fontSize: '48px', color: '#52c41a' }} />,
+    title: 'Write Novels',
+    description:
+      'Share your stories with the world. Our platform provides all the tools you need to publish and promote your work.',
+    bgColor: '#f6ffed',
+  },
+  {
+    icon: <TrophyOutlined style={{ fontSize: '48px', color: '#faad14' }} />,
+    title: 'Earn Yuan/XP and Level Up',
+    description:
+      'Earn rewards for reading, writing, and engaging with the community. Level up your profile and unlock exclusive features.',
+    bgColor: '#fffbe6',
+  },
+];
+
+// mock data for categories
+const browseMenuData = [
+  {
+    key: 'novels',
+    label: 'Novels',
+    right: [
+      {
+        title: 'MALELEAD',
+        types: ['Action', 'Adventure', 'Martial Arts', 'Fantasy', 'Sci-Fi', 'Urban'],
+      },
+      {
+        title: 'FEMALELEAD',
+        types: ['Romance', 'Drama', 'Slice of Life', 'School Life', 'Comedy'],
+      },
+    ],
+  },
+  {
+    key: 'comics',
+    label: 'Comics',
+    right: [
+      { title: '', types: ['Manga', 'Manhua', 'Webtoon', 'Superhero', 'Fantasy', 'Romance'] },
+    ],
+  },
+  {
+    key: 'fanfics',
+    label: 'Fan-fics',
+    right: [{ title: '', types: ['Anime', 'Game', 'Movie', 'TV', 'Book', 'Original'] }],
+  },
+];
 
 const Homepage = () => {
-  const featuredBooks = [
-    {
-      id: 1,
-      title: 'First Legendary Dragon: Starting...',
-      author: 'Master Chen',
-      cover: '/api/placeholder/200/300',
-      description:
-        'He died. Not by fate, not by accident, but as collateral in a hunt between beings beyond mortal comprehension. And yet... death was only the beginning. Chosen by a mysterious entity known only as Echo, a sarcastic soul from Earth...',
-      rating: 4.8,
-      chapters: 156,
-      genre: 'Fantasy',
-    },
-    {
-      id: 2,
-      title: 'Cultivation Chronicles: The Rise',
-      author: 'Jade Phoenix',
-      cover: '/api/placeholder/200/300',
-      description:
-        'In a world where power determines everything, Lin Wei discovers an ancient cultivation technique that could change his destiny forever. But with great power comes great danger...',
-      rating: 4.6,
-      chapters: 203,
-      genre: 'Cultivation',
-    },
-    {
-      id: 3,
-      title: 'System Overlord',
-      author: 'Digital Sage',
-      cover: '/api/placeholder/200/300',
-      description:
-        'When reality becomes a game and the game becomes reality, Alex must navigate through levels, quests, and boss battles to survive in this new world order...',
-      rating: 4.9,
-      chapters: 89,
-      genre: 'System',
-    },
-  ];
-
-  const features = [
-    {
-      icon: <BookOutlined style={{ fontSize: '48px', color: '#1890ff' }} />,
-      title: 'Read Novels',
-      description:
-        'Discover thousands of captivating web novels across all genres. From cultivation to romance, fantasy to sci-fi.',
-      bgColor: '#f0f8ff',
-    },
-    {
-      icon: <EditOutlined style={{ fontSize: '48px', color: '#52c41a' }} />,
-      title: 'Write Novels',
-      description:
-        'Share your stories with the world. Our platform provides all the tools you need to publish and promote your work.',
-      bgColor: '#f6ffed',
-    },
-    {
-      icon: <TrophyOutlined style={{ fontSize: '48px', color: '#faad14' }} />,
-      title: 'Earn Yuan/XP and Level Up',
-      description:
-        'Earn rewards for reading, writing, and engaging with the community. Level up your profile and unlock exclusive features.',
-      bgColor: '#fffbe6',
-    },
-  ];
-
   return (
-    <div style={{ backgroundColor: '#fafafa', minHeight: '100vh' }}>
+    <div className="home-bg">
       {/* Hero Section */}
-      <section style={{ padding: '60px 24px' }}>
-        <Row gutter={[48, 48]} align="middle" justify="center">
-          {/* Featured Books Carousel */}
-          <Col xs={24} lg={12}>
-            <Title level={2} style={{ marginBottom: '24px', color: '#1890ff' }}>
-              Featured Books
-            </Title>
-            <Card style={{ borderRadius: '12px', overflow: 'hidden' }}>
-              <Carousel autoplay dots={{ position: 'bottom' }}>
-                {featuredBooks.map((book) => (
-                  <div key={book.id}>
-                    <Row gutter={16} align="middle">
-                      <Col span={8}>
-                        <div
-                          style={{
-                            width: '100%',
-                            height: '200px',
-                            background: `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`,
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'white',
-                            fontSize: '16px',
-                            fontWeight: 'bold',
-                          }}
-                        >
-                          {book.title.split(':')[0]}
+      <section className="home-hero-section">
+        <div className="home-hero-flex">
+          <div className="home-hero-flex-left">
+            <div className="home-hero-carousel-wrapper">
+              <div className="home-hero-carousel-title">
+                <Typography.Title level={3} className="home-hero-carousel-title-text">
+                  Weekly Book
+                </Typography.Title>
+              </div>
+              <Carousel autoplay dots={true} className="home-hero-carousel">
+                {heroSlides.map((slide, idx) => (
+                  <div key={idx}>
+                    <div
+                      className="home-hero-slide"
+                      style={{ position: 'relative', justifyContent: 'flex-start' }}
+                    >
+                      <div
+                        className="home-hero-blur-bg"
+                        style={{
+                          backgroundImage: `url(${slide.img})`,
+                        }}
+                      />
+                      <div className="home-hero-slide-content home-hero-slide-content-left">
+                        <div className="home-hero-img">
+                          <img src={slide.img} alt={slide.title} className="home-hero-img-el" />
                         </div>
-                      </Col>
-                      <Col span={16}>
-                        <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                          <Title level={4} style={{ margin: 0, fontSize: '18px' }}>
-                            {book.title}
+                        <div className="home-hero-content">
+                          <Title level={2} className="home-hero-title home-hero-title-white">
+                            {slide.title}
                           </Title>
-                          <Text type="secondary">
-                            <UserOutlined /> {book.author}
-                          </Text>
-                          <Space>
-                            <Tag color="blue">{book.genre}</Tag>
-                            <Text>
-                              <StarFilled style={{ color: '#faad14' }} /> {book.rating}
-                            </Text>
-                            <Text type="secondary">{book.chapters} chapters</Text>
-                          </Space>
-                          <Paragraph
-                            ellipsis={{ rows: 3 }}
-                            style={{ margin: '8px 0', fontSize: '14px' }}
-                          >
-                            {book.description}
+                          <Paragraph className="home-hero-desc home-hero-desc-white">
+                            {slide.desc}
                           </Paragraph>
-                          <Button type="primary" size="small" icon={<PlayCircleOutlined />}>
-                            Start Reading
-                          </Button>
-                        </Space>
-                      </Col>
-                    </Row>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </Carousel>
-            </Card>
-          </Col>
-
-          {/* About Yushan */}
-          <Col xs={24} lg={12}>
-            <Title level={2} style={{ marginBottom: '24px', color: '#722ed1' }}>
-              About Yushan
-            </Title>
-
-            <Card style={{ borderRadius: '12px' }}>
-              <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                <div>
-                  <Title level={3} style={{ color: '#1890ff' }}>
-                    Yushan Author Benefits
-                  </Title>
-                  <Paragraph>
-                    Why should you start your writing journey here at Yushan? Enjoy exclusive
-                    benefits, monetization options, and a supportive community.
-                  </Paragraph>
-                  <Button type="primary" ghost>
-                    Learn More
-                  </Button>
-                </div>
-              </Space>
-            </Card>
-          </Col>
-        </Row>
+            </div>
+          </div>
+          <div className="home-hero-flex-right">
+            <HeroSection data={heroItems} title="Meet Yushan" />
+          </div>
+        </div>
       </section>
 
-      {/* Features Section */}
-      <section style={{ padding: '60px 24px', backgroundColor: 'white' }}>
-        <Row justify="center" style={{ marginBottom: '48px' }}>
-          <Col span={24} style={{ textAlign: 'center' }}>
-            <Title level={2}>Discover Your Next Adventure</Title>
-            <Paragraph style={{ fontSize: '16px', maxWidth: '600px', margin: '0 auto' }}>
-              Join millions of readers and writers in the ultimate web novel community
-            </Paragraph>
-          </Col>
-        </Row>
-
-        <Row gutter={[32, 32]} justify="center">
+      {/* 3 boxes Section */}
+      <section className="home-features-section">
+        <div className="home-features-flex">
           {features.map((feature, index) => (
-            <Col xs={24} sm={12} lg={8} key={index}>
+            <div className="home-feature-card-wrapper" key={index}>
               <Card
                 hoverable
+                className="home-feature-card"
                 style={{
-                  textAlign: 'center',
-                  height: '100%',
-                  borderRadius: '12px',
-                  border: 'none',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-                }}
-                bodyStyle={{
                   padding: '32px 24px',
                   backgroundColor: feature.bgColor,
                 }}
               >
                 <Space direction="vertical" size="large" style={{ width: '100%' }}>
                   <div>{feature.icon}</div>
-                  <Title level={3} style={{ margin: 0 }}>
+                  <Title level={3} className="home-feature-title">
                     {feature.title}
                   </Title>
-                  <Paragraph style={{ margin: 0, fontSize: '15px' }}>
-                    {feature.description}
-                  </Paragraph>
-                  <Button type="primary" size="large" style={{ marginTop: '16px' }}>
+                  <Paragraph className="home-feature-desc">{feature.description}</Paragraph>
+                  <Button type="primary" size="large" className="home-feature-btn">
                     Get Started
                   </Button>
                 </Space>
               </Card>
-            </Col>
+            </div>
           ))}
-        </Row>
+        </div>
       </section>
 
+      {/* Browse Menu Section */}
+      <Categories data={browseMenuData} />
+
+      {/* Weekly Features Section */}
+      <FeatureNovels title="Weekly Featured" novels={featureNovelsData} />
+
+      {/* Top Books Section */}
+      <Leaderboard data={books} />
+
+      {/* Ongoing Novels Section */}
+      <FeatureNovels title="Ongoing Novels" novels={featureNovelsData} />
+
       {/* CTA Section */}
-      <section style={{ padding: '60px 24px', backgroundColor: '#f0f2f5' }}>
+      <section className="home-cta-section">
         <Row justify="center">
           <Col xs={24} sm={20} md={16} lg={12} style={{ textAlign: 'center' }}>
-            <Card
-              style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                border: 'none',
-                borderRadius: '12px',
-              }}
-            >
-              <Title level={2} style={{ color: 'white', marginBottom: '16px' }}>
+            <Card className="home-cta-card">
+              <Title level={2} className="home-cta-title">
                 Ready to Begin Your Journey?
               </Title>
-              <Paragraph
-                style={{
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  fontSize: '16px',
-                  marginBottom: '32px',
-                }}
-              >
+              <Paragraph className="home-cta-desc">
                 Join thousands of readers and writers in the Yushan community. Your next favorite
                 story is just a click away.
               </Paragraph>
               <Space size="middle" wrap>
-                <Button
-                  type="default"
-                  size="large"
-                  style={{
-                    background: 'white',
-                    borderColor: 'white',
-                    color: '#667eea',
-                    fontWeight: 'bold',
-                    borderRadius: '6px',
-                  }}
-                >
+                <Button type="default" size="large" className="home-cta-btn">
                   Start Reading Now
                 </Button>
-                <Button
-                  type="link"
-                  size="large"
-                  style={{
-                    color: 'white',
-                    fontWeight: 'bold',
-                    textDecoration: 'underline',
-                  }}
-                >
+                <Button type="link" size="large" className="home-cta-link">
                   Become an Author
                 </Button>
               </Space>
@@ -264,6 +327,9 @@ const Homepage = () => {
           </Col>
         </Row>
       </section>
+
+      {/* Completed Novels Section */}
+      <FeatureNovels title="Completed Novels" novels={featureNovelsData} />
     </div>
   );
 };
