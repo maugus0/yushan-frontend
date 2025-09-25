@@ -300,9 +300,6 @@ const Homepage = () => {
       {/* Top Books Section */}
       <Leaderboard data={books} />
 
-      {/* Browse Menu Section */}
-      <Categories data={browseMenuData} />
-
       {/* Ongoing Novels Section */}
       <FeatureNovels title="Ongoing Novels" novels={featureNovelsData} />
 
