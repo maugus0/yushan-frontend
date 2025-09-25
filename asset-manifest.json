@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/yushan-frontend/static/css/main.691be44c.css",
-    "main.js": "/yushan-frontend/static/js/main.a15fd629.js",
+    "main.js": "/yushan-frontend/static/js/main.6232e83d.js",
     "static/js/453.84d2c3a2.chunk.js": "/yushan-frontend/static/js/453.84d2c3a2.chunk.js",
     "static/media/testimg4.png": "/yushan-frontend/static/media/testimg4.1ff5e034a7dd49f743d2.png",
     "static/media/testimg3.png": "/yushan-frontend/static/media/testimg3.63f4ead7494ccad32da5.png",
@@ -9,11 +9,11 @@
     "static/media/testimg.png": "/yushan-frontend/static/media/testimg.1744dbb15bfe7a051445.png",
     "index.html": "/yushan-frontend/index.html",
     "main.691be44c.css.map": "/yushan-frontend/static/css/main.691be44c.css.map",
-    "main.a15fd629.js.map": "/yushan-frontend/static/js/main.a15fd629.js.map",
+    "main.6232e83d.js.map": "/yushan-frontend/static/js/main.6232e83d.js.map",
     "453.84d2c3a2.chunk.js.map": "/yushan-frontend/static/js/453.84d2c3a2.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.691be44c.css",
-    "static/js/main.a15fd629.js"
+    "static/js/main.6232e83d.js"
   ]
 }
