@@ -10,6 +10,10 @@
   width: 100%;
 }
 
+.home-hero-content {
+  margin-left: 20px;
+}
+
 .home-hero-carousel-wrapper,
 .home-hero-carousel-title,
 .home-hero-carousel {
@@ -46,6 +50,10 @@
     max-width: 100vw;
     min-width: 0;
     padding: 0 4px;
+  }
+
+  .home-hero-content {
+    margin-left: 0px;
   }
 
   .home-hero-slide-content {
@@ -189,7 +197,7 @@
   font-size: 17px !important;
   color: #444 !important;
   margin-bottom: 0 !important;
-  margin: 0 6px;
+  margin: 0;
 }
 
 .home-hero-desc-white {

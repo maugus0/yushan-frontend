@@ -64,6 +64,7 @@
   color: #222;
   text-align: center;
   margin-bottom: 0.25rem;
+  width: 100%;
   line-height: 1.4;
   transition: text-decoration 0.2s;
   overflow: hidden;
@@ -110,5 +111,8 @@
 @media (max-width: 667px) {
   .feature-novels-list {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .feature-novel-card {
+    padding: 0;
   }
 }
