@@ -86,7 +86,14 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 667px) {
+  .leaderboard-title {
+    margin-left: 16px;
+    margin-top: 4px;
+  }
+  .leaderboard-more {
+    margin-left: 6px;
+  }
   .leaderboard-list {
     grid-template-columns: 1fr;
     gap: 1rem 0;
