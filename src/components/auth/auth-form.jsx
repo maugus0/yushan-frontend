@@ -49,7 +49,7 @@ const disabledBirthdayDate = (current) => {
 /* --------------------------------------------------
  * Mock OTP (Replace with real API later)
  * -------------------------------------------------- */
-async function mockSendOtp(email) {
+async function mockSendOtp(_email) {
   await new Promise((res) => setTimeout(res, 600));
   return { ok: true };
 }
