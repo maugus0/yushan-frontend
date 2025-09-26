@@ -1,25 +1,17 @@
 import React, { useState } from 'react';
 import './contentpopover.css';
-import './browse-popover.css'; // Added: ensure this stylesheet is applied
-import { useNavigate } from 'react-router-dom'; // Added: navigate for routing
+import './browse-popover.css';
+import { useNavigate } from 'react-router-dom';
 
-// Added: build url-friendly slug for sub-genre paths
 function slugify(s) {
-  return s
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
+  return s.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
 }
-
-// Added: map left keys to browse section paths
 function sectionPathFromKey(key) {
   if (key === 'novels') return '/browse/novel';
   if (key === 'comics') return '/browse/comics';
   if (key === 'fanfics') return '/browse/fanfics';
   return '/browse';
 }
-
 function splitToColumns(arr, colCount = 3, maxPerCol = 9) {
   const columns = Array.from({ length: colCount }, () => []);
   arr.forEach((item, idx) => {
@@ -28,25 +20,19 @@ function splitToColumns(arr, colCount = 3, maxPerCol = 9) {
   return columns.filter((col) => col.length > 0);
 }
 
-const ContentPopover = ({ data }) => {
-  const navigate = useNavigate(); // Added
+const ContentPopover = ({ data, onSelect }) => {
+  const navigate = useNavigate();
   const [activeKey, setActiveKey] = useState(data[0]?.key || '');
   const activeItem = data.find((item) => item.key === activeKey);
 
-  // Added: navigate helper for right pane type clicks
-  const handleTypeClick = (sectionKey, typeLabel) => {
-    const base = sectionPathFromKey(sectionKey);
-    if (!typeLabel || typeLabel.toLowerCase() === 'all') {
-      navigate(base);
-    } else {
-      navigate(`${base}/${slugify(typeLabel)}`);
+  const go = (sectionKey, typeLabel) => {
+    if (onSelect) {
+      onSelect(sectionKey, typeLabel);
+      return;
     }
-  };
-
-  // Added: navigate when clicking the left section label
-  const handleLeftClick = (sectionKey) => {
-    setActiveKey(sectionKey);
-    navigate(sectionPathFromKey(sectionKey));
+    const base = sectionPathFromKey(sectionKey);
+    if (!typeLabel || typeLabel.toLowerCase() === 'all') navigate(base);
+    else navigate(`${base}/${slugify(typeLabel)}`);
   };
 
   return (
@@ -57,7 +43,7 @@ const ContentPopover = ({ data }) => {
             key={item.key}
             className={`browse-popover-left-item${activeKey === item.key ? ' active' : ''}`}
             onMouseEnter={() => setActiveKey(item.key)}
-            onClick={() => handleLeftClick(item.key)} // Added
+            onClick={() => go(item.key, 'All')}
           >
             {item.label}
           </div>
@@ -79,7 +65,7 @@ const ContentPopover = ({ data }) => {
                             <div
                               key={type}
                               className="browse-popover-type"
-                              onClick={() => handleTypeClick('novels', type)} // Added
+                              onClick={() => go('novels', type)}
                             >
                               {type}
                             </div>
@@ -99,7 +85,7 @@ const ContentPopover = ({ data }) => {
                     <div
                       key={type}
                       className="browse-popover-type"
-                      onClick={() => handleTypeClick(activeKey, type)} // Added
+                      onClick={() => go(activeKey, type)}
                     >
                       {type}
                     </div>
