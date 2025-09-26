@@ -1,5 +1,24 @@
 import React, { useState } from 'react';
 import './contentpopover.css';
+import './browse-popover.css'; // Added: ensure this stylesheet is applied
+import { useNavigate } from 'react-router-dom'; // Added: navigate for routing
+
+// Added: build url-friendly slug for sub-genre paths
+function slugify(s) {
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
+// Added: map left keys to browse section paths
+function sectionPathFromKey(key) {
+  if (key === 'novels') return '/browse/novel';
+  if (key === 'comics') return '/browse/comics';
+  if (key === 'fanfics') return '/browse/fanfics';
+  return '/browse';
+}
 
 function splitToColumns(arr, colCount = 3, maxPerCol = 9) {
   const columns = Array.from({ length: colCount }, () => []);
@@ -10,8 +29,25 @@ function splitToColumns(arr, colCount = 3, maxPerCol = 9) {
 }
 
 const ContentPopover = ({ data }) => {
+  const navigate = useNavigate(); // Added
   const [activeKey, setActiveKey] = useState(data[0]?.key || '');
   const activeItem = data.find((item) => item.key === activeKey);
+
+  // Added: navigate helper for right pane type clicks
+  const handleTypeClick = (sectionKey, typeLabel) => {
+    const base = sectionPathFromKey(sectionKey);
+    if (!typeLabel || typeLabel.toLowerCase() === 'all') {
+      navigate(base);
+    } else {
+      navigate(`${base}/${slugify(typeLabel)}`);
+    }
+  };
+
+  // Added: navigate when clicking the left section label
+  const handleLeftClick = (sectionKey) => {
+    setActiveKey(sectionKey);
+    navigate(sectionPathFromKey(sectionKey));
+  };
 
   return (
     <div className="browse-popover">
@@ -21,6 +57,7 @@ const ContentPopover = ({ data }) => {
             key={item.key}
             className={`browse-popover-left-item${activeKey === item.key ? ' active' : ''}`}
             onMouseEnter={() => setActiveKey(item.key)}
+            onClick={() => handleLeftClick(item.key)} // Added
           >
             {item.label}
           </div>
@@ -39,7 +76,11 @@ const ContentPopover = ({ data }) => {
                       {columns.map((types, idx) => (
                         <div key={idx}>
                           {types.map((type) => (
-                            <div key={type} className="browse-popover-type">
+                            <div
+                              key={type}
+                              className="browse-popover-type"
+                              onClick={() => handleTypeClick('novels', type)} // Added
+                            >
                               {type}
                             </div>
                           ))}
@@ -55,7 +96,11 @@ const ContentPopover = ({ data }) => {
               {splitToColumns(activeItem.right[0].types, 3, 9).map((types, idx) => (
                 <div key={idx}>
                   {types.map((type) => (
-                    <div key={type} className="browse-popover-type">
+                    <div
+                      key={type}
+                      className="browse-popover-type"
+                      onClick={() => handleTypeClick(activeKey, type)} // Added
+                    >
                       {type}
                     </div>
                   ))}

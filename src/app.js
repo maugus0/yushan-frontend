@@ -10,6 +10,7 @@ import LayoutWrapper from './components/common/layoutwrapper/layout-wrapper';
 import Home from './pages/home/home';
 import Login from './pages/login/login';
 import Register from './pages/register/register';
+import Browse from './pages/browse/browse';
 
 // Global Styles
 import './app.css';
@@ -99,6 +100,15 @@ function App() {
                   <Register />
                 </LayoutWrapper>
               }
+            />
+
+            <Route
+              path="/browse/*"
+              element={
+               <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
+                  <Browse />
+               </LayoutWrapper>
+             }
             />
 
             {/* Add more routes as needed */}
