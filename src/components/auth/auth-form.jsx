@@ -364,7 +364,7 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
             name="otp"
             rules={[
               { required: true, message: 'OTP is required' },
-              { pattern: /^\d{4,8}$/, message: 'OTP must be 6 digits' },
+              { pattern: /^\d{6}$/, message: 'OTP must be 6 digits' },
             ]}
             extra={
               otpActive ? (
