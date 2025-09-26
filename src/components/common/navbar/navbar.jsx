@@ -1,353 +1,3 @@
-// import React, { useState, useRef, useEffect } from 'react';
-// import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Badge, Popover } from 'antd';
-// import {
-//   MenuOutlined,
-//   UserOutlined,
-//   LogoutOutlined,
-//   SearchOutlined,
-//   BellOutlined,
-//   BarChartOutlined,
-//   CompassOutlined,
-//   BookOutlined,
-//   SettingOutlined,
-//   EditOutlined,
-//   CloseOutlined,
-// } from '@ant-design/icons';
-// import { useNavigate, useLocation } from 'react-router-dom';
-// import './navbar.css';
-// import ContentPopover from '../contentpopover/contentpopover';
-
-// const { Header } = Layout;
-
-// /** Make a URL-friendly slug (must match browse page parser) */
-// const slugify = (s) =>
-//   s
-//     .toLowerCase()
-//     .replace(/[^a-z0-9\s-]/g, '')
-//     .replace(/\s+/g, '-')
-//     .replace(/-+/g, '-');
-
-// /** Build route path for a given top section and type */
-// const buildBrowsePath = (sectionKey, typeLabel) => {
-//   // Normalize section route segment
-//   const sec =
-//     sectionKey === 'novels' ? 'novel' : sectionKey === 'fanfics' ? 'fan-fics' : sectionKey;
-
-//   // If the dropdown has an "All" item, route to section root; else route with slug
-//   if (!typeLabel || typeLabel.toLowerCase() === 'all') {
-//     return `/browse/${sec}`;
-//   }
-//   return `/browse/${sec}/${slugify(typeLabel)}`;
-// };
-
-// const Navbar = ({ isAuthenticated = false, user = null }) => {
-//   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
-//   const [searchExpanded, setSearchExpanded] = useState(false);
-//   const [searchValue, setSearchValue] = useState('');
-//   const searchInputRef = useRef(null);
-//   const navigate = useNavigate();
-//   const location = useLocation();
-
-//   // Focus search input when expanded
-//   useEffect(() => {
-//     if (searchExpanded && searchInputRef.current) {
-//       searchInputRef.current.focus();
-//     }
-//   }, [searchExpanded]);
-
-//   // Close search on escape key
-//   useEffect(() => {
-//     const handleEscape = (e) => {
-//       if (e.key === 'Escape' && searchExpanded) {
-//         setSearchExpanded(false);
-//         setSearchValue('');
-//       }
-//     };
-//     document.addEventListener('keydown', handleEscape);
-//     return () => document.removeEventListener('keydown', handleEscape);
-//   }, [searchExpanded]);
-
-//   // Browse menu data (same as Home's dropdown; include "All" where needed)
-//   const browseMenuData = [
-//     {
-//       key: 'novels',
-//       label: 'Novels',
-//       right: [
-//         {
-//           title: 'MALELEAD',
-//           types: [
-//             'All',
-//             'Action',
-//             'Adventure',
-//             'Martial Arts',
-//             'Fantasy',
-//             'Sci-Fi',
-//             'Urban',
-//             'Historical',
-//             'Eastern Fantasy',
-//             'Wuxia',
-//             'Xianxia',
-//             'Military',
-//             'Sports',
-//           ],
-//         },
-//         {
-//           title: 'FEMALELEAD',
-//           types: ['All', 'Romance', 'Drama', 'Slice of Life', 'School Life', 'Comedy'],
-//         },
-//       ],
-//     },
-//     {
-//       key: 'comics',
-//       label: 'Comics',
-//       right: [{ title: '', types: ['All', 'Manga', 'Manhua', 'Webtoon', 'Superhero', 'Fantasy', 'Romance'] }],
-//     },
-//     {
-//       key: 'fanfics',
-//       label: 'Fan-fics',
-//       right: [{ title: '', types: ['All', 'Anime', 'Game', 'Movie', 'TV', 'Book', 'Original'] }],
-//     },
-//   ];
-
-//   const rankingsMenuData = [
-//     { key: 'novels rankings', label: 'Novels rankings' },
-//     { key: 'comics rankings', label: 'Comics rankings' },
-//     { key: 'fanfics rankings', label: 'Fan-fics rankings' },
-//   ];
-
-//   // Handle pick from popover (navigate to the exact browse path)
-//   const handleBrowseSelect = (sectionKey, typeLabel) => {
-//     const path = buildBrowsePath(sectionKey, typeLabel);
-//     navigate(path);
-//   };
-
-//   // Main nav items
-//   const menuItems = [
-//     {
-//       key: 'browse',
-//       label: (
-//         <Popover
-//           placement="bottomLeft"
-//           trigger="hover"
-//           overlayClassName="popover-overlay"
-//           content={<ContentPopover data={browseMenuData} onSelect={handleBrowseSelect} />}
-//         >
-//           <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-//             <CompassOutlined style={{ fontSize: 28 }} />
-//             <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Browse</span>
-//           </div>
-//         </Popover>
-//       ),
-//       onClick: () => navigate('/browse'),
-//     },
-//     {
-//       key: 'rankings',
-//       label: (
-//         <Popover
-//           placement="bottomLeft"
-//           trigger="hover"
-//           overlayClassName="popover-overlay"
-//           content={<ContentPopover data={rankingsMenuData} onSelect={() => {}} />}
-//         >
-//           <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-//             <BarChartOutlined style={{ fontSize: 28 }} />
-//             <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Rankings</span>
-//           </div>
-//         </Popover>
-//       ),
-//       onClick: () => navigate('/rankings'),
-//     },
-//     {
-//       key: 'create',
-//       icon: <EditOutlined style={{ fontSize: 28 }} />,
-//       label: <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Create</span>,
-//       onClick: () => navigate('/create'),
-//     },
-//   ];
-
-//   const userMenuItems = [
-//     { key: 'profile', icon: <UserOutlined />, label: 'Profile', onClick: () => navigate('/profile') },
-//     { key: 'library', icon: <BookOutlined />, label: 'My Library', onClick: () => navigate('/library') },
-//     { key: 'settings', icon: <SettingOutlined />, label: 'Settings', onClick: () => navigate('/settings') },
-//     { type: 'divider' },
-//     {
-//       key: 'logout',
-//       icon: <LogoutOutlined />,
-//       label: 'Logout',
-//       onClick: () => {
-//         localStorage.removeItem('authToken');
-//         window.location.reload();
-//       },
-//     },
-//   ];
-
-//   const handleSearch = (value) => {
-//     if (value.trim()) {
-//       navigate(`/search?q=${encodeURIComponent(value)}`);
-//       setSearchExpanded(false);
-//       setSearchValue('');
-//     }
-//   };
-
-//   const handleSearchToggle = () => {
-//     if (searchExpanded) {
-//       setSearchExpanded(false);
-//       setSearchValue('');
-//     } else {
-//       setSearchExpanded(true);
-//     }
-//   };
-
-//   return (
-//     <Header className="modern-navbar">
-//       <div className="navbar-container">
-//         {/* Logo */}
-//         <div className="navbar-logo" onClick={() => navigate('/')}>
-//           <div className="logo-icon">Y</div>
-//           <span className="logo-text">Yushan</span>
-//         </div>
-
-//         {/* Desktop Navigation */}
-//         <div className="navbar-nav">
-//           <Menu
-//             theme="dark"
-//             mode="horizontal"
-//             selectedKeys={[location.pathname.startsWith('/browse') ? 'browse' : location.pathname.slice(1) || 'home']}
-//             className="nav-menu"
-//             items={menuItems}
-//           />
-//         </div>
-
-//         {/* Search */}
-//         <div className={`navbar-search ${searchExpanded ? 'expanded' : ''}`}>
-//           {searchExpanded ? (
-//             <div className="search-input-container">
-//               <Input
-//                 ref={searchInputRef}
-//                 value={searchValue}
-//                 onChange={(e) => setSearchValue(e.target.value)}
-//                 onPressEnter={() => handleSearch(searchValue)}
-//                 placeholder="Search novels, comics, fan-fics..."
-//                 className="search-input"
-//                 suffix={
-//                   <div className="search-actions">
-//                     <Button type="text" icon={<SearchOutlined />} onClick={() => handleSearch(searchValue)} className="search-submit" />
-//                     <Button type="text" icon={<CloseOutlined />} onClick={handleSearchToggle} className="search-close" />
-//                   </div>
-//                 }
-//               />
-//             </div>
-//           ) : (
-//             <Button type="primary" icon={<SearchOutlined />} onClick={handleSearchToggle} className="search-button">
-//               Search
-//             </Button>
-//           )}
-//         </div>
-
-//         {/* Right Actions */}
-//         <div className="navbar-actions">
-//           {isAuthenticated ? (
-//             <>
-//               <Button type="text" icon={<BookOutlined />} className="nav-button" onClick={() => navigate('/library')}>
-//                 Library
-//               </Button>
-//               <Badge count={3} size="small">
-//                 <Button type="text" icon={<BellOutlined />} className="nav-button icon-only" onClick={() => navigate('/notifications')} />
-//               </Badge>
-//               <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']} overlayClassName="user-dropdown">
-//                 <div className="user-avatar">
-//                   <Avatar size={32} icon={<UserOutlined />} src={user?.avatar} style={{ cursor: 'pointer' }} />
-//                 </div>
-//               </Dropdown>
-//             </>
-//           ) : (
-//             <div className="auth-buttons">
-//               <Button
-//                 type={location.pathname === '/login' ? 'primary' : 'text'}
-//                 onClick={() => navigate('/login')}
-//                 className={`login-btn${location.pathname === '/login' ? ' active' : ''}`}
-//               >
-//                 Login
-//               </Button>
-//               <Button
-//                 type={location.pathname === '/register' ? 'primary' : 'text'}
-//                 onClick={() => navigate('/register')}
-//                 className={`signup-btn${location.pathname === '/register' ? ' active' : ''}`}
-//               >
-//                 Register
-//               </Button>
-//             </div>
-//           )}
-//         </div>
-
-//         {/* Mobile Menu Button */}
-//         <Button className="mobile-menu-button" type="text" icon={<MenuOutlined />} onClick={() => setMobileMenuVisible(true)} />
-
-//         {/* Mobile Drawer */}
-//         <Drawer
-//           title={
-//             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-//               <div className="logo-icon mobile">Y</div>
-//               <span>Yushan</span>
-//             </div>
-//           }
-//           placement="right"
-//           onClose={() => setMobileMenuVisible(false)}
-//           open={mobileMenuVisible}
-//           className="mobile-drawer"
-//           width={280}
-//         >
-//           <div style={{ marginBottom: '20px' }}>
-//             <Input
-//               placeholder="Search novels, comics, fan-fics..."
-//               prefix={<SearchOutlined />}
-//               onPressEnter={(e) => handleSearch(e.target.value)}
-//               className="mobile-search"
-//             />
-//           </div>
-//           <Menu
-//             mode="vertical"
-//             selectedKeys={[location.pathname.startsWith('/browse') ? 'browse' : location.pathname.slice(1) || 'home']}
-//             items={menuItems}
-//             style={{ border: 'none', background: 'transparent' }}
-//             theme="dark"
-//           />
-//           <div className="mobile-auth">
-//             {isAuthenticated ? (
-//               <div>
-//                 <Button block icon={<BookOutlined />} onClick={() => navigate('/library')} style={{ marginBottom: '12px' }}>
-//                   Library
-//                 </Button>
-//                 <Button
-//                   block
-//                   icon={<LogoutOutlined />}
-//                   onClick={() => {
-//                     localStorage.removeItem('authToken');
-//                     window.location.reload();
-//                   }}
-//                 >
-//                   Logout
-//                 </Button>
-//               </div>
-//             ) : (
-//               <div>
-//                 <Button block onClick={() => navigate('/login')} style={{ marginBottom: '12px' }}>
-//                   Login
-//                 </Button>
-//                 <Button block type="primary" onClick={() => navigate('/register')}>
-//                   Register
-//                 </Button>
-//               </div>
-//             )}
-//           </div>
-//         </Drawer>
-//       </div>
-//     </Header>
-//   );
-// };
-
-// export default Navbar;
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Badge, Popover } from 'antd';
 import {
@@ -380,8 +30,7 @@ const slugify = (s) =>
 /** Build route path for a given top section and type */
 const buildBrowsePath = (sectionKey, typeLabel) => {
   // Normalize section route segment
-  const sec =
-    sectionKey === 'novels' ? 'novel' : sectionKey === 'fanfics' ? 'fanfics' : sectionKey;
+  const sec = sectionKey === 'novels' ? 'novel' : sectionKey === 'fanfics' ? 'fanfics' : sectionKey;
 
   // If the dropdown has an "All" item, route to section root; else route with slug
   if (!typeLabel || typeLabel.toLowerCase() === 'all') {
@@ -450,7 +99,12 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
     {
       key: 'comics',
       label: 'Comics',
-      right: [{ title: '', types: ['All', 'Manga', 'Manhua', 'Webtoon', 'Superhero', 'Fantasy', 'Romance'] }],
+      right: [
+        {
+          title: '',
+          types: ['All', 'Manga', 'Manhua', 'Webtoon', 'Superhero', 'Fantasy', 'Romance'],
+        },
+      ],
     },
     {
       key: 'fanfics',
@@ -516,9 +170,24 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
   ];
 
   const userMenuItems = [
-    { key: 'profile', icon: <UserOutlined />, label: 'Profile', onClick: () => navigate('/profile') },
-    { key: 'library', icon: <BookOutlined />, label: 'My Library', onClick: () => navigate('/library') },
-    { key: 'settings', icon: <SettingOutlined />, label: 'Settings', onClick: () => navigate('/settings') },
+    {
+      key: 'profile',
+      icon: <UserOutlined />,
+      label: 'Profile',
+      onClick: () => navigate('/profile'),
+    },
+    {
+      key: 'library',
+      icon: <BookOutlined />,
+      label: 'My Library',
+      onClick: () => navigate('/library'),
+    },
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: 'Settings',
+      onClick: () => navigate('/settings'),
+    },
     { type: 'divider' },
     {
       key: 'logout',
@@ -562,7 +231,11 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
           <Menu
             theme="dark"
             mode="horizontal"
-            selectedKeys={[location.pathname.startsWith('/browse') ? 'browse' : location.pathname.slice(1) || 'home']}
+            selectedKeys={[
+              location.pathname.startsWith('/browse')
+                ? 'browse'
+                : location.pathname.slice(1) || 'home',
+            ]}
             className="nav-menu"
             items={menuItems}
           />
@@ -581,14 +254,29 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
                 className="search-input"
                 suffix={
                   <div className="search-actions">
-                    <Button type="text" icon={<SearchOutlined />} onClick={() => handleSearch(searchValue)} className="search-submit" />
-                    <Button type="text" icon={<CloseOutlined />} onClick={handleSearchToggle} className="search-close" />
+                    <Button
+                      type="text"
+                      icon={<SearchOutlined />}
+                      onClick={() => handleSearch(searchValue)}
+                      className="search-submit"
+                    />
+                    <Button
+                      type="text"
+                      icon={<CloseOutlined />}
+                      onClick={handleSearchToggle}
+                      className="search-close"
+                    />
                   </div>
                 }
               />
             </div>
           ) : (
-            <Button type="primary" icon={<SearchOutlined />} onClick={handleSearchToggle} className="search-button">
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              onClick={handleSearchToggle}
+              className="search-button"
+            >
               Search
             </Button>
           )}
@@ -598,15 +286,35 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
         <div className="navbar-actions">
           {isAuthenticated ? (
             <>
-              <Button type="text" icon={<BookOutlined />} className="nav-button" onClick={() => navigate('/library')}>
+              <Button
+                type="text"
+                icon={<BookOutlined />}
+                className="nav-button"
+                onClick={() => navigate('/library')}
+              >
                 Library
               </Button>
               <Badge count={3} size="small">
-                <Button type="text" icon={<BellOutlined />} className="nav-button icon-only" onClick={() => navigate('/notifications')} />
+                <Button
+                  type="text"
+                  icon={<BellOutlined />}
+                  className="nav-button icon-only"
+                  onClick={() => navigate('/notifications')}
+                />
               </Badge>
-              <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']} overlayClassName="user-dropdown">
+              <Dropdown
+                menu={{ items: userMenuItems }}
+                placement="bottomRight"
+                trigger={['click']}
+                overlayClassName="user-dropdown"
+              >
                 <div className="user-avatar">
-                  <Avatar size={32} icon={<UserOutlined />} src={user?.avatar} style={{ cursor: 'pointer' }} />
+                  <Avatar
+                    size={32}
+                    icon={<UserOutlined />}
+                    src={user?.avatar}
+                    style={{ cursor: 'pointer' }}
+                  />
                 </div>
               </Dropdown>
             </>
@@ -631,7 +339,12 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
         </div>
 
         {/* Mobile Menu Button */}
-        <Button className="mobile-menu-button" type="text" icon={<MenuOutlined />} onClick={() => setMobileMenuVisible(true)} />
+        <Button
+          className="mobile-menu-button"
+          type="text"
+          icon={<MenuOutlined />}
+          onClick={() => setMobileMenuVisible(true)}
+        />
 
         {/* Mobile Drawer */}
         <Drawer
@@ -657,7 +370,11 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
           </div>
           <Menu
             mode="vertical"
-            selectedKeys={[location.pathname.startsWith('/browse') ? 'browse' : location.pathname.slice(1) || 'home']}
+            selectedKeys={[
+              location.pathname.startsWith('/browse')
+                ? 'browse'
+                : location.pathname.slice(1) || 'home',
+            ]}
             items={menuItems}
             style={{ border: 'none', background: 'transparent' }}
             theme="dark"
@@ -665,7 +382,12 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
           <div className="mobile-auth">
             {isAuthenticated ? (
               <div>
-                <Button block icon={<BookOutlined />} onClick={() => navigate('/library')} style={{ marginBottom: '12px' }}>
+                <Button
+                  block
+                  icon={<BookOutlined />}
+                  onClick={() => navigate('/library')}
+                  style={{ marginBottom: '12px' }}
+                >
                   Library
                 </Button>
                 <Button

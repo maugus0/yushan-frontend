@@ -41,14 +41,7 @@ const PillButton = ({ active, children, onClick, ariaLabel }) => (
   </Button>
 );
 
-const FilterPills = ({
-  sort,
-  onChangeSort,
-  status,
-  onChangeStatus,
-  onReset,
-  viewToggle,
-}) => {
+const FilterPills = ({ sort, onChangeSort, status, onChangeStatus, onReset, viewToggle }) => {
   return (
     <div className="filter-pills" role="region" aria-label="Filter and sort">
       <div className="filter-pills__row">
@@ -87,12 +80,7 @@ const FilterPills = ({
         <div className="filter-pills__group" aria-label="Actions">
           <Space>
             <Tooltip title="Search (coming soon)">
-              <Button
-                size="small"
-                shape="round"
-                icon={<SearchOutlined />}
-                disabled
-              >
+              <Button size="small" shape="round" icon={<SearchOutlined />} disabled>
                 Search
               </Button>
             </Tooltip>

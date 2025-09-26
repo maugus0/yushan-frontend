@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
 import './contentpopover.css';
 import './browse-popover.css';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
+/** Build URL-friendly slug for sub-genre paths */
 function slugify(s) {
-  return s.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
 }
+
+/** Map left keys to browse section base paths (without slug) */
 function sectionPathFromKey(key) {
   if (key === 'novels') return '/browse/novel';
   if (key === 'comics') return '/browse/comics';
   if (key === 'fanfics') return '/browse/fanfics';
   return '/browse';
 }
+
 function splitToColumns(arr, colCount = 3, maxPerCol = 9) {
   const columns = Array.from({ length: colCount }, () => []);
   arr.forEach((item, idx) => {
@@ -21,34 +29,49 @@ function splitToColumns(arr, colCount = 3, maxPerCol = 9) {
 }
 
 const ContentPopover = ({ data, onSelect }) => {
-  const navigate = useNavigate();
   const [activeKey, setActiveKey] = useState(data[0]?.key || '');
   const activeItem = data.find((item) => item.key === activeKey);
 
-  const go = (sectionKey, typeLabel) => {
-    if (onSelect) {
-      onSelect(sectionKey, typeLabel);
-      return;
-    }
+  const hrefFor = (sectionKey, typeLabel) => {
     const base = sectionPathFromKey(sectionKey);
-    if (!typeLabel || typeLabel.toLowerCase() === 'all') navigate(base);
-    else navigate(`${base}/${slugify(typeLabel)}`);
+    if (!typeLabel || typeLabel.toLowerCase() === 'all') return base;
+    return `${base}/${slugify(typeLabel)}`;
+  };
+
+  // Ensure parent onSelect still fires (keeps your navigate(path) fallback)
+  const notifyParent = (sectionKey, typeLabel) => {
+    if (onSelect) onSelect(sectionKey, typeLabel);
+  };
+
+  // Prevent text selection and event interference inside popover
+  const stopMouseDown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  const stopClickBubble = (e) => {
+    e.stopPropagation();
   };
 
   return (
-    <div className="browse-popover">
+    <div className="browse-popover" onMouseDown={stopMouseDown}>
       <div className="browse-popover-left">
         {data.map((item) => (
-          <div
+          <Link
             key={item.key}
+            to={sectionPathFromKey(item.key)}
             className={`browse-popover-left-item${activeKey === item.key ? ' active' : ''}`}
             onMouseEnter={() => setActiveKey(item.key)}
-            onClick={() => go(item.key, 'All')}
+            onClick={(e) => {
+              stopClickBubble(e);
+              notifyParent(item.key, 'All');
+            }}
+            onMouseDown={stopMouseDown}
           >
             {item.label}
-          </div>
+          </Link>
         ))}
       </div>
+
       {activeItem?.right && (
         <div className="browse-popover-right">
           {activeKey === 'novels' ? (
@@ -62,13 +85,18 @@ const ContentPopover = ({ data, onSelect }) => {
                       {columns.map((types, idx) => (
                         <div key={idx}>
                           {types.map((type) => (
-                            <div
+                            <Link
                               key={type}
+                              to={hrefFor('novels', type)}
                               className="browse-popover-type"
-                              onClick={() => go('novels', type)}
+                              onClick={(e) => {
+                                stopClickBubble(e);
+                                notifyParent('novels', type);
+                              }}
+                              onMouseDown={stopMouseDown}
                             >
                               {type}
-                            </div>
+                            </Link>
                           ))}
                         </div>
                       ))}
@@ -82,13 +110,18 @@ const ContentPopover = ({ data, onSelect }) => {
               {splitToColumns(activeItem.right[0].types, 3, 9).map((types, idx) => (
                 <div key={idx}>
                   {types.map((type) => (
-                    <div
+                    <Link
                       key={type}
+                      to={hrefFor(activeKey, type)}
                       className="browse-popover-type"
-                      onClick={() => go(activeKey, type)}
+                      onClick={(e) => {
+                        stopClickBubble(e);
+                        notifyParent(activeKey, type);
+                      }}
+                      onMouseDown={stopMouseDown}
                     >
                       {type}
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ))}

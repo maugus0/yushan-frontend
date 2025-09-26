@@ -105,10 +105,10 @@ function App() {
             <Route
               path="/browse/*"
               element={
-               <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
+                <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
                   <Browse />
-               </LayoutWrapper>
-             }
+                </LayoutWrapper>
+              }
             />
 
             {/* Add more routes as needed */}

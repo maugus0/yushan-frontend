@@ -53,11 +53,7 @@ const ResultsList = ({ novels, loading, error, viewMode, onRetry, onItemClick })
   const containerClass = viewMode === 'grid' ? 'novel-grid' : 'novel-list';
 
   return (
-    <div
-      className={containerClass}
-      role="list"
-      aria-label={`Novels in ${viewMode} view`}
-    >
+    <div className={containerClass} role="list" aria-label={`Novels in ${viewMode} view`}>
       {novels.map((n) => (
         <div key={n.id} role="listitem">
           <NovelCard novel={n} viewMode={viewMode} onClick={onItemClick} />

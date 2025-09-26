@@ -71,11 +71,7 @@ const FilterBar = ({
           aria-label="Sort novels"
         />
 
-        <Button
-          icon={<ReloadOutlined />}
-          onClick={onReset}
-          aria-label="Reset filters and sorting"
-        >
+        <Button icon={<ReloadOutlined />} onClick={onReset} aria-label="Reset filters and sorting">
           Reset
         </Button>
 

@@ -16,8 +16,7 @@ const NovelCard = ({ novel, viewMode, onClick }) => {
 
   const desc =
     viewMode === 'list'
-      ? (description || '').slice(0, MAX_DESC) +
-        ((description || '').length > MAX_DESC ? '…' : '')
+      ? (description || '').slice(0, MAX_DESC) + ((description || '').length > MAX_DESC ? '…' : '')
       : null;
 
   return (
@@ -32,12 +31,7 @@ const NovelCard = ({ novel, viewMode, onClick }) => {
       }}
     >
       <div className="browse-card__cover">
-        <img
-          src={cover}
-          alt={`${title} cover`}
-          loading="lazy"
-          draggable={false}
-        />
+        <img src={cover} alt={`${title} cover`} loading="lazy" draggable={false} />
       </div>
       <div className="browse-card__body">
         <h4 className="browse-card__title">{title}</h4>
@@ -56,7 +50,7 @@ const NovelCard = ({ novel, viewMode, onClick }) => {
           <Tag color={status === 'Ongoing' ? 'green' : 'gold'}>{status}</Tag>
         </div>
         <div className="browse-card__stats">
-          <span>{stats.chapters} ch</span>
+          <span>{stats.chapters} chapters</span>
           <span>{stats.popularity} ⭐</span>
           <span>{stats.rating.toFixed(1)} / 5</span>
         </div>

@@ -36,14 +36,7 @@ const NOVEL_MALE_LEAD = [
   'Sports',
 ];
 
-const NOVEL_FEMALE_LEAD = [
-  'All',
-  'Romance',
-  'Drama',
-  'Slice of Life',
-  'School Life',
-  'Comedy',
-];
+const NOVEL_FEMALE_LEAD = ['All', 'Romance', 'Drama', 'Slice of Life', 'School Life', 'Comedy'];
 
 const COMICS_GENRES = ['All', 'Manga', 'Manhua', 'Webtoon', 'Superhero', 'Fantasy', 'Romance'];
 const FANFIC_GENRES = ['All', 'Anime', 'Game', 'Movie', 'TV', 'Book', 'Original'];
@@ -119,7 +112,8 @@ const GenreSidebar = ({
         <div className="novel-group-body">
           {NOVEL_FEMALE_LEAD.map((g) => {
             const isAll = g === 'All';
-            const isActive = section === 'novel' && lead === 'female' && !isAll && g === activeGenre;
+            const isActive =
+              section === 'novel' && lead === 'female' && !isAll && g === activeGenre;
             return (
               <Button
                 key={`female-${g}`}
