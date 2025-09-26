@@ -1,9 +1,10 @@
 import React from 'react';
 import { Layout, Button, Avatar, Typography, Divider, Tooltip } from 'antd';
-import { EditOutlined, ManOutlined, WomanOutlined, CalendarOutlined, StarFilled } from '@ant-design/icons';
+import { EditOutlined, ManOutlined, WomanOutlined, CalendarOutlined, StarFilled, BookOutlined, LineHeightOutlined } from '@ant-design/icons';
 import './profile.css';
 import * as LevelIcons from '../../components/user/icons/levelicon';
 import { MaleIcon, FemaleIcon } from '../../components/user/icons/gendericon';
+import { WriterIcon } from '../../components/user/icons/userrolesicon';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -21,6 +22,7 @@ const user = {
   bg: require('../../assets/images/userprofilecover.png'),
   hours: 128,
   books: 56,
+  is_author: true,
 };
 
 const Profile = () => {
@@ -52,10 +54,18 @@ const Profile = () => {
         <div className="profile-content-section">
           <div className="profile-header-row">
             <div className="profile-header-left">
-              <Title level={2} className="profile-username">{user.username}</Title>
+              <Title level={2} className="profile-username">
+                {user.username}
+                {user.is_author && (
+                  <Tooltip title="Author">
+                    <WriterIcon width={30} height={30} style={{ verticalAlign: 'middle' , marginLeft: 8 }} />
+                  </Tooltip>
+                )}
+              </Title>
             </div>
             <div className="profile-header-right">
-              <Button type="primary" icon={<EditOutlined />} className="profile-edit-btn">
+              <Button type="primary" icon={<EditOutlined />} className="profile-edit-btn" onClick={() => {
+                window.location.href = '/editprofile'}}>
                 Edit Profile
               </Button>
             </div>
