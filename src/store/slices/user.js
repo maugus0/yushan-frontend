@@ -74,8 +74,6 @@ const userStore = createSlice({
       localStorage.removeItem('authToken'); // Remove auth token from localStorage
     },
     updateUser(state, action) {
-      // 检查 updateUser 是否被调用
-      console.log('[Redux] updateUser 被调用，payload:', action.payload);
       Object.keys(action.payload).forEach((key) => {
         if (key in state.user) {
           state.user[key] = action.payload[key];
