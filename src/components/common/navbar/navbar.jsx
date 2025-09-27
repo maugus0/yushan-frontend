@@ -171,7 +171,9 @@ const Navbar = () => {
       key: 'settings',
       icon: <SettingOutlined />,
       label: 'Settings',
-      onClick: () => {},
+      onClick: () => {
+        navigate('/settings');
+      },
     },
     {
       type: 'divider',
@@ -378,10 +380,26 @@ const Navbar = () => {
                 </Button>
                 <Button
                   block
+                  icon={<UserOutlined />}
+                  onClick={() => navigate('/profile')}
+                  style={{ marginBottom: '12px' }}
+                >
+                  Profile
+                </Button>
+                <Button
+                  block
+                  icon={<SettingOutlined />}
+                  onClick={() => navigate('/settings')}
+                  style={{ marginBottom: '12px' }}
+                >
+                  Settings
+                </Button>
+                <Button
+                  block
                   icon={<LogoutOutlined />}
                   onClick={() => {
                     dispatch(logout());
-                    navigate('/login'); // 用 navigate 替换 window.location.reload()
+                    navigate('/login');
                   }}
                 >
                   Logout
