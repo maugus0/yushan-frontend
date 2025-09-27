@@ -6,7 +6,7 @@ const { Option } = Select;
 
 // Static demo toggle for login without backend.
 const USE_STATIC_DEMO_CHECK = true;
-const DEMO_USER = { username: 'demo', password: 'Demo1234' };
+const DEMO_USER = { username: 'test', password: '1234' };
 
 // Password strength rule for registration only (not used on login).
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
@@ -29,7 +29,6 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
   const handleFinish = async (values) => {
     setSubmitting(true);
     try {
-      // Normalize birthday to "YYYY-MM-DD" if provided.
       const payload = {
         ...values,
         birthday: values.birthday ? values.birthday.format('YYYY-MM-DD') : undefined,
@@ -55,14 +54,12 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
         }
       }
 
-      message.success('Login validated (static)');
-      onSuccess && onSuccess(payload);
+      // Add a mock authToken for static demo
+      const mockAuthToken = 'mockAuthToken12345';
+      const userData = { ...payload, authToken: mockAuthToken };
 
-      // Replace with real API calls when backend is ready:
-      /** const res = await apiLogin(payload);
-          if (res?.data?.token) localStorage.setItem('token', res.data.token);
-          message.success('Login successful');
-          onSuccess && onSuccess(res); **/
+      message.success('Login validated (static)');
+      onSuccess && onSuccess(userData); // Pass userData with authToken to onSuccess
     } catch (e) {
       message.error('Unexpected error (static)');
     } finally {

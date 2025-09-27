@@ -5,7 +5,6 @@ import {
   UserOutlined,
   LogoutOutlined,
   SearchOutlined,
-  BellOutlined,
   BarChartOutlined,
   CompassOutlined,
   BookOutlined,
@@ -14,18 +13,25 @@ import {
   CloseOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../../../store/slices/user';
 import './navbar.css';
 import ContentPopover from '../contentpopover/contentpopover';
 
 const { Header } = Layout;
 
-const Navbar = ({ isAuthenticated = false, user = null }) => {
+const Navbar = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Fetch authentication status and user info from Redux
+  const { isAuthenticated, user } = useSelector((state) => state.user);
+
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const searchInputRef = useRef(null);
-  const navigate = useNavigate();
-  const location = useLocation();
 
   // Focus search input when expanded
   useEffect(() => {
@@ -165,7 +171,7 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
       key: 'settings',
       icon: <SettingOutlined />,
       label: 'Settings',
-      onClick: () => navigate('/settings'),
+      onClick: () => {},
     },
     {
       type: 'divider',
@@ -175,8 +181,8 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
       icon: <LogoutOutlined />,
       label: 'Logout',
       onClick: () => {
-        localStorage.removeItem('authToken');
-        window.location.reload();
+        dispatch(logout());
+        navigate('/login');
       },
     },
   ];
@@ -275,16 +281,6 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
                 Library
               </Button>
 
-              {/* Notifications */}
-              <Badge count={3} size="small">
-                <Button
-                  type="text"
-                  icon={<BellOutlined />}
-                  className="nav-button icon-only"
-                  onClick={() => navigate('/notifications')}
-                />
-              </Badge>
-
               {/* User Avatar */}
               <Dropdown
                 menu={{ items: userMenuItems }}
@@ -292,14 +288,19 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
                 trigger={['click']}
                 overlayClassName="user-dropdown"
               >
-                <div className="user-avatar">
-                  <Avatar
-                    size={32}
-                    icon={<UserOutlined />}
-                    src={user?.avatar}
-                    style={{ cursor: 'pointer' }}
-                  />
-                </div>
+                <Avatar
+                  size={32}
+                  icon={<UserOutlined />}
+                  src={user?.avatarUrl}
+                  style={{
+                    cursor: 'pointer',
+                    border: 'none',
+                    boxShadow: 'none',
+                    background: 'transparent',
+                    padding: 0,
+                    margin: 0,
+                  }}
+                />
               </Dropdown>
             </>
           ) : (
@@ -379,8 +380,8 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
                   block
                   icon={<LogoutOutlined />}
                   onClick={() => {
-                    localStorage.removeItem('authToken');
-                    window.location.reload();
+                    dispatch(logout());
+                    navigate('/login'); // 用 navigate 替换 window.location.reload()
                   }}
                 >
                   Logout

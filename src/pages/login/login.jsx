@@ -1,11 +1,15 @@
 import React from 'react';
 import { Breadcrumb, Card, Button } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+
 import AuthForm from '../../components/auth/auth-form';
+import { login } from '../../store/slices/user';
 import './login.css';
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   return (
     <div style={{ maxWidth: 420, margin: '48px auto', padding: '0 16px' }}>
@@ -17,10 +21,9 @@ const Login = () => {
       <Card title="Login">
         <AuthForm
           mode="login"
-          onSuccess={() => {
-            // Replace with navigation when backend is ready
-            // navigate('/dashboard');
-            console.log('Login static success');
+          onSuccess={(userData) => {
+            dispatch(login(userData));
+            navigate('/');
           }}
         />
         <div style={{ marginTop: 12, textAlign: 'right' }}>

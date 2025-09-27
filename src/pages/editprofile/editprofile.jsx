@@ -1,29 +1,16 @@
 import React, { useRef, useState } from 'react';
 import { Layout, Button, Avatar, Typography, Input, Form, Select, message, App } from 'antd';
-import { EditOutlined, CameraOutlined } from '@ant-design/icons';
+import { CameraOutlined } from '@ant-design/icons';
+import { useSelector, useDispatch } from 'react-redux';
+import { updateUser } from '../../store/slices/user';
 import './editprofile.css';
 import * as LevelIcons from '../../components/user/icons/levelicon';
 import { MaleIcon, FemaleIcon } from '../../components/user/icons/gendericon';
+import { useNavigate } from 'react-router-dom'; 
 
 const { Content } = Layout;
 const { Title } = Typography;
 const { Option } = Select;
-
-// mock user data
-const user = {
-  username: 'YushanUser',
-  gender: 'male', // or 'female'
-  level: 5,
-  bio: 'A passionate reader. Love fantasy and sci-fi.A passionate reader. Love fantasy and sci-fi.',
-  uuid: '123e4567-e89b-12d3-a456-426614174000',
-  joined: '2022-03-15',
-  exp: 3200,
-  avatar: require('../../assets/images/testimg.png'),
-  bg: require('../../assets/images/userprofilecover.png'),
-  hours: 128,
-  books: 56,
-  email: 'user@email.com',
-};
 
 const EditProfile = () => {
   const fileInputRef = useRef();
@@ -33,6 +20,11 @@ const EditProfile = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [isDirty, setIsDirty] = useState(false);
+  const [avatarFile, setAvatarFile] = useState(null); // State to store the selected avatar file
+
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user);
+  const navigate = useNavigate();
 
   // timeout
   React.useEffect(() => {
@@ -75,7 +67,7 @@ const EditProfile = () => {
     message.success('Verification email sent!');
   };
 
-  //email validation when change email address
+  // email validation when changing email address
   const handleEmailBlur = (e) => {
     const value = e.target.value;
     const error = validateEmail(value);
@@ -89,7 +81,7 @@ const EditProfile = () => {
     }
   };
 
-  // already enter OTP
+  // already entered OTP
   const handleOtpChange = (e) => {
     if (otpError && e.target.value) {
       setOtpError('');
@@ -98,7 +90,7 @@ const EditProfile = () => {
 
   // saving
   const handleSave = () => {
-    form.validateFields().then(values => {
+    form.validateFields().then((values) => {
       // test OTP
       const emailChanged = values.email !== user.email;
       const otpEmpty = !values.otp;
@@ -113,46 +105,75 @@ const EditProfile = () => {
         }
         return;
       }
-      // saving logic
-      message.success('Profile updated!');
+
+      let genderValue = null;
+      if (values.gender === 'male') genderValue = 1;
+      else if (values.gender === 'female') genderValue = 2;
+      else genderValue = 0;
+
+      // Prepare updated user data
+      const updatedData = {
+        username: values.username,
+        email: values.email,
+        gender: genderValue,
+        profileDetail: values.bio,
+      };
+
+      if (avatarFile) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          updatedData.avatarUrl = reader.result;
+          dispatch(updateUser(updatedData));
+          message.success('Profile updated!');
+          setIsDirty(false);
+          navigate('/profile');
+        };
+        reader.readAsDataURL(avatarFile);
+      } else {
+        dispatch(updateUser(updatedData));
+        message.success('Profile updated!');
+        setIsDirty(false);
+        navigate('/profile');
+      }
     });
   };
 
   // cancel
   const handleCancel = () => {
-    window.location.href = '/profile';
+    navigate('/profile');
   };
 
-  //upload avatar
+  // Handle avatar file selection
   const handleCameraClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  //save avatar
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // avatar_url saving
+      setAvatarFile(file);
+      setIsDirty(true);
     }
   };
-  
+
   return (
     <App>
       <Layout className="editprofile-layout-wrapper">
         <Content>
           <div className="editprofile-bg-section">
-            <img src={user.bg} alt="editprofile-bg" className="editprofile-bg-img" />
+            {/* Replace background image with a hardcoded value */}
+            <img
+              src={require('../../assets/images/userprofilecover.png')}
+              alt="editprofile-bg"
+              className="editprofile-bg-img"
+            />
             <div className="editprofile-bg-mask" />
-            <div className="editprofile-bg-stats">
-            </div>
+            <div className="editprofile-bg-stats"></div>
             <div className="editprofile-avatar-wrapper">
-              <Avatar src={user.avatar} size={160} className="editprofile-avatar" />
-              <span
-                className="editprofile-avatar-camera"
-                onClick={handleCameraClick}
-              >
+              <Avatar src={avatarFile ? URL.createObjectURL(avatarFile) : user.avatarUrl} size={160} className="editprofile-avatar" />
+              <span className="editprofile-avatar-camera" onClick={handleCameraClick}>
                 <CameraOutlined style={{ fontSize: 24, color: '#888' }} />
                 <input
                   type="file"
@@ -171,8 +192,8 @@ const EditProfile = () => {
               initialValues={{
                 username: user.username,
                 email: user.email,
-                gender: user.gender,
-                bio: user.bio,
+                gender: user.gender === 1 ? 'male' : user.gender === 2 ? 'female' : 'prefer_not_to_say', // Convert gender
+                bio: user.profileDetail,
                 otp: '',
               }}
               onFieldsChange={handleFormChange}
@@ -211,17 +232,15 @@ const EditProfile = () => {
                   >
                     {countdown > 0
                       ? `Resend in ${Math.floor(countdown / 60)
-                        .toString()
-                        .padStart(2, '0')}:${(countdown % 60)
+                          .toString()
+                          .padStart(2, '0')}:${(countdown % 60)
                           .toString()
                           .padStart(2, '0')}`
                       : 'Send verify email'}
                   </Button>
                 </div>
                 {otpError && (
-                  <div style={{ color: '#ff4d4f', fontSize: 13, marginTop: 4 }}>
-                    {otpError}
-                  </div>
+                  <div style={{ color: '#ff4d4f', fontSize: 13, marginTop: 4 }}>{otpError}</div>
                 )}
               </Form.Item>
               <Form.Item label="Gender" name="gender">
