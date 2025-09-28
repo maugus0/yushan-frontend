@@ -1,0 +1,41 @@
+.browse-popover {
+  display: flex;
+  min-width: 140px;
+  min-height: 220px;
+  background: #f7f8fa;
+  border-radius: 12px;
+  overflow: hidden;
+  border: none;
+  box-shadow: none;
+}
+
+.browse-popover-left-item {
+  font-size: 1.15rem;
+  font-weight: 600;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+  border: none;
+  color: #333;
+  text-decoration: none; /* ensure link not underlined */
+  display: block;
+  user-select: none; /* prevent selection highlight */
+}
+
+.browse-popover-type {
+  font-size: 0.95rem;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: none;
+  color: #222;
+  display: block;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+  border: none;
+  text-decoration: none; /* ensure link not underlined */
+  user-select: none; /* prevent selection highlight */
+}
