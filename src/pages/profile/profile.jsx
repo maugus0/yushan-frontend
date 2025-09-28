@@ -2,7 +2,7 @@ import React from 'react';
 import { Layout, Button, Avatar, Typography, Divider, Tooltip } from 'antd';
 import { EditOutlined, CalendarOutlined, StarFilled } from '@ant-design/icons';
 import { useSelector } from 'react-redux'; // Import useSelector to fetch Redux data
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import './profile.css';
 import * as LevelIcons from '../../components/user/icons/levelicon';
 import { MaleIcon, FemaleIcon } from '../../components/user/icons/gendericon';
@@ -14,7 +14,7 @@ const { Title, Text } = Typography;
 const Profile = () => {
   // Fetch user data from Redux
   const { user } = useSelector((state) => state.user);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const LevelIconComponent = LevelIcons[`LevelIcon${user.level}`] || LevelIcons.LevelIcon1;
 
@@ -22,7 +22,11 @@ const Profile = () => {
     <Layout className="profile-layout-wrapper">
       <Content>
         <div className="profile-bg-section">
-          <img src={require('../../assets/images/userprofilecover.png')} alt="profile-bg" className="profile-bg-img" />
+          <img
+            src={require('../../assets/images/userprofilecover.png')}
+            alt="profile-bg"
+            className="profile-bg-img"
+          />
           <div className="profile-bg-mask" />
           <div className="profile-bg-stats">
             <div className="profile-bg-stats-group">
@@ -48,7 +52,11 @@ const Profile = () => {
                 {user.username}
                 {user.isAuthor && (
                   <Tooltip title="Author">
-                    <WriterIcon width={30} height={30} style={{ verticalAlign: 'middle', marginLeft: 8 }} />
+                    <WriterIcon
+                      width={30}
+                      height={30}
+                      style={{ verticalAlign: 'middle', marginLeft: 8 }}
+                    />
                   </Tooltip>
                 )}
               </Title>
@@ -70,7 +78,9 @@ const Profile = () => {
             <div className="profile-info-left">
               <Text className="profile-bio">{user.profileDetail}</Text>
               <div className="profile-id-row">
-                <Text type="secondary" className="profile-uuid">ID: {user.uuid}</Text>
+                <Text type="secondary" className="profile-uuid">
+                  ID: {user.uuid}
+                </Text>
               </div>
               <div className="profile-join-row">
                 <CalendarOutlined style={{ marginRight: 6, fontSize: 17 }} />
@@ -79,7 +89,14 @@ const Profile = () => {
                 </Text>
                 <Divider type="vertical" />
                 <span className="profile-exp">
-                  <StarFilled style={{ color: '#faad14', marginRight: 4, fontSize: 17, verticalAlign: 'middle' }} />
+                  <StarFilled
+                    style={{
+                      color: '#faad14',
+                      marginRight: 4,
+                      fontSize: 17,
+                      verticalAlign: 'middle',
+                    }}
+                  />
                   EXP: {user.exp}
                 </span>
               </div>

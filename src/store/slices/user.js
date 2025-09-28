@@ -1,35 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 import Testimg from '../../assets/images/testimg.png';
-import { setToken, removeToken } from '../../utils/token'; // 引入 token 工具函数
-
-const initialState = {
-  user: {
-    uuid: '123e4567-e89b-12d3-a456-426614174000', // Mock UUID
-    email: 'mockuser@example.com', // Mock email
-    username: 'MockUser', // Mock username
-    emailVerified: true, // Mock email verification status
-    avatarUrl: Testimg, // Default avatar URL
-    profileDetail: 'A passionate reader who loves fantasy and sci-fi.', // Mock profile detail
-    birthday: '1990-01-01', // Mock birthday
-    gender: 1, // Mock gender (1 = male)
-    status: 1, // Mock status (e.g., active)
-    isAuthor: true, // Mock author status
-    authorVerified: true, // Mock author verification status
-    level: 5, // Mock user level
-    exp: 3200, // Mock experience points
-    yuan: 500, // Mock virtual currency
-    readTime: 128, // Mock total reading time
-    readBookNum: 56, // Mock number of books read
-    createDate: '2022-03-15', // Mock account creation date
-    updateTime: '2023-10-01', // Mock last update time
-    lastLogin: '2023-10-10T12:00:00Z', // Mock last login timestamp
-    lastActive: '2023-10-10T12:30:00Z', // Mock last active timestamp
-  },
-  isAuthenticated: true, // Mock authentication status
-};
+import { setToken, removeToken } from '../../utils/token';
 
 // Uncomment this block for an empty initial state
-/*
 const initialState = {
   user: {
     uuid: null, // Unique identifier for the user
@@ -55,7 +28,6 @@ const initialState = {
   },
   isAuthenticated: false, // Whether the user is authenticated
 };
-*/
 
 const userStore = createSlice({
   name: 'user',
@@ -65,7 +37,7 @@ const userStore = createSlice({
       state.isAuthenticated = true;
       state.user = {
         ...state.user,
-        ...action.payload, // Merge the payload into the user object
+        ...action.payload,
       };
       setToken(action.payload.authToken);
     },

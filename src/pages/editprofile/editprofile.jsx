@@ -6,7 +6,7 @@ import { updateUser } from '../../store/slices/user';
 import './editprofile.css';
 import * as LevelIcons from '../../components/user/icons/levelicon';
 import { MaleIcon, FemaleIcon } from '../../components/user/icons/gendericon';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -172,7 +172,11 @@ const EditProfile = () => {
             <div className="editprofile-bg-mask" />
             <div className="editprofile-bg-stats"></div>
             <div className="editprofile-avatar-wrapper">
-              <Avatar src={avatarFile ? URL.createObjectURL(avatarFile) : user.avatarUrl} size={160} className="editprofile-avatar" />
+              <Avatar
+                src={avatarFile ? URL.createObjectURL(avatarFile) : user.avatarUrl}
+                size={160}
+                className="editprofile-avatar"
+              />
               <span className="editprofile-avatar-camera" onClick={handleCameraClick}>
                 <CameraOutlined style={{ fontSize: 24, color: '#888' }} />
                 <input
@@ -192,7 +196,8 @@ const EditProfile = () => {
               initialValues={{
                 username: user.username,
                 email: user.email,
-                gender: user.gender === 1 ? 'male' : user.gender === 2 ? 'female' : 'prefer_not_to_say', // Convert gender
+                gender:
+                  user.gender === 1 ? 'male' : user.gender === 2 ? 'female' : 'prefer_not_to_say', // Convert gender
                 bio: user.profileDetail,
                 otp: '',
               }}
@@ -233,9 +238,7 @@ const EditProfile = () => {
                     {countdown > 0
                       ? `Resend in ${Math.floor(countdown / 60)
                           .toString()
-                          .padStart(2, '0')}:${(countdown % 60)
-                          .toString()
-                          .padStart(2, '0')}`
+                          .padStart(2, '0')}:${(countdown % 60).toString().padStart(2, '0')}`
                       : 'Send verify email'}
                   </Button>
                 </div>

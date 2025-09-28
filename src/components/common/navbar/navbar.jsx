@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Badge, Popover } from 'antd';
 import {
   MenuOutlined,
@@ -11,6 +11,7 @@ import {
   SettingOutlined,
   EditOutlined,
   CloseOutlined,
+  BellOutlined, // 补充引入 BellOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,10 +21,41 @@ import ContentPopover from '../contentpopover/contentpopover';
 
 const { Header } = Layout;
 
+/** Make a URL-friendly slug (must match browse page parser) */
+const slugify = (s) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
+/** Build route path for a given top section and type */
+const buildBrowsePath = (sectionKey, typeLabel) => {
+  const sec = sectionKey === 'novels' ? 'novel' : sectionKey === 'fanfics' ? 'fanfics' : sectionKey;
+  if (!typeLabel || typeLabel.toLowerCase() === 'all') return `/browse/${sec}`;
+  return `/browse/${sec}/${slugify(typeLabel)}`;
+};
+
+/** Mobile detection: width < 768 or coarse pointer (touch) */
+function useIsMobile() {
+  const get = () =>
+    (typeof window !== 'undefined' && window.innerWidth < 768) ||
+    (typeof window !== 'undefined' &&
+      ('ontouchstart' in window || (navigator.maxTouchPoints || 0) > 0));
+  const [isMobile, setIsMobile] = useState(get());
+  useEffect(() => {
+    const onResize = () => setIsMobile(get());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return isMobile;
+}
+
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   // Fetch authentication status and user info from Redux
   const { isAuthenticated, user } = useSelector((state) => state.user);
@@ -35,9 +67,7 @@ const Navbar = () => {
 
   // Focus search input when expanded
   useEffect(() => {
-    if (searchExpanded && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
+    if (searchExpanded && searchInputRef.current) searchInputRef.current.focus();
   }, [searchExpanded]);
 
   // Close search on escape key
@@ -52,90 +82,144 @@ const Navbar = () => {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [searchExpanded]);
 
-  // mock data
-  const browseMenuData = [
-    {
-      key: 'novels',
-      label: 'Novels',
-      right: [
-        {
-          title: 'MALELEAD',
-          types: [
-            'Action',
-            'Adventure',
-            'Martial Arts',
-            'Fantasy',
-            'Sci-Fi',
-            'Urban',
-            'Historical',
-            'Eastern Fantasy',
-            'Wuxia',
-            'Xianxia',
-            'Military',
-            'Sports',
-          ],
-        },
-        {
-          title: 'FEMALELEAD',
-          types: ['Romance', 'Drama', 'Slice of Life', 'School Life', 'Comedy'],
-        },
-      ],
-    },
-    {
-      key: 'comics',
-      label: 'Comics',
-      right: [
-        { title: '', types: ['Manga', 'Manhua', 'Webtoon', 'Superhero', 'Fantasy', 'Romance'] },
-      ],
-    },
-    {
-      key: 'fanfics',
-      label: 'Fan-fics',
-      right: [{ title: '', types: ['Anime', 'Game', 'Movie', 'TV', 'Book', 'Original'] }],
-    },
-  ];
-  const rankingsMenuData = [
-    {
-      key: 'novels rankings',
-      label: 'Novels rankings',
-    },
-    {
-      key: 'comics rankings',
-      label: 'Comics rankings',
-    },
-    {
-      key: 'fanfics rankings',
-      label: 'Fan-fics rankings',
-    },
-  ];
+  // Browse menu data
+  const browseMenuData = useMemo(
+    () => [
+      {
+        key: 'novels',
+        label: 'Novels',
+        right: [
+          {
+            title: 'MALELEAD',
+            types: [
+              'All',
+              'Action',
+              'Adventure',
+              'Martial Arts',
+              'Fantasy',
+              'Sci-Fi',
+              'Urban',
+              'Historical',
+              'Eastern Fantasy',
+              'Wuxia',
+              'Xianxia',
+              'Military',
+              'Sports',
+            ],
+          },
+          {
+            title: 'FEMALELEAD',
+            types: ['All', 'Romance', 'Drama', 'Slice of Life', 'School Life', 'Comedy'],
+          },
+        ],
+      },
+      {
+        key: 'comics',
+        label: 'Comics',
+        right: [
+          {
+            title: '',
+            types: ['All', 'Manga', 'Manhua', 'Webtoon', 'Superhero', 'Fantasy', 'Romance'],
+          },
+        ],
+      },
+      {
+        key: 'fanfics',
+        label: 'Fan-fics',
+        right: [{ title: '', types: ['All', 'Anime', 'Game', 'Movie', 'TV', 'Book', 'Original'] }],
+      },
+    ],
+    []
+  );
 
-  // Main navigation items
+  const rankingsMenuData = useMemo(
+    () => [
+      { key: 'novels rankings', label: 'Novels rankings' },
+      { key: 'comics rankings', label: 'Comics rankings' },
+      { key: 'fanfics rankings', label: 'Fan-fics rankings' },
+    ],
+    []
+  );
+
+  // Navigate for popover selection (desktop)
+  const handleBrowseSelect = (sectionKey, typeLabel) => {
+    const path = buildBrowsePath(sectionKey, typeLabel);
+    navigate(path);
+    setMobileMenuVisible(false);
+  };
+
+  // Desktop: hover opens popover, click navigates to /browse
+  // Mobile: no popover, click navigates to /browse
+  const BrowseLabel = isMobile ? (
+    <div
+      style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+      onClick={() => {
+        navigate('/browse');
+        setMobileMenuVisible(false);
+      }}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          navigate('/browse');
+          setMobileMenuVisible(false);
+        }
+      }}
+    >
+      <CompassOutlined style={{ fontSize: 28 }} />
+      <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Browse</span>
+    </div>
+  ) : (
+    <Popover
+      placement="bottomLeft"
+      trigger="hover" // hover only, so desktop click still navigates
+      overlayClassName="browse-popover-overlay"
+      content={<ContentPopover data={browseMenuData} onSelect={handleBrowseSelect} />}
+      destroyTooltipOnHide
+    >
+      <div
+        style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+        onClick={() => navigate('/browse')}
+      >
+        <CompassOutlined style={{ fontSize: 28 }} />
+        <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Browse</span>
+      </div>
+    </Popover>
+  );
+
+  // Main nav items
   const menuItems = [
     {
       key: 'browse',
-      label: (
-        <Popover
-          placement="bottomLeft"
-          trigger="hover"
-          overlayClassName="popover-overlay"
-          content={<ContentPopover data={browseMenuData} />}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <CompassOutlined style={{ fontSize: 28 }} />
-            <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Browse</span>
-          </div>
-        </Popover>
-      ),
-      onClick: () => navigate('/browse'),
+      label: BrowseLabel,
+      onClick: () => {
+        // fallback for any menu-level click handling on mobile
+        if (isMobile) {
+          navigate('/browse');
+          setMobileMenuVisible(false);
+        }
+      },
     },
     {
       key: 'rankings',
-      label: (
+      label: isMobile ? (
+        <div
+          style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+          onClick={() => {
+            navigate('/rankings');
+            setMobileMenuVisible(false);
+          }}
+        >
+          <BarChartOutlined style={{ fontSize: 28 }} />
+          <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Rankings</span>
+        </div>
+      ) : (
         <Popover
           placement="bottomLeft"
           trigger="hover"
-          overlayClassName="popover-overlay"
-          content={<ContentPopover data={rankingsMenuData} />}
+          overlayClassName="browse-popover-overlay"
+          content={<ContentPopover data={rankingsMenuData} onSelect={() => {}} />}
+          destroyTooltipOnHide
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <BarChartOutlined style={{ fontSize: 28 }} />
@@ -143,7 +227,12 @@ const Navbar = () => {
           </div>
         </Popover>
       ),
-      onClick: () => navigate('/rankings'),
+      onClick: () => {
+        if (isMobile) {
+          navigate('/rankings');
+          setMobileMenuVisible(false);
+        }
+      },
     },
     {
       key: 'create',
@@ -191,11 +280,10 @@ const Navbar = () => {
 
   const handleSearch = (value) => {
     if (value.trim()) {
-      console.log('Search:', value);
-      // Implement search logic
       navigate(`/search?q=${encodeURIComponent(value)}`);
       setSearchExpanded(false);
       setSearchValue('');
+      setMobileMenuVisible(false);
     }
   };
 
@@ -222,13 +310,17 @@ const Navbar = () => {
           <Menu
             theme="dark"
             mode="horizontal"
-            selectedKeys={[location.pathname.slice(1) || 'home']}
+            selectedKeys={[
+              location.pathname.startsWith('/browse')
+                ? 'browse'
+                : location.pathname.slice(1) || 'home',
+            ]}
             className="nav-menu"
             items={menuItems}
           />
         </div>
 
-        {/* Search Bar - Expandable */}
+        {/* Search */}
         <div className={`navbar-search ${searchExpanded ? 'expanded' : ''}`}>
           {searchExpanded ? (
             <div className="search-input-container">
@@ -237,7 +329,7 @@ const Navbar = () => {
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 onPressEnter={() => handleSearch(searchValue)}
-                placeholder="Search projects, users..."
+                placeholder="Search novels, comics, fan-fics..."
                 className="search-input"
                 suffix={
                   <div className="search-actions">
@@ -269,11 +361,10 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Right Side Actions */}
+        {/* Right Actions */}
         <div className="navbar-actions">
           {isAuthenticated ? (
             <>
-              {/* Library */}
               <Button
                 type="text"
                 icon={<BookOutlined />}
@@ -282,10 +373,11 @@ const Navbar = () => {
               >
                 Library
               </Button>
-
-              {/* User Avatar */}
+              <Dropdown menu={{ items: [{ type: 'group', label: 'Account' }, ...[]] }} />
               <Dropdown
-                menu={{ items: userMenuItems }}
+                menu={{
+                  items: userMenuItems,
+                }}
                 placement="bottomRight"
                 trigger={['click']}
                 overlayClassName="user-dropdown"
@@ -350,7 +442,7 @@ const Navbar = () => {
           {/* Mobile Search */}
           <div style={{ marginBottom: '20px' }}>
             <Input
-              placeholder="Search projects, users..."
+              placeholder="Search novels, comics, fan-fics..."
               prefix={<SearchOutlined />}
               onPressEnter={(e) => handleSearch(e.target.value)}
               className="mobile-search"
@@ -360,7 +452,11 @@ const Navbar = () => {
           {/* Mobile Menu */}
           <Menu
             mode="vertical"
-            selectedKeys={[location.pathname.slice(1) || 'home']}
+            selectedKeys={[
+              location.pathname.startsWith('/browse')
+                ? 'browse'
+                : location.pathname.slice(1) || 'home',
+            ]}
             items={menuItems}
             style={{ border: 'none', background: 'transparent' }}
             theme="dark"
@@ -373,7 +469,10 @@ const Navbar = () => {
                 <Button
                   block
                   icon={<BookOutlined />}
-                  onClick={() => navigate('/library')}
+                  onClick={() => {
+                    navigate('/library');
+                    setMobileMenuVisible(false);
+                  }}
                   style={{ marginBottom: '12px' }}
                 >
                   Library
@@ -407,10 +506,24 @@ const Navbar = () => {
               </div>
             ) : (
               <div>
-                <Button block onClick={() => navigate('/login')} style={{ marginBottom: '12px' }}>
+                <Button
+                  block
+                  onClick={() => {
+                    navigate('/login');
+                    setMobileMenuVisible(false);
+                  }}
+                  style={{ marginBottom: '12px' }}
+                >
                   Login
                 </Button>
-                <Button block type="primary" onClick={() => navigate('/register')}>
+                <Button
+                  block
+                  type="primary"
+                  onClick={() => {
+                    navigate('/register');
+                    setMobileMenuVisible(false);
+                  }}
+                >
                   Register
                 </Button>
               </div>

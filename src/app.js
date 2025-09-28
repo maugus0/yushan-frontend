@@ -12,6 +12,7 @@ import LayoutWrapper from './components/common/layoutwrapper/layout-wrapper';
 import Home from './pages/home/home';
 import Login from './pages/login/login';
 import Register from './pages/register/register';
+import Browse from './pages/browse/browse';
 import Profile from './pages/profile/profile';
 import EditProfile from './pages/editprofile/editprofile';
 
@@ -68,17 +69,25 @@ function App() {
             <Route
               path="/login"
               element={
-                isAuthenticated
-                  ? <Navigate to="/" replace />
-                  : <LayoutWrapper isAuthenticated={isAuthenticated} user={user}><Login /></LayoutWrapper>
+                isAuthenticated ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
+                    <Login />
+                  </LayoutWrapper>
+                )
               }
             />
             <Route
               path="/register"
               element={
-                isAuthenticated
-                  ? <Navigate to="/" replace />
-                  : <LayoutWrapper isAuthenticated={isAuthenticated} user={user}><Register /></LayoutWrapper>
+                isAuthenticated ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
+                    <Register />
+                  </LayoutWrapper>
+                )
               }
             />
 
@@ -113,7 +122,17 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Add more protected routes as needed */}
+            <Route
+              path="/browse"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
+                    <Browse />
+                  </LayoutWrapper>
+                </ProtectedRoute>
+              }
+            />
+            {/* Add more routes as needed */}
           </Routes>
         </div>
       </Router>

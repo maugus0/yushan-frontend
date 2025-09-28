@@ -119,7 +119,7 @@
   bottom: 16px;
   background: #fff;
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   padding: 6px;
   cursor: pointer;
   z-index: 20;
@@ -135,7 +135,7 @@
 
 .editprofile-avatar {
   border: 6px solid #fff;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
 }
 
 .editprofile-content-section {
@@ -264,11 +264,21 @@
 }
 
 @keyframes shake {
-  0% { transform: translateX(0);}
-  25% { transform: translateX(-6px);}
-  50% { transform: translateX(6px);}
-  75% { transform: translateX(-6px);}
-  100% { transform: translateX(0);}
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+  75% {
+    transform: translateX(-6px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 @media (max-width: 900px) {
