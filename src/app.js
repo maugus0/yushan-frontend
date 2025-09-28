@@ -52,7 +52,7 @@ const ProtectedRoute = ({ isAuthenticated, children }) => {
 };
 
 function App() {
-  const { isAuthenticated } = useSelector((state) => state.user); 
+  const { isAuthenticated } = useSelector((state) => state.user);
 
   return (
     <ConfigProvider theme={themeConfig}>
