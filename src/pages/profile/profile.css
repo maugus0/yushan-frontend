@@ -298,6 +298,9 @@
     font-size: 12px;
   }
   .profile-bg-stats-group {
-    gap: 4px;
+    gap: 6px;
+  }
+  .profile-bg-stats-item {
+    min-width: 80px;
   }
 }
