@@ -138,17 +138,17 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
   const handleBrowseSelect = (sectionKey, typeLabel) => {
     const path = buildBrowsePath(sectionKey, typeLabel);
     navigate(path);
-    // If this came from the mobile drawer (defensive), close it
     setMobileMenuVisible(false);
   };
 
-  // Build Browse label: desktop uses Popover; mobile uses plain click to navigate
+  // Desktop: hover opens popover, click navigates to /browse
+  // Mobile: no popover, click navigates to /browse
   const BrowseLabel = isMobile ? (
     <div
       style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
       onClick={() => {
         navigate('/browse');
-        setMobileMenuVisible(false); // close drawer if open
+        setMobileMenuVisible(false);
       }}
       role="button"
       tabIndex={0}
@@ -165,25 +165,28 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
   ) : (
     <Popover
       placement="bottomLeft"
-      trigger={['hover', 'click']}
+      trigger="hover" // hover only, so desktop click still navigates
       overlayClassName="browse-popover-overlay"
       content={<ContentPopover data={browseMenuData} onSelect={handleBrowseSelect} />}
       destroyTooltipOnHide
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+      <div
+        style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+        onClick={() => navigate('/browse')}
+      >
         <CompassOutlined style={{ fontSize: 28 }} />
         <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Browse</span>
       </div>
     </Popover>
   );
 
-  // Main nav items (use BrowseLabel above)
+  // Main nav items
   const menuItems = [
     {
       key: 'browse',
       label: BrowseLabel,
       onClick: () => {
-        // Fallback: ensure navigation on mobile too
+        // fallback for any menu-level click handling on mobile
         if (isMobile) {
           navigate('/browse');
           setMobileMenuVisible(false);
@@ -206,7 +209,7 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
       ) : (
         <Popover
           placement="bottomLeft"
-          trigger={['hover', 'click']}
+          trigger="hover"
           overlayClassName="browse-popover-overlay"
           content={<ContentPopover data={rankingsMenuData} onSelect={() => {}} />}
           destroyTooltipOnHide
@@ -231,37 +234,6 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
       onClick: () => {
         navigate('/create');
         setMobileMenuVisible(false);
-      },
-    },
-  ];
-
-  const userMenuItems = [
-    {
-      key: 'profile',
-      icon: <UserOutlined />,
-      label: 'Profile',
-      onClick: () => navigate('/profile'),
-    },
-    {
-      key: 'library',
-      icon: <BookOutlined />,
-      label: 'My Library',
-      onClick: () => navigate('/library'),
-    },
-    {
-      key: 'settings',
-      icon: <SettingOutlined />,
-      label: 'Settings',
-      onClick: () => navigate('/settings'),
-    },
-    { type: 'divider' },
-    {
-      key: 'logout',
-      icon: <LogoutOutlined />,
-      label: 'Logout',
-      onClick: () => {
-        localStorage.removeItem('authToken');
-        window.location.reload();
       },
     },
   ];
@@ -369,8 +341,40 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
                   onClick={() => navigate('/notifications')}
                 />
               </Badge>
+              <Dropdown menu={{ items: [{ type: 'group', label: 'Account' }, ...[]] }} />
               <Dropdown
-                menu={{ items: userMenuItems }}
+                menu={{
+                  items: [
+                    {
+                      key: 'profile',
+                      icon: <UserOutlined />,
+                      label: 'Profile',
+                      onClick: () => navigate('/profile'),
+                    },
+                    {
+                      key: 'library',
+                      icon: <BookOutlined />,
+                      label: 'My Library',
+                      onClick: () => navigate('/library'),
+                    },
+                    {
+                      key: 'settings',
+                      icon: <SettingOutlined />,
+                      label: 'Settings',
+                      onClick: () => navigate('/settings'),
+                    },
+                    { type: 'divider' },
+                    {
+                      key: 'logout',
+                      icon: <LogoutOutlined />,
+                      label: 'Logout',
+                      onClick: () => {
+                        localStorage.removeItem('authToken');
+                        window.location.reload();
+                      },
+                    },
+                  ],
+                }}
                 placement="bottomRight"
                 trigger={['click']}
                 overlayClassName="user-dropdown"
@@ -437,7 +441,7 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
             />
           </div>
 
-          {/* Mobile Menu (uses the same items; BrowseLabel already disables popover on mobile) */}
+          {/* Mobile Menu */}
           <Menu
             mode="vertical"
             selectedKeys={[
