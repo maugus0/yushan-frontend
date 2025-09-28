@@ -11,8 +11,7 @@ import {
   BookOutlined,
   SettingOutlined,
   EditOutlined,
-  CloseOutlined,
-  // 去掉 BellOutlined
+  CloseOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';

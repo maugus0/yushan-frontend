@@ -72,7 +72,7 @@ function App() {
                 isAuthenticated ? (
                   <Navigate to="/" replace />
                 ) : (
-                  <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
+                  <LayoutWrapper>
                     <Login />
                   </LayoutWrapper>
                 )
@@ -84,29 +84,28 @@ function App() {
                 isAuthenticated ? (
                   <Navigate to="/" replace />
                 ) : (
-                  <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
+                  <LayoutWrapper>
                     <Register />
                   </LayoutWrapper>
                 )
               }
             />
 
-            {/* Protected routes */}
             <Route
               path="/"
               element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
-                    <Home />
-                  </LayoutWrapper>
-                </ProtectedRoute>
+                <LayoutWrapper>
+                  <Home />
+                </LayoutWrapper>
               }
             />
+
+            {/* Protected routes */}
             <Route
               path="/profile"
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
+                  <LayoutWrapper>
                     <Profile />
                   </LayoutWrapper>
                 </ProtectedRoute>
@@ -116,7 +115,7 @@ function App() {
               path="/editprofile"
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
+                  <LayoutWrapper>
                     <EditProfile />
                   </LayoutWrapper>
                 </ProtectedRoute>
@@ -126,7 +125,7 @@ function App() {
               path="/browse/*"
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
+                  <LayoutWrapper>
                     <Browse />
                   </LayoutWrapper>
                 </ProtectedRoute>
