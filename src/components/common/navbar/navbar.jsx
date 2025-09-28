@@ -480,7 +480,10 @@ const Navbar = () => {
                 <Button
                   block
                   icon={<UserOutlined />}
-                  onClick={() => navigate('/profile')}
+                  onClick={() => {
+                    navigate('/profile');
+                    setMobileMenuVisible(false);
+                  }}
                   style={{ marginBottom: '12px' }}
                 >
                   Profile
@@ -488,7 +491,10 @@ const Navbar = () => {
                 <Button
                   block
                   icon={<SettingOutlined />}
-                  onClick={() => navigate('/settings')}
+                  onClick={() => {
+                    navigate('/settings');
+                    setMobileMenuVisible(false);
+                  }}
                   style={{ marginBottom: '12px' }}
                 >
                   Settings
@@ -498,6 +504,7 @@ const Navbar = () => {
                   icon={<LogoutOutlined />}
                   onClick={() => {
                     dispatch(logout());
+                    setMobileMenuVisible(false);
                     navigate('/login');
                   }}
                 >
