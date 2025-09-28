@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Popover } from 'antd';
-// 去掉 Badge
 import {
   MenuOutlined,
   UserOutlined,
@@ -543,7 +542,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-// 建议运行 npx prettier --write src/components/common/navbar/navbar.jsx 修复格式问题
-// 你可以直接在命令行输入：
-// npx --yes prettier@3.3.3 --write src/components/common/navbar/navbar.jsx
