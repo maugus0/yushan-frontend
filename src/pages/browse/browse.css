@@ -1,3 +1,10 @@
+/* ============================================================================
+   Browse Page Styles (FULL)
+   - Sidebar with clickable Male/Female headers (centered)
+   - Larger filter/sort fonts; Reset + Grid/List aligned to same baseline
+   - Grid/List layout; Active color #667ac0 matching navbar
+   ========================================================================== */
+
 /* 1. Layout Shell ------------------------------------------------------- */
 .browse-layout-wrapper {
   max-width: 1280px;
@@ -15,21 +22,24 @@
 .browse-sidebar {
   width: 260px;
   position: sticky;
-  top: 92px;
+  top: 92px;                 /* align with navbar height */
   align-self: flex-start;
   padding: 12px 0 16px;
   border-right: 1px solid #f0f0f0;
+  background: #fff;
+
+  /* Keep internal scrolling */
   max-height: calc(100vh - 120px);
   overflow-y: auto;
-  background: #fff;
+
+  /* Hide scrollbars but keep scrolling (cross-browser) */
+  -ms-overflow-style: none;  /* IE/Edge (legacy) */
+  scrollbar-width: none;     /* Firefox */
 }
-.browse-sidebar__collapse .ant-collapse-header {
-  font-weight: 700;
-  font-size: 16px; /* enlarged */
-  padding: 10px 16px;
-}
-.browse-sidebar__panel + .browse-sidebar__panel {
-  margin-top: 4px;
+.browse-sidebar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;             /* Chrome/Safari/WebKit */
 }
 
 /* Comics / Fan-fics (two columns) */
@@ -43,33 +53,19 @@
 /* Genre buttons */
 .browse-sidebar__genre-btn {
   justify-content: center;
-  font-size: 13px; /* enlarged */
+  font-size: 13px;  /* enlarged */
   padding: 0 10px;
   line-height: 26px;
   height: 28px;
-  transition:
-    background 0.15s,
-    color 0.15s,
-    border-color 0.15s;
+  transition: background .15s, color .15s, border-color .15s;
   white-space: nowrap;
   border-radius: 8px;
 }
-.browse-sidebar__genre-btn:not(.is-active):hover {
-  background: #f5f6fa;
-}
+.browse-sidebar__genre-btn:not(.is-active):hover { background: #f5f6fa; }
 
 /* Novel groups */
-.novel-groups-wrapper {
-  display: flex;
-  gap: 16px;
-  padding: 4px 8px 0;
-}
-.novel-group {
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
+.novel-groups-wrapper { display: flex; gap: 16px; padding: 4px 8px 0; }
+.novel-group { flex: 1 1 0; display: flex; flex-direction: column; min-width: 0; }
 
 /* Clickable Male/Female headers (centered pills) */
 .novel-group-header-link {
@@ -80,51 +76,32 @@
   padding: 0 12px;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.6px;
+  letter-spacing: .6px;
   text-transform: uppercase;
   color: #555;
   background: #f5f6fa;
   border: 1px solid #dfe3ec;
   border-radius: 999px;
   margin: 0 0 10px;
-  transition:
-    background 0.15s,
-    border-color 0.15s,
-    color 0.15s;
+  transition: background .15s, border-color .15s, color .15s;
   cursor: pointer;
 }
 .novel-group-header-link:hover {
-  background: #eceff6;
-  border-color: #ccd4e4;
-  color: #333;
+  background: #eceff6; border-color: #ccd4e4; color: #333;
 }
 .novel-group-header-link.is-active {
-  background: #667ac0;
-  border-color: #667ac0;
-  color: #fff;
+  background: #667ac0; border-color: #667ac0; color: #fff;
 }
 
-.novel-group-body {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 6px;
-}
+.novel-group-body { display: grid; grid-template-columns: 1fr; gap: 6px; }
 
 /* 3. Main Content ------------------------------------------------------- */
-.browse-main {
-  flex: 1;
-  min-width: 0;
-}
+.browse-main { flex: 1; min-width: 0; }
 .browse-main__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 4px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 4px;
 }
-.browse-main__title {
-  margin: 0;
-}
+.browse-main__title { margin: 0; }
 
 /* 4. Filter / Sort Pills ------------------------------------------------ */
 /* Bigger fonts + aligned controls */
@@ -142,14 +119,12 @@
   flex-wrap: wrap;
 }
 .filter-pills__group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: flex; flex-direction: column; gap: 6px;
 }
 .filter-pills__label {
   font-size: 12px; /* bigger */
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: .6px;
   font-weight: 700;
   color: #666;
 }
@@ -162,13 +137,10 @@
   background: #f5f6fa;
   border: 1px solid #dfe3ec;
   color: #444;
-  transition:
-    background 0.15s,
-    border-color 0.15s;
+  transition: background .15s, border-color .15s;
 }
-.pill-btn:not([aria-pressed='true']):hover {
-  background: #eceff6;
-  border-color: #ccd4e4;
+.pill-btn:not([aria-pressed="true"]):hover {
+  background: #eceff6; border-color: #ccd4e4;
 }
 
 /* Right-side action group (Reset + View Toggle) aligned to the right */
@@ -196,152 +168,47 @@
   gap: 20px 18px;
   margin-top: 16px;
 }
-.novel-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 16px;
-}
-.novel-grid > div[role='listitem'],
-.novel-list > div[role='listitem'] {
-  display: flex;
-}
+.novel-list { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+.novel-grid > div[role='listitem'], .novel-list > div[role='listitem'] { display: flex; }
 
 /* 6. Card Styles -------------------------------------------------------- */
 .browse-card {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  background: #fff;
-  border: 1px solid #ebedf0;
-  border-radius: 10px;
-  padding: 8px 8px 10px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  transition:
-    box-shadow 0.18s,
-    transform 0.18s;
-  outline: none;
+  display: flex; flex-direction: column; width: 100%;
+  background: #fff; border: 1px solid #ebedf0; border-radius: 10px;
+  padding: 8px 8px 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: box-shadow .18s, transform .18s; outline: none;
 }
-.browse-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
-  cursor: pointer;
-}
-.browse-card:focus-visible {
-  box-shadow: 0 0 0 2px #c6cfeb;
-}
-.browse-card--list {
-  flex-direction: row;
-  padding: 12px 16px;
-}
+.browse-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); transform: translateY(-2px); cursor: pointer; }
+.browse-card:focus-visible { box-shadow: 0 0 0 2px #c6cfeb; }
+.browse-card--list { flex-direction: row; padding: 12px 16px; }
 .browse-card__cover {
-  width: 100%;
-  aspect-ratio: 3 / 4;
-  border-radius: 6px;
-  overflow: hidden;
-  background: #f5f5f5;
-  flex-shrink: 0;
-  margin-bottom: 8px;
-  position: relative;
+  width: 100%; aspect-ratio: 3 / 4; border-radius: 6px; overflow: hidden;
+  background:#f5f5f5; flex-shrink: 0; margin-bottom: 8px; position: relative;
 }
-.browse-card--list .browse-card__cover {
-  width: 120px;
-  margin-bottom: 0;
-  margin-right: 16px;
-}
-.browse-card__cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.browse-card__body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-.browse-card__title {
-  font-size: 15px;
-  margin: 0 0 4px;
-  font-weight: 600;
-  line-height: 1.25;
-  color: #283157;
-}
-.browse-card__author {
-  font-size: 12px;
-  color: #667ac0;
-  margin-bottom: 6px;
-}
-.browse-card__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-bottom: 6px;
-}
-.browse-card__stats {
-  font-size: 12px;
-  color: #666;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-.browse-card__desc {
-  font-size: 12.5px;
-  line-height: 1.4;
-  color: #555;
-  margin-top: 4px;
-  max-height: 72px;
-  overflow: hidden;
-}
+.browse-card--list .browse-card__cover { width: 120px; margin-bottom: 0; margin-right: 16px; }
+.browse-card__cover img { width: 100%; height: 100%; object-fit: cover; display:block; }
+.browse-card__body { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.browse-card__title { font-size: 15px; margin: 0 0 4px; font-weight: 600; line-height: 1.25; color: #283157; }
+.browse-card__author { font-size: 12px; color: #667ac0; margin-bottom: 6px; }
+.browse-card__tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.browse-card__stats { font-size: 12px; color: #666; display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.browse-card__desc { font-size: 12.5px; line-height: 1.4; color: #555; margin-top: 4px; max-height: 72px; overflow: hidden; }
 
-.browse-end-indicator {
-  text-align: center;
-  margin: 32px 0 0;
-  font-size: 12px;
-  color: #777;
-}
-.browse-backend-note {
-  margin-top: 48px;
-  text-align: center;
-  font-size: 12px;
-  color: #888;
-}
+.browse-end-indicator { text-align: center; margin: 32px 0 0; font-size: 12px; color: #777; }
+.browse-backend-note { margin-top: 48px; text-align: center; font-size: 12px; color: #888; }
 
 /* 7. Infinite Scroll Sentinel ------------------------------------------ */
-.browse-infinite-sentinel {
-  width: 100%;
-  height: 1px;
-  pointer-events: none;
-}
+.browse-infinite-sentinel { width: 100%; height: 1px; pointer-events: none; }
 
 /* 8. Responsive --------------------------------------------------------- */
 @media (max-width: 767px) {
-  .browse-layout {
-    flex-direction: column;
-    gap: 16px;
-  }
-  .browse-sidebar {
-    display: none;
-  }
-  .filter-pills {
-    padding: 12px;
-  }
-  .filter-pills__row {
-    gap: 12px;
-  }
-  .browse-card--list .browse-card__cover {
-    width: 90px;
-    margin-right: 12px;
-  }
-  .novel-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  }
-  .novel-groups-wrapper {
-    flex-direction: column;
-    gap: 12px;
-  }
+  .browse-layout { flex-direction: column; gap: 16px; }
+  .browse-sidebar { display: none; }
+  .filter-pills { padding: 12px; }
+  .filter-pills__row { gap: 12px; }
+  .browse-card--list .browse-card__cover { width: 90px; margin-right: 12px; }
+  .novel-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .novel-groups-wrapper { flex-direction: column; gap: 12px; }
 }
 
 /* 9. Active State Color Overrides (navbar color #667ac0) ---------------- */
@@ -352,51 +219,38 @@
   --nav-focus-ring: #c6cfeb;
 }
 .browse-layout-wrapper .view-toggle-group .ant-btn-primary {
-  background: var(--nav-selected) !important;
-  border-color: var(--nav-selected) !important;
-  box-shadow: none;
+  background: var(--nav-selected) !important; border-color: var(--nav-selected) !important; box-shadow: none;
 }
 .browse-layout-wrapper .view-toggle-group .ant-btn-primary:hover,
 .browse-layout-wrapper .view-toggle-group .ant-btn-primary:focus {
-  background: var(--nav-selected-hover) !important;
-  border-color: var(--nav-selected-hover) !important;
+  background: var(--nav-selected-hover) !important; border-color: var(--nav-selected-hover) !important;
 }
 .browse-layout-wrapper .view-toggle-group .ant-btn-primary:active {
-  background: var(--nav-selected-active) !important;
-  border-color: var(--nav-selected-active) !important;
+  background: var(--nav-selected-active) !important; border-color: var(--nav-selected-active) !important;
 }
 .browse-layout-wrapper .browse-sidebar__genre-btn.is-active {
-  background: var(--nav-selected) !important;
-  border: 1px solid var(--nav-selected) !important;
-  color: #fff !important;
-  font-weight: 600;
+  background: var(--nav-selected) !important; border: 1px solid var(--nav-selected) !important;
+  color: #fff !important; font-weight: 600;
 }
 .browse-layout-wrapper .browse-sidebar__genre-btn.is-active:hover {
-  background: var(--nav-selected-hover) !important;
-  border-color: var(--nav-selected-hover) !important;
+  background: var(--nav-selected-hover) !important; border-color: var(--nav-selected-hover) !important;
 }
 .browse-layout-wrapper .browse-sidebar__genre-btn.is-active:active {
-  background: var(--nav-selected-active) !important;
-  border-color: var(--nav-selected-active) !important;
+  background: var(--nav-selected-active) !important; border-color: var(--nav-selected-active) !important;
 }
-.browse-layout-wrapper .pill-btn[aria-pressed='true'] {
-  background: var(--nav-selected) !important;
-  border-color: var(--nav-selected) !important;
-  color: #fff !important;
+.browse-layout-wrapper .pill-btn[aria-pressed="true"] {
+  background: var(--nav-selected) !important; border-color: var(--nav-selected) !important; color: #fff !important;
 }
-.browse-layout-wrapper .pill-btn[aria-pressed='true']:hover,
-.browse-layout-wrapper .pill-btn[aria-pressed='true']:focus {
-  background: var(--nav-selected-hover) !important;
-  border-color: var(--nav-selected-hover) !important;
+.browse-layout-wrapper .pill-btn[aria-pressed="true"]:hover,
+.browse-layout-wrapper .pill-btn[aria-pressed="true"]:focus {
+  background: var(--nav-selected-hover) !important; border-color: var(--nav-selected-hover) !important;
 }
-.browse-layout-wrapper .pill-btn[aria-pressed='true']:active {
-  background: var(--nav-selected-active) !important;
-  border-color: var(--nav-selected-active) !important;
+.browse-layout-wrapper .pill-btn[aria-pressed="true"]:active {
+  background: var(--nav-selected-active) !important; border-color: var(--nav-selected-active) !important;
 }
 .browse-layout-wrapper .view-toggle-group .ant-btn-primary:focus-visible,
 .browse-layout-wrapper .browse-sidebar__genre-btn.is-active:focus-visible,
-.browse-layout-wrapper .pill-btn[aria-pressed='true']:focus-visible,
+.browse-layout-wrapper .pill-btn[aria-pressed="true"]:focus-visible,
 .browse-layout-wrapper .novel-group-header-link.is-active:focus-visible {
-  box-shadow: 0 0 0 2px var(--nav-focus-ring);
-  outline: none;
+  box-shadow: 0 0 0 2px var(--nav-focus-ring); outline: none;
 }
