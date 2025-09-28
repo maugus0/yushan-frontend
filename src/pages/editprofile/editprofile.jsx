@@ -4,12 +4,9 @@ import { CameraOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUser } from '../../store/slices/user';
 import './editprofile.css';
-import * as LevelIcons from '../../components/user/icons/levelicon';
-import { MaleIcon, FemaleIcon } from '../../components/user/icons/gendericon';
 import { useNavigate } from 'react-router-dom';
 
 const { Content } = Layout;
-const { Title } = Typography;
 const { Option } = Select;
 
 const EditProfile = () => {
@@ -17,7 +14,6 @@ const EditProfile = () => {
   const [form] = Form.useForm();
   const [emailError, setEmailError] = useState('');
   const [otpError, setOtpError] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [isDirty, setIsDirty] = useState(false);
   const [avatarFile, setAvatarFile] = useState(null); // State to store the selected avatar file
@@ -62,7 +58,6 @@ const EditProfile = () => {
       }
       return;
     }
-    setOtpSent(true);
     setCountdown(300);
     message.success('Verification email sent!');
   };

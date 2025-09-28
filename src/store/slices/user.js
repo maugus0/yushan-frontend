@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import Testimg from '../../assets/images/testimg.png';
 import { setToken, removeToken } from '../../utils/token';
 
 // Uncomment this block for an empty initial state
