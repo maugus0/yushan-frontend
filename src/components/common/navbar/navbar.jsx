@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Badge, Popover } from 'antd';
+import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Popover } from 'antd';
+// 去掉 Badge
 import {
   MenuOutlined,
   UserOutlined,
@@ -11,7 +12,7 @@ import {
   SettingOutlined,
   EditOutlined,
   CloseOutlined,
-  BellOutlined,
+  // 去掉 BellOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';

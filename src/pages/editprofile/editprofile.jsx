@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Layout, Button, Avatar, Typography, Input, Form, Select, message, App } from 'antd';
+import { Layout, Button, Avatar, Input, Form, Select, message, App } from 'antd';
 import { CameraOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUser } from '../../store/slices/user';
