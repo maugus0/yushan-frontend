@@ -123,7 +123,7 @@ function App() {
               }
             />
             <Route
-              path="/browse"
+              path="/browse/*"
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated}>
                   <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
