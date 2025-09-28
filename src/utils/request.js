@@ -1,5 +1,6 @@
 import axios from 'axios';
 import rateLimit from 'axios-rate-limit';
+import { getToken } from './token';
 
 // Create an axios instance with timeout and security configs
 const baseAxios = axios.create({
@@ -24,6 +25,12 @@ const requestTimes = [];
 // Request interceptor with enhanced rate limiting
 apiClient.interceptors.request.use(
   (config) => {
+    // JWT token
+    const token = getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     const now = Date.now();
 
     // Remove requests older than 1 minute

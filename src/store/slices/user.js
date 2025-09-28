@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
-import Testimg from '../../assets/images/testimg.png'; // Import the default avatar image
+import Testimg from '../../assets/images/testimg.png';
+import { setToken, removeToken } from '../../utils/token'; // 引入 token 工具函数
 
 const initialState = {
   user: {
@@ -66,12 +67,12 @@ const userStore = createSlice({
         ...state.user,
         ...action.payload, // Merge the payload into the user object
       };
-      localStorage.setItem('authToken', action.payload.authToken); // Save auth token to localStorage
+      setToken(action.payload.authToken);
     },
     logout(state) {
       state.isAuthenticated = false;
       state.user = { ...initialState.user }; // Reset user to initial state
-      localStorage.removeItem('authToken'); // Remove auth token from localStorage
+      removeToken();
     },
     updateUser(state, action) {
       Object.keys(action.payload).forEach((key) => {
