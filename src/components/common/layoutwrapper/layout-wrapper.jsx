@@ -6,15 +6,13 @@ import './layout-wrapper.css';
 
 const { Content } = Layout;
 
-const LayoutWrapper = ({ children, isAuthenticated = false, user = null, className = '' }) => {
+const LayoutWrapper = ({ children, className = '' }) => {
   return (
     <Layout className={`layout-wrapper ${className}`}>
-      <Navbar isAuthenticated={isAuthenticated} user={user} />
-
+      <Navbar />
       <Content className="main-content">
         <div className="content-container">{children}</div>
       </Content>
-
       <Footer />
     </Layout>
   );

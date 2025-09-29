@@ -1,23 +1,7 @@
-/**
- * AuthForm Component
- *
- * Features:
- *  - Dual mode: "login" or "register"
- *  - Login: email + password
- *  - Register: username + password + confirmPassword + gender(optional) + birthday(optional, >= 12 if provided) + email + OTP
- *  - Email & OTP placed at bottom for register
- *  - OTP sending with precise 5-minute countdown (starts at 05:00, no jump glitches)
- *  - Countdown stays accurate even if tab becomes inactive (uses timestamp diff, not naive decrement)
- *  - Validations: password strength, confirm match, email format, OTP format, optional birthday age check
- *  - Static demo logic + placeholders for real backend
- *
- * Real Backend Integration:
- *  See the guide block near the bottom.
- */
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Form, Input, Button, message, Select, DatePicker, Space, Typography } from 'antd';
 import dayjs from 'dayjs';
+import Testimg from '../../assets/images/testimg.png';
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -27,7 +11,7 @@ const { Text } = Typography;
  * -------------------------------------------------- */
 
 const USE_STATIC_DEMO_CHECK = true;
-const DEMO_USER = { email: 'demo@example.com', password: 'Demo1234' };
+const DEMO_USER = { username: 'test@email.com', password: '1234' };
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
 
@@ -188,16 +172,41 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
       // LOGIN
       console.log('[STATIC SUBMIT] login payload:', payload);
       if (USE_STATIC_DEMO_CHECK) {
-        const ok = payload.email === DEMO_USER.email && payload.password === DEMO_USER.password;
+        const ok = payload.email === DEMO_USER.username && payload.password === DEMO_USER.password;
         if (!ok) {
           message.error('Invalid email or password');
           return;
         }
+        const mockAuthToken = 'mockAuthToken12345';
+        const userInfo = {
+          uuid: '123e4567-e89b-12d3-a456-426614174000',
+          email: 'test@example.com',
+          username: 'testuser',
+          emailVerified: true,
+          avatarUrl: Testimg,
+          profileDetail: 'A passionate reader who loves fantasy and sci-fi.',
+          birthday: '1990-01-01',
+          gender: 1,
+          status: 1,
+          isAuthor: true,
+          authorVerified: true,
+          level: 5,
+          exp: 3200,
+          yuan: 500,
+          readTime: 128,
+          readBookNum: 56,
+          createDate: '2022-03-15',
+          updateTime: '2023-10-01',
+          lastLogin: '2023-10-10T12:00:00Z',
+          lastActive: '2023-10-10T12:30:00Z',
+        };
+        const userData = { ...userInfo, authToken: mockAuthToken };
+        message.success('Login validated (static)');
+        onSuccess && onSuccess(userData);
+        return;
       }
-      message.success('Login validated (static demo).');
-      onSuccess && onSuccess(payload);
-    } catch {
-      message.error('Unexpected error (static).');
+    } catch (e) {
+      message.error('Unexpected error (static)');
     } finally {
       setSubmitting(false);
     }

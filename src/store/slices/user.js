@@ -1,11 +1,59 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { setToken, removeToken } from '../../utils/token';
+
+// Uncomment this block for an empty initial state
+const initialState = {
+  user: {
+    uuid: null, // Unique identifier for the user
+    email: null, // User's email address
+    username: null, // User's username
+    emailVerified: false, // Whether the email is verified
+    avatarUrl: null, // Default avatar URL
+    profileDetail: null, // Additional profile details
+    birthday: null, // User's birthday
+    gender: null, // Gender (e.g., 0 = unspecified, 1 = male, 2 = female)
+    status: null, // User's status (e.g., active, banned, etc.)
+    isAuthor: false, // Whether the user is an author
+    authorVerified: false, // Whether the author is verified
+    level: 1, // User's level
+    exp: 0, // User's experience points
+    yuan: 0, // User's currency (e.g., virtual currency)
+    readTime: 0, // Total reading time
+    readBookNum: 0, // Number of books read
+    createDate: null, // Account creation date
+    updateTime: null, // Last update time
+    lastLogin: null, // Last login timestamp
+    lastActive: null, // Last active timestamp
+  },
+  isAuthenticated: false, // Whether the user is authenticated
+};
 
 const userStore = createSlice({
   name: 'user',
-  initialState: {},
-  reducers: {},
+  initialState,
+  reducers: {
+    login(state, action) {
+      state.isAuthenticated = true;
+      state.user = {
+        ...state.user,
+        ...action.payload,
+      };
+      setToken(action.payload.authToken);
+    },
+    logout(state) {
+      state.isAuthenticated = false;
+      state.user = { ...initialState.user }; // Reset user to initial state
+      removeToken();
+    },
+    updateUser(state, action) {
+      Object.keys(action.payload).forEach((key) => {
+        if (key in state.user) {
+          state.user[key] = action.payload[key];
+        }
+      });
+    },
+  },
 });
 
-const userReducer = userStore.reducer;
-
-export default userReducer;
+export const { login, logout, updateUser } = userStore.actions;
+export default userStore.reducer;

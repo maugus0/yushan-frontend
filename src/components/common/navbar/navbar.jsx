@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Badge, Popover } from 'antd';
+import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Popover } from 'antd';
 import {
   MenuOutlined,
   UserOutlined,
   LogoutOutlined,
   SearchOutlined,
-  BellOutlined,
   BarChartOutlined,
   CompassOutlined,
   BookOutlined,
@@ -14,6 +13,8 @@ import {
   CloseOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../../../store/slices/user';
 import './navbar.css';
 import ContentPopover from '../contentpopover/contentpopover';
 
@@ -49,14 +50,19 @@ function useIsMobile() {
   return isMobile;
 }
 
-const Navbar = ({ isAuthenticated = false, user = null }) => {
+const Navbar = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isMobile = useIsMobile();
+
+  // Fetch authentication status and user info from Redux
+  const { isAuthenticated, user } = useSelector((state) => state.user);
+
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const searchInputRef = useRef(null);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const isMobile = useIsMobile();
 
   // Focus search input when expanded
   useEffect(() => {
@@ -231,9 +237,42 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
       key: 'create',
       icon: <EditOutlined style={{ fontSize: 28 }} />,
       label: <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Create</span>,
+      onClick: () => navigate('/create'),
+    },
+  ];
+
+  // User dropdown menu
+  const userMenuItems = [
+    {
+      key: 'profile',
+      icon: <UserOutlined />,
+      label: 'Profile',
+      onClick: () => navigate('/profile'),
+    },
+    {
+      key: 'library',
+      icon: <BookOutlined />,
+      label: 'My Library',
+      onClick: () => navigate('/library'),
+    },
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: 'Settings',
       onClick: () => {
-        navigate('/create');
-        setMobileMenuVisible(false);
+        navigate('/settings');
+      },
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Logout',
+      onClick: () => {
+        dispatch(logout());
+        navigate('/login');
       },
     },
   ];
@@ -333,60 +372,28 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
               >
                 Library
               </Button>
-              <Badge count={3} size="small">
-                <Button
-                  type="text"
-                  icon={<BellOutlined />}
-                  className="nav-button icon-only"
-                  onClick={() => navigate('/notifications')}
-                />
-              </Badge>
               <Dropdown menu={{ items: [{ type: 'group', label: 'Account' }, ...[]] }} />
               <Dropdown
                 menu={{
-                  items: [
-                    {
-                      key: 'profile',
-                      icon: <UserOutlined />,
-                      label: 'Profile',
-                      onClick: () => navigate('/profile'),
-                    },
-                    {
-                      key: 'library',
-                      icon: <BookOutlined />,
-                      label: 'My Library',
-                      onClick: () => navigate('/library'),
-                    },
-                    {
-                      key: 'settings',
-                      icon: <SettingOutlined />,
-                      label: 'Settings',
-                      onClick: () => navigate('/settings'),
-                    },
-                    { type: 'divider' },
-                    {
-                      key: 'logout',
-                      icon: <LogoutOutlined />,
-                      label: 'Logout',
-                      onClick: () => {
-                        localStorage.removeItem('authToken');
-                        window.location.reload();
-                      },
-                    },
-                  ],
+                  items: userMenuItems,
                 }}
                 placement="bottomRight"
                 trigger={['click']}
                 overlayClassName="user-dropdown"
               >
-                <div className="user-avatar">
-                  <Avatar
-                    size={32}
-                    icon={<UserOutlined />}
-                    src={user?.avatar}
-                    style={{ cursor: 'pointer' }}
-                  />
-                </div>
+                <Avatar
+                  size={32}
+                  icon={<UserOutlined />}
+                  src={user?.avatarUrl}
+                  style={{
+                    cursor: 'pointer',
+                    border: 'none',
+                    boxShadow: 'none',
+                    background: 'transparent',
+                    padding: 0,
+                    margin: 0,
+                  }}
+                />
               </Dropdown>
             </>
           ) : (
@@ -471,10 +478,33 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
                 </Button>
                 <Button
                   block
+                  icon={<UserOutlined />}
+                  onClick={() => {
+                    navigate('/profile');
+                    setMobileMenuVisible(false);
+                  }}
+                  style={{ marginBottom: '12px' }}
+                >
+                  Profile
+                </Button>
+                <Button
+                  block
+                  icon={<SettingOutlined />}
+                  onClick={() => {
+                    navigate('/settings');
+                    setMobileMenuVisible(false);
+                  }}
+                  style={{ marginBottom: '12px' }}
+                >
+                  Settings
+                </Button>
+                <Button
+                  block
                   icon={<LogoutOutlined />}
                   onClick={() => {
-                    localStorage.removeItem('authToken');
-                    window.location.reload();
+                    dispatch(logout());
+                    setMobileMenuVisible(false);
+                    navigate('/login');
                   }}
                 >
                   Logout
