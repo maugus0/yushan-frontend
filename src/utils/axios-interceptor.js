@@ -6,7 +6,7 @@ axios.interceptors.request.use(
       url: config.url,
       method: config.method,
       data: config.data,
-      headers: config.headers
+      headers: config.headers,
     });
     return config;
   },
@@ -20,7 +20,7 @@ axios.interceptors.response.use(
   (response) => {
     console.log('Response:', {
       status: response.status,
-      data: response.data
+      data: response.data,
     });
     return response;
   },
@@ -28,7 +28,7 @@ axios.interceptors.response.use(
     console.error('Response Error:', {
       status: error.response?.status,
       data: error.response?.data,
-      message: error.message
+      message: error.message,
     });
     return Promise.reject(error);
   }

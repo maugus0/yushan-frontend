@@ -162,7 +162,7 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
       setSubmitting(false);
     }
   };
-  
+
   const handleFinishFailed = () => {
     if (!isRegister && !liveValidate) setLiveValidate(true);
   };

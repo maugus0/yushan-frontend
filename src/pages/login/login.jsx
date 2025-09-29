@@ -30,10 +30,7 @@ const Login = () => {
         style={{ marginBottom: 16 }}
       />
       <Card title="Login">
-        <AuthForm
-          mode="login"
-          onSuccess={handleLogin}
-        />
+        <AuthForm mode="login" onSuccess={handleLogin} />
         <div style={{ marginTop: 12, textAlign: 'right' }}>
           {/* Use accessible link-style button instead of bare <a> without href */}
           <Button type="link" onClick={() => navigate('/register')}>

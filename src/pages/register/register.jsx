@@ -16,7 +16,7 @@ const Register = () => {
       console.log('Registration values:', values);
       const userData = await authService.register(values);
       console.log('Registration response:', userData);
-      dispatch(login(userData));      
+      dispatch(login(userData));
       message.success('Registration successful!');
       navigate('/');
     } catch (error) {
@@ -34,10 +34,7 @@ const Register = () => {
         style={{ marginBottom: 16 }}
       />
       <Card title="Create Account">
-        <AuthForm
-          mode="register"
-          onSuccess={handleRegister}
-        />
+        <AuthForm mode="register" onSuccess={handleRegister} />
         <div style={{ marginTop: 12, textAlign: 'right' }}>
           {/* Use accessible link-style button instead of bare <a> without href */}
           <Button type="link" onClick={() => navigate('/login')}>

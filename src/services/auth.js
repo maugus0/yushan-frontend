@@ -8,14 +8,14 @@ const GENDER_CODES = {
   male: 0,
   female: 1,
   other: 2,
-  prefer_not_to_say: 3
+  prefer_not_to_say: 3,
 };
 
 const authService = {
   async login(email, password) {
     const response = await axios.post(`${API_URL}/auth/login`, {
       email,
-      password
+      password,
     });
     if (response.data.token) {
       localStorage.setItem('jwt_token', response.data.token);
@@ -36,22 +36,18 @@ const authService = {
       password: values.password,
       gender: GENDER_CODES[values.gender],
       birthday: dayjs(values.birthday).format('YYYY-MM-DD'),
-      code: values.otp  // Changed from otp to code
+      code: values.otp, // Changed from otp to code
     };
 
     console.log('Sending registration data:', formattedData);
 
-    const response = await axios.post(
-      `${API_URL}/auth/register`,
-      formattedData,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      }
-    );
-    
+    const response = await axios.post(`${API_URL}/auth/register`, formattedData, {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    });
+
     if (response.data.token) {
       localStorage.setItem('jwt_token', response.data.token);
     }
@@ -69,12 +65,13 @@ const authService = {
   async sendVerificationEmail(email) {
     try {
       console.log('Sending email verification request:', { email });
-      const response = await axios.post(`${API_URL}/auth/sendEmail`, 
+      const response = await axios.post(
+        `${API_URL}/auth/sendEmail`,
         { email },
         {
           headers: {
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+          },
         }
       );
       console.log('Email verification response:', response.data);
@@ -87,13 +84,13 @@ const authService = {
         config: {
           url: error.config?.url,
           method: error.config?.method,
-          data: error.config?.data
+          data: error.config?.data,
         },
-        message: error.message
+        message: error.message,
       });
       throw error;
     }
-  }
+  },
 };
 
 export default authService;
