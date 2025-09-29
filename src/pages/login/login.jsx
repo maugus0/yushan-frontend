@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Breadcrumb, Card, Button, message } from 'antd';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import authService from '../../services/auth';
 import AuthForm from '../../components/auth/auth-form';
@@ -9,7 +9,17 @@ import './login.css';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Check for expired session
+    const expired = new URLSearchParams(location.search).get('expired');
+    if (expired) {
+      message.warning('Your session has expired. Please log in again.');
+      navigate('/login', { replace: true });
+    }
+  }, [location, navigate]);
 
   const handleLogin = async (values) => {
     try {

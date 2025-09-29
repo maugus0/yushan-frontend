@@ -1,5 +1,7 @@
 import axios from 'axios';
 import dayjs from 'dayjs';
+import store from '../store';
+import { logout, setAuthenticated } from '../store/slices/user';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
 
@@ -11,14 +13,41 @@ const GENDER_CODES = {
   prefer_not_to_say: 3,
 };
 
+const TOKEN_KEY = 'jwt_token';
+
 const authService = {
+  // AC1: Secure Token Storage
+  setToken(token) {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+      store.dispatch(setAuthenticated(true));
+    }
+  },
+
+  // AC4: Clear Token
+  clearToken() {
+    localStorage.removeItem(TOKEN_KEY);
+    store.dispatch(logout());
+  },
+
+  // AC2: Get Token for Requests
+  getToken() {
+    return localStorage.getItem(TOKEN_KEY);
+  },
+
+  // AC3: Check Token Validity
+  isAuthenticated() {
+    const token = this.getToken();
+    return !!token;
+  },
+
   async login(email, password) {
     const response = await axios.post(`${API_URL}/auth/login`, {
       email,
       password,
     });
     if (response.data.token) {
-      localStorage.setItem('jwt_token', response.data.token);
+      this.setToken(response.data.token);
     }
     return response.data;
   },
@@ -55,11 +84,14 @@ const authService = {
   },
 
   logout() {
-    localStorage.removeItem('jwt_token');
+    this.clearToken();
+    window.location.href = '/login';
   },
 
-  getCurrentToken() {
-    return localStorage.getItem('jwt_token');
+  // AC5: Handle Token Expiration
+  handleUnauthorized() {
+    this.clearToken();
+    window.location.href = '/login?expired=true';
   },
 
   async sendVerificationEmail(email) {
