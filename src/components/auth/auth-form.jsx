@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Form, Input, Button, message, Select, DatePicker, Space, Typography } from 'antd';
 import authService from '../../services/auth';
 import dayjs from 'dayjs';
-import Testimg from '../../assets/images/testimg.png';
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -10,10 +9,6 @@ const { Text } = Typography;
 /* --------------------------------------------------
  * Configuration / Constants
  * -------------------------------------------------- */
-
-const USE_STATIC_DEMO_CHECK = true;
-const DEMO_USER = { username: 'test@email.com', password: '1234' };
-
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
 
 const MIN_AGE_YEARS = 12;
@@ -30,14 +25,6 @@ const disabledBirthdayDate = (current) => {
   if (!current) return false;
   return current.endOf('day').isAfter(maxAllowedBirthday);
 };
-
-/* --------------------------------------------------
- * Mock OTP (Replace with real API later)
- * -------------------------------------------------- */
-async function mockSendOtp(_email) {
-  await new Promise((res) => setTimeout(res, 600));
-  return { ok: true };
-}
 
 /* --------------------------------------------------
  * Component

@@ -9,12 +9,6 @@ import Categories from '../../components/novel/categories/categories';
 
 const { Title, Paragraph } = Typography;
 
-// Import images directly
-import testImg from '../../assets/images/testimg.png';
-import testImg2 from '../../assets/images/testimg2.png';
-import testImg3 from '../../assets/images/testimg3.png';
-import testImg4 from '../../assets/images/testimg4.png';
-
 //mock data for hero carousel
 const heroSlides = [
   {

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider, App as AntApp } from 'antd';
 import { PersistGate } from 'redux-persist/integration/react';
-import { store, persistor } from './store';
+import { persistor } from './store';
 import { message } from 'antd';
 import 'antd/dist/reset.css'; // Import Ant Design styles
 
