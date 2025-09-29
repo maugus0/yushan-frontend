@@ -76,19 +76,32 @@ const Profile = () => {
           </div>
           <div className="profile-info-row">
             <div className="profile-info-left">
-              <Text className="profile-bio">{user.profileDetail}</Text>
-              <div className="profile-id-row">
-                <Text type="secondary" className="profile-uuid">
+              <Text
+                className="profile-bio"
+                style={{ fontSize: 16, marginBottom: 12, display: 'block', color: '#333' }}
+              >
+                {user.profileDetail}
+              </Text>
+              <div className="profile-id-row" style={{ marginBottom: 6 }}>
+                <Text type="secondary" className="profile-uuid" style={{ fontSize: 13 }}>
                   ID: {user.uuid}
                 </Text>
               </div>
-              <div className="profile-join-row">
+              <div className="profile-email-row" style={{ marginBottom: 10 }}>
+                <Text type="secondary" className="profile-email" style={{ fontSize: 13 }}>
+                  email: {user.email}
+                </Text>
+              </div>
+              <div
+                className="profile-join-row"
+                style={{ marginBottom: 6, display: 'flex', alignItems: 'center' }}
+              >
                 <CalendarOutlined style={{ marginRight: 6, fontSize: 17 }} />
-                <Text type="secondary" className="profile-joined">
+                <Text type="secondary" className="profile-joined" style={{ fontSize: 13 }}>
                   {user.createDate} joined
                 </Text>
-                <Divider type="vertical" />
-                <span className="profile-exp">
+                <Divider type="vertical" style={{ margin: '0 8px' }} />
+                <span className="profile-exp" style={{ fontSize: 13 }}>
                   <StarFilled
                     style={{
                       color: '#faad14',
