@@ -1,8 +1,8 @@
 import React from 'react';
-import { Breadcrumb, Card, Button } from 'antd';
+import { Breadcrumb, Card, Button, message } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-
+import authService from '../../services/auth';
 import AuthForm from '../../components/auth/auth-form';
 import { login } from '../../store/slices/user';
 import './login.css';
@@ -10,6 +10,17 @@ import './login.css';
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const handleLogin = async (values) => {
+    try {
+      const userData = await authService.login(values.email, values.password);
+      dispatch(login(userData));
+      message.success('Login successful!');
+      navigate('/');
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Login failed');
+    }
+  };
 
   return (
     <div style={{ maxWidth: 420, margin: '48px auto', padding: '0 16px' }}>
@@ -21,10 +32,7 @@ const Login = () => {
       <Card title="Login">
         <AuthForm
           mode="login"
-          onSuccess={(userData) => {
-            dispatch(login(userData));
-            navigate('/');
-          }}
+          onSuccess={handleLogin}
         />
         <div style={{ marginTop: 12, textAlign: 'right' }}>
           {/* Use accessible link-style button instead of bare <a> without href */}

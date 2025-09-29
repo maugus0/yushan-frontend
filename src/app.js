@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, App as AntApp } from 'antd';
+import { message } from 'antd';
 import 'antd/dist/reset.css'; // Import Ant Design styles
 
 import { useSelector } from 'react-redux';
@@ -18,6 +19,7 @@ import EditProfile from './pages/editprofile/editprofile';
 
 // Global Styles
 import './app.css';
+import './utils/axios-interceptor';
 
 // Ant Design Theme Configuration
 const themeConfig = {
@@ -46,6 +48,13 @@ const themeConfig = {
   },
 };
 
+// Set up message configuration globally
+message.config({
+  top: 24,
+  duration: 3,
+  maxCount: 3,
+});
+
 // Route protection wrapper
 const ProtectedRoute = ({ isAuthenticated, children }) => {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
@@ -56,85 +65,87 @@ function App() {
 
   return (
     <ConfigProvider theme={themeConfig}>
-      <Router
-        basename={process.env.NODE_ENV === 'production' ? '/yushan-frontend' : ''}
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true,
-        }}
-      >
-        <div className="App">
-          <Routes>
-            {/* Public routes with LayoutWrapper and redirect if authenticated */}
-            <Route
-              path="/login"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/" replace />
-                ) : (
-                  <LayoutWrapper>
-                    <Login />
-                  </LayoutWrapper>
-                )
-              }
-            />
-            <Route
-              path="/register"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/" replace />
-                ) : (
-                  <LayoutWrapper>
-                    <Register />
-                  </LayoutWrapper>
-                )
-              }
-            />
+      <AntApp>
+        <Router
+          basename={process.env.NODE_ENV === 'production' ? '/yushan-frontend' : ''}
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
+          <div className="App">
+            <Routes>
+              {/* Public routes with LayoutWrapper and redirect if authenticated */}
+              <Route
+                path="/login"
+                element={
+                  isAuthenticated ? (
+                    <Navigate to="/" replace />
+                  ) : (
+                    <LayoutWrapper>
+                      <Login />
+                    </LayoutWrapper>
+                  )
+                }
+              />
+              <Route
+                path="/register"
+                element={
+                  isAuthenticated ? (
+                    <Navigate to="/" replace />
+                  ) : (
+                    <LayoutWrapper>
+                      <Register />
+                    </LayoutWrapper>
+                  )
+                }
+              />
 
-            <Route
-              path="/"
-              element={
-                <LayoutWrapper>
-                  <Home />
-                </LayoutWrapper>
-              }
-            />
+              <Route
+                path="/"
+                element={
+                  <LayoutWrapper>
+                    <Home />
+                  </LayoutWrapper>
+                }
+              />
 
-            {/* Protected routes */}
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <LayoutWrapper>
-                    <Profile />
-                  </LayoutWrapper>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/editprofile"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <LayoutWrapper>
-                    <EditProfile />
-                  </LayoutWrapper>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/browse/*"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <LayoutWrapper>
-                    <Browse />
-                  </LayoutWrapper>
-                </ProtectedRoute>
-              }
-            />
-            {/* Add more routes as needed */}
-          </Routes>
-        </div>
-      </Router>
+              {/* Protected routes */}
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute isAuthenticated={isAuthenticated}>
+                    <LayoutWrapper>
+                      <Profile />
+                    </LayoutWrapper>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/editprofile"
+                element={
+                  <ProtectedRoute isAuthenticated={isAuthenticated}>
+                    <LayoutWrapper>
+                      <EditProfile />
+                    </LayoutWrapper>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/browse/*"
+                element={
+                  <ProtectedRoute isAuthenticated={isAuthenticated}>
+                    <LayoutWrapper>
+                      <Browse />
+                    </LayoutWrapper>
+                  </ProtectedRoute>
+                }
+              />
+              {/* Add more routes as needed */}
+            </Routes>
+          </div>
+        </Router>
+      </AntApp>
     </ConfigProvider>
   );
 }

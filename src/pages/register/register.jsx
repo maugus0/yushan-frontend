@@ -1,11 +1,30 @@
 import React from 'react';
-import { Breadcrumb, Card, Button } from 'antd';
+import { Breadcrumb, Card, Button, message } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import authService from '../../services/auth';
 import AuthForm from '../../components/auth/auth-form';
+import { login } from '../../store/slices/user';
 import './register.css';
 
 const Register = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleRegister = async (values) => {
+    try {
+      console.log('Registration values:', values);
+      const userData = await authService.register(values);
+      console.log('Registration response:', userData);
+      dispatch(login(userData));      
+      message.success('Registration successful!');
+      navigate('/');
+    } catch (error) {
+      console.error('Registration error:', error);
+      const errorMessage = error.response?.data?.message || 'Registration failed';
+      message.error(errorMessage);
+    }
+  };
 
   return (
     <div style={{ maxWidth: 480, margin: '48px auto', padding: '0 16px' }}>
@@ -17,11 +36,7 @@ const Register = () => {
       <Card title="Create Account">
         <AuthForm
           mode="register"
-          onSuccess={() => {
-            // Replace with navigation after backend integration
-            // navigate('/dashboard');
-            console.log('Register static success');
-          }}
+          onSuccess={handleRegister}
         />
         <div style={{ marginTop: 12, textAlign: 'right' }}>
           {/* Use accessible link-style button instead of bare <a> without href */}

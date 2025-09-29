@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Form, Input, Button, message, Select, DatePicker, Space, Typography } from 'antd';
+import authService from '../../services/auth';
 import dayjs from 'dayjs';
 import Testimg from '../../assets/images/testimg.png';
 
@@ -128,90 +129,40 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
 
   const handleSendOtp = async () => {
     try {
+      console.log('Sending OTP...');
       await form.validateFields(['email']);
-    } catch {
-      return;
-    }
-    const email = form.getFieldValue('email');
-    setOtpSending(true);
-    try {
-      const res = await mockSendOtp(email);
-      if (res?.ok) {
-        message.success('OTP sent. Valid for 5 minutes.');
+      const email = form.getFieldValue('email');
+      setOtpSending(true);
+
+      try {
+        const response = await authService.sendVerificationEmail(email);
+        console.log('OTP response:', response);
+        message.success('Verification email sent successfully');
         startOtpCountdown();
-      } else {
-        message.error('Failed to send OTP.');
+      } catch (error) {
+        console.error('OTP error:', error);
+        message.error(error.response?.data?.message || 'Failed to send verification email');
       }
-    } catch {
-      message.error('Unexpected error while sending OTP.');
+    } catch (error) {
+      console.error('Validation error:', error);
+      message.error('Please enter a valid email first');
     } finally {
       setOtpSending(false);
     }
   };
 
   const handleFinish = async (values) => {
-    setSubmitting(true);
     try {
-      const payload = {
-        ...values,
-        birthday: values.birthday ? values.birthday.format('YYYY-MM-DD') : undefined,
-      };
-
-      if (isRegister) {
-        if (!otpActive) {
-          message.error('OTP is expired or not sent. Please resend.');
-          setSubmitting(false);
-          return;
-        }
-        console.log('[STATIC SUBMIT] register payload:', payload);
-        message.success('Registration validated (static demo).');
-        onSuccess && onSuccess(payload);
-        return;
-      }
-
-      // LOGIN
-      console.log('[STATIC SUBMIT] login payload:', payload);
-      if (USE_STATIC_DEMO_CHECK) {
-        const ok = payload.email === DEMO_USER.username && payload.password === DEMO_USER.password;
-        if (!ok) {
-          message.error('Invalid email or password');
-          return;
-        }
-        const mockAuthToken = 'mockAuthToken12345';
-        const userInfo = {
-          uuid: '123e4567-e89b-12d3-a456-426614174000',
-          email: 'test@example.com',
-          username: 'testuser',
-          emailVerified: true,
-          avatarUrl: Testimg,
-          profileDetail: 'A passionate reader who loves fantasy and sci-fi.',
-          birthday: '1990-01-01',
-          gender: 1,
-          status: 1,
-          isAuthor: true,
-          authorVerified: true,
-          level: 5,
-          exp: 3200,
-          yuan: 500,
-          readTime: 128,
-          readBookNum: 56,
-          createDate: '2022-03-15',
-          updateTime: '2023-10-01',
-          lastLogin: '2023-10-10T12:00:00Z',
-          lastActive: '2023-10-10T12:30:00Z',
-        };
-        const userData = { ...userInfo, authToken: mockAuthToken };
-        message.success('Login validated (static)');
-        onSuccess && onSuccess(userData);
-        return;
-      }
-    } catch (e) {
-      message.error('Unexpected error (static)');
+      console.log('Form submitted with values:', values);
+      setSubmitting(true);
+      await onSuccess(values);
+    } catch (error) {
+      console.error('Form submission error:', error);
     } finally {
       setSubmitting(false);
     }
   };
-
+  
   const handleFinishFailed = () => {
     if (!isRegister && !liveValidate) setLiveValidate(true);
   };
