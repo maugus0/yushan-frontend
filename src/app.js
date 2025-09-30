@@ -15,6 +15,7 @@ import Register from './pages/register/register';
 import Browse from './pages/browse/browse';
 import Profile from './pages/profile/profile';
 import EditProfile from './pages/editprofile/editprofile';
+import WriterWorkspace from './pages/writerworkspace/writerworkspace';
 
 // Global Styles
 import './app.css';
@@ -100,6 +101,13 @@ function App() {
               }
             />
 
+            <Route
+              path="/writerworkspace"
+              element={
+                <WriterWorkspace />
+              }
+            />
+
             {/* Protected routes */}
             <Route
               path="/profile"
@@ -131,6 +139,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            {/* <Route
+              path="/writerworkspace"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <LayoutWrapper>
+                    <WriterWorkspace />
+                  </LayoutWrapper>
+                </ProtectedRoute>
+              }
+            /> */}
             {/* Add more routes as needed */}
           </Routes>
         </div>
