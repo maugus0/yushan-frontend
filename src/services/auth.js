@@ -1,9 +1,11 @@
 import axios from 'axios';
 import dayjs from 'dayjs';
 import store from '../store';
-import { logout, setAuthenticated } from '../store/slices/user';
+import { login, logout, setAuthenticated } from '../store/slices/user';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const TOKEN_KEY = 'jwt_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 
 // Add gender mapping constants
 const GENDER_CODES = {
@@ -12,8 +14,6 @@ const GENDER_CODES = {
   other: 2,
   prefer_not_to_say: 3,
 };
-
-const TOKEN_KEY = 'jwt_token';
 
 const authService = {
   // AC1: Secure Token Storage
@@ -35,6 +35,28 @@ const authService = {
     return localStorage.getItem(TOKEN_KEY);
   },
 
+  getRefreshToken() {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  },
+
+  setTokens(accessToken, refreshToken) {
+    if (accessToken) {
+      localStorage.setItem(TOKEN_KEY, accessToken);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+      store.dispatch(setAuthenticated(true));
+    }
+    if (refreshToken) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    }
+  },
+
+  clearTokens() {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    delete axios.defaults.headers.common['Authorization'];
+    store.dispatch(logout());
+  },
+
   // AC3: Check Token Validity
   isAuthenticated() {
     const token = this.getToken();
@@ -46,10 +68,10 @@ const authService = {
       email,
       password,
     });
-    if (response.data.token) {
-      this.setToken(response.data.token);
-    }
-    return response.data;
+    const { accessToken, refreshToken, ...userData } = response.data.data;
+    this.setTokens(accessToken, refreshToken);
+    store.dispatch(login(userData));
+    return response.data.data;
   },
 
   async register(values) {
@@ -76,16 +98,21 @@ const authService = {
         Accept: 'application/json',
       },
     });
-
-    if (response.data.token) {
-      localStorage.setItem('jwt_token', response.data.token);
-    }
-    return response.data;
+    const { accessToken, refreshToken, ...userData } = response.data.data;
+    this.setTokens(accessToken, refreshToken);
+    store.dispatch(login(userData));
+    return response.data.data;
   },
 
-  logout() {
-    this.clearToken();
-    window.location.href = '/login';
+  async logout() {
+    try {
+      await axios.post(`${API_URL}/auth/logout`, {
+        refreshToken: this.getRefreshToken(),
+      });
+    } finally {
+      this.clearTokens();
+      window.location.href = '/login';
+    }
   },
 
   // AC5: Handle Token Expiration
@@ -96,9 +123,8 @@ const authService = {
 
   async sendVerificationEmail(email) {
     try {
-      console.log('Sending email verification request:', { email });
       const response = await axios.post(
-        `${API_URL}/auth/sendEmail`,
+        `${API_URL}/auth/send-email`,
         { email },
         {
           headers: {
@@ -106,22 +132,24 @@ const authService = {
           },
         }
       );
-      console.log('Email verification response:', response.data);
       return response.data;
     } catch (error) {
-      // Log detailed error information
       console.error('Send Email Error Details:', {
         status: error.response?.status,
         data: error.response?.data,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          data: error.config?.data,
-        },
+        config: error.config,
         message: error.message,
       });
       throw error;
     }
+  },
+
+  async refreshToken() {
+    const refreshToken = this.getRefreshToken();
+    const response = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
+    const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+    this.setTokens(accessToken, newRefreshToken);
+    return accessToken;
   },
 };
 
