@@ -448,3 +448,44 @@
 .ant-menu-horizontal > .ant-menu-submenu {
   top: 0 !important;
 }
+
+
+.rankings-popover {
+  background: #f7f8fa;            /* gray background */
+  border-radius: 12px;
+  padding: 8px;
+  min-width: 240px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+
+.rankings-popover-item {
+  font-size: 18px;                 /* larger */
+  line-height: 30px;
+  font-weight: 600;                /* bold */
+  color: #111827;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+
+.rankings-popover-item:hover,
+.rankings-popover-item:focus {
+  color: #1677ff;                  /* blue on hover */
+  background: #eef3ff;
+  outline: none;
+}
+
+/* If Rankings uses the same overlay class as Browse, ensure gray card */
+.browse-popover-overlay .ant-popover-inner {
+  background: #f7f8fa !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12) !important;
+  border: none !important;
+  padding: 0 !important;
+}
+.browse-popover-overlay .ant-popover-inner-content {
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 12px !important;
+}

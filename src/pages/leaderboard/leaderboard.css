@@ -1,0 +1,22 @@
+.leaderboard-wrapper {
+  max-width: 1280px;
+  margin: 24px auto 64px;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+.leaderboard-card {
+  overflow: hidden;
+}
+.leaderboard-filters {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 8px 8px 0 8px;
+}
+.leaderboard-list {
+  padding: 8px;
+}
+@media (max-width: 767px) {
+  .leaderboard-filters { gap: 12px; }
+}
