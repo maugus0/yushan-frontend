@@ -15,7 +15,11 @@ import Register from './pages/register/register';
 import Browse from './pages/browse/browse';
 import Profile from './pages/profile/profile';
 import EditProfile from './pages/editprofile/editprofile';
-import WriterWorkspace from './pages/writerworkspace/writerworkspace';
+import Library from './pages/library/library';
+import WriterDashboard from './pages/writerdashboard/writerdashboard';
+import WriterCreate from './pages/writercreate/writercreate';
+import WriterMaintain from './pages/writermaintain/writermaintain';
+import WriterPromote from './pages/writerpromote/writerpromote';
 
 // Global Styles
 import './app.css';
@@ -102,9 +106,39 @@ function App() {
             />
 
             <Route
-              path="/writerworkspace"
+              path="/writercreate"
               element={
-                <WriterWorkspace />
+                <WriterCreate />
+              }
+            />
+
+            <Route
+              path="/writermaintain"
+              element={
+                <WriterMaintain />
+              }
+            />
+
+            <Route
+              path="/writerpromote"
+              element={
+                <WriterPromote />
+              }
+            />
+
+            <Route
+              path="/writerdashboard"
+              element={
+                <WriterDashboard />
+              }
+            />
+
+            <Route
+              path="/library"
+              element={
+                <LayoutWrapper>
+                  <Library />
+                </LayoutWrapper>
               }
             />
 

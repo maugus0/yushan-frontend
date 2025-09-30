@@ -1,7 +1,7 @@
 import React from "react";
 import WriterNavbar from "../../components/writer/writernavbar/writernavbar";
 
-const WriterWorkspace = () => {
+const WriterMaintain = () => {
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       <WriterNavbar />
@@ -13,4 +13,4 @@ const WriterWorkspace = () => {
   );
 }
 
-export default WriterWorkspace;
+export default WriterMaintain;

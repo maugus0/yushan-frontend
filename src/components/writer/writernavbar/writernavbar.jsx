@@ -12,12 +12,14 @@ import {
   ToolOutlined,
 } from '@ant-design/icons';
 import './writernavbar.css';
+import { useNavigate } from 'react-router-dom';
 
 const { Sider } = Layout;
 
 const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [workspacePopover, setWorkspacePopover] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <Sider
@@ -45,7 +47,10 @@ const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
           onClick={() => setCollapsed(!collapsed)}
         />
       </div>
-      <div className="writer-navbar-menu">
+      <div
+        className="writer-navbar-menu"
+        style={collapsed ? { alignItems: 'center' } : {}}
+      >
         <Tooltip title="Dashboard" placement="right" overlayClassName="writer-navbar-tooltip">
           <Button
             type="text"
@@ -53,7 +58,11 @@ const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
             className="writer-navbar-btn"
             block
             size="large"
-            style={{ justifyContent: 'flex-start' }} // 左对齐
+            style={{
+              justifyContent: 'flex-start',
+              ...(collapsed ? { padding: 0, width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' } : {}),
+            }}
+            onClick={() => navigate('/writerdashboard')}
           >
             {!collapsed && <span>Dashboard</span>}
           </Button>
@@ -62,10 +71,28 @@ const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
           placement="right"
           content={
             <div className="writer-navbar-popover">
-              <Button type="text" icon={<PlusOutlined />} block style={{ textAlign: 'left' }}>
+              <Button
+                type="text"
+                icon={<PlusOutlined />}
+                block
+                style={{ textAlign: 'left' }}
+                onClick={() => {
+                  setWorkspacePopover(false);
+                  navigate('/writercreate');
+                }}
+              >
                 Create
               </Button>
-              <Button type="text" icon={<ToolOutlined />} block style={{ textAlign: 'left' }}>
+              <Button
+                type="text"
+                icon={<ToolOutlined />}
+                block
+                style={{ textAlign: 'left' }}
+                onClick={() => {
+                  setWorkspacePopover(false);
+                  navigate('/writermaintain');
+                }}
+              >
                 Maintain
               </Button>
             </div>
@@ -82,7 +109,10 @@ const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
               block
               size="large"
               onClick={() => setWorkspacePopover(!workspacePopover)}
-              style={{ justifyContent: 'flex-start' }} // 左对齐
+              style={{
+                justifyContent: 'flex-start',
+                ...(collapsed ? { padding: 0, width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' } : {}),
+              }}
             >
               {!collapsed && <span>Workspace</span>}
             </Button>
@@ -95,7 +125,11 @@ const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
             className="writer-navbar-btn"
             block
             size="large"
-            style={{ justifyContent: 'flex-start' }}
+            style={{
+              justifyContent: 'flex-start',
+              ...(collapsed ? { padding: 0, width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' } : {}),
+            }}
+            onClick={() => navigate('/writerpromote')}
           >
             {!collapsed && <span>Promote</span>}
           </Button>
