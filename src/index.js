@@ -1,22 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import store from './store';
-import './index.css';
+import { PersistGate } from 'redux-persist/integration/react';
+import { store, persistor } from './store';
+import authService from './services/auth';
 import App from './app';
-import reportWebVitals from './reportWebVitals';
-import 'antd/dist/reset.css'; // Ant Design v5 recommends reset
+import axios from 'axios';
+import './utils/axios-interceptor';
+
+// Initialize auth headers if token exists
+const token = authService.getToken();
+if (token) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <PersistGate loading={null} persistor={persistor}>
+        <App />
+      </PersistGate>
     </Provider>
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
