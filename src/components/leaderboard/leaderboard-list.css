@@ -1,0 +1,99 @@
+/* Leaderboard List Component Styles */
+.lb-row {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 8px 12px;
+}
+.lb-row--novel {
+  grid-template-columns: 56px 1fr auto; /* avatar | content | actions */
+  grid-template-rows: auto auto;        /* line1, line2 */
+}
+
+/* Cells */
+.lb-cell--avatar { grid-row: 1 / span 2; align-self: start; }
+.lb-cell--content-line1 { grid-column: 2; grid-row: 1; min-width: 0; }
+.lb-cell--content-line2 { grid-column: 2; grid-row: 2; min-width: 0; }
+.lb-cell--actions-center {
+  grid-column: 3;
+  grid-row: 1 / span 2;   /* vertical center between two lines */
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+  min-width: 180px;
+}
+
+/* Buttons */
+.lb-btn { border-radius: 8px; }
+.lb-btn-primary { border-radius: 8px; }
+
+/* Title line */
+.row-title,
+.lb-cell--content-line1 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+.rank-dot { font-weight: 600; }
+.title-link {
+  max-width: 46ch;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Second line (views + votes) or generic "row-desc" */
+.row-desc,
+.lb-cell--content-line2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #4b5563;
+}
+.desc-item { white-space: nowrap; }
+.separator { color: #9aa4b2; }
+.desc-icon.views { color: #fa8c16; }
+.desc-icon.votes { color: #52c41a; }
+.desc-icon.books { color: #6366f1; }
+
+/* Readers: level pill + XP in one line */
+.level-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border: 1px solid #dbe2f3;
+  border-radius: 999px;
+  background: #eef3ff;
+  color: #2c4db8;
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.nowrap { white-space: nowrap; }
+
+/* Footer strictly at the bottom */
+.lb-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 8px 0 16px;
+  color: #999;
+}
+.lb-sentinel-anchor { width: 100%; height: 1px; position: relative; }
+.lb-end { font-size: 12px; color: #9ca3af; white-space: nowrap; }
+
+/* Responsive */
+@media (max-width: 992px) {
+  .lb-row--novel { grid-template-columns: 56px 1fr; }
+  .lb-cell--actions-center {
+    grid-column: 2;
+    grid-row: 3;
+    justify-content: flex-start;
+    margin-top: 6px;
+    min-width: 0;
+  }
+}

@@ -1,144 +1,244 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Tabs, Card, Empty, Breadcrumb } from 'antd';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Card, Empty, Breadcrumb, Button } from 'antd';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './leaderboard.css';
 import LeaderboardFilters from '../../components/leaderboard/leaderboard-filters';
 import LeaderboardList from '../../components/leaderboard/leaderboard-list';
-import {
-  getNovelsLeaderboard,
-  getUsersLeaderboard,
-  getWritersLeaderboard,
-} from '../../services/leaderboard';
+import { getNovelsLeaderboard, getUsersLeaderboard, getWritersLeaderboard } from '../../services/leaderboard';
 
-const TAB_KEYS = {
-  NOVELS: 'novels',
-  READERS: 'users',  
-  WRITERS: 'writers',
-};
+const TAB_KEYS = { NOVELS: 'novels', READERS: 'users', WRITERS: 'writers' };
 
-const DEFAULT_QUERY = {
-  timeRange: 'overall',
-  genre: 'all',
-  sortBy: 'views',
-  page: 1,
-  pageSize: 20,
-};
+const DEFAULT_FILTERS = { timeRange: 'overall', genre: 'all', sortBy: 'views', pageSize: 20 };
+
+const NOVEL_CATEGORIES = [
+  'Action', 'Adventure', 'Martial Arts', 'Fantasy', 'Sci-Fi', 'Urban',
+  'Historical', 'Eastern Fantasy', 'Wuxia', 'Xianxia', 'Military', 'Sports',
+  'Romance', 'Drama', 'Slice of Life', 'School Life', 'Comedy',
+];
+
+// Treat "all" as undefined when calling backend
+function normalizeGenre(g) {
+  if (!g) return undefined;
+  return String(g).toLowerCase() === 'all' ? undefined : g;
+}
+
+function defaultSortFor(tab) {
+  if (tab === TAB_KEYS.READERS) return 'levelxp';
+  if (tab === TAB_KEYS.WRITERS) return 'books'; // Writers default: By Books
+  return 'views';
+}
 
 export default function LeaderboardPage() {
-  const [activeTab, setActiveTab] = useState(TAB_KEYS.NOVELS);
-  const [query, setQuery] = useState(DEFAULT_QUERY);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [data, setData] = useState({ items: [], total: 0 });
   const location = useLocation();
   const navigate = useNavigate();
 
-  // 1) Determine active tab based on URL path
-  // 2) Define tabs (labels: Readers)
-  // 3) Update route on tab change (keep /rankings prefix)
-  // 4) Fetch data
+  const [activeTab, setActiveTab] = useState(TAB_KEYS.NOVELS);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [catsOpen, setCatsOpen] = useState(true);
+
+  const [items, setItems] = useState([]);
+  const [loadingInitial, setLoadingInitial] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState('');
+
+  const pageRef = useRef(1);
+  const hasMoreRef = useRef(true);
+  const [hasMore, setHasMore] = useState(true);
+
+  const filtersRef = useRef(filters);
+  useEffect(() => { filtersRef.current = filters; }, [filters]);
+
   useEffect(() => {
     const p = location.pathname;
-    if (/\/(leaderboard|rankings)\/Readers/i.test(p)) {
-      setActiveTab(TAB_KEYS.READERS);
-    } else if (/\/(leaderboard|rankings)\/Writers/i.test(p)) {
-      setActiveTab(TAB_KEYS.WRITERS);
-    } else {
-      setActiveTab(TAB_KEYS.NOVELS);
-    }
+    let next = TAB_KEYS.NOVELS;
+    if (/\/(leaderboard|rankings)\/Readers/i.test(p)) next = TAB_KEYS.READERS;
+    else if (/\/(leaderboard|rankings)\/Writers/i.test(p)) next = TAB_KEYS.WRITERS;
+
+    setActiveTab((prev) => (prev === next ? prev : next));
+    setCatsOpen(next === TAB_KEYS.NOVELS);
   }, [location.pathname]);
 
-  // Define tabs for the leaderboard
-  const tabs = useMemo(
-    () => [
-      { key: TAB_KEYS.NOVELS, label: 'Novels' },
-      { key: TAB_KEYS.READERS, label: 'Readers' },
-      { key: TAB_KEYS.WRITERS, label: 'Writers' },
-    ],
-    []
-  );
-
-  // 3) Update route on tab change (keep /rankings prefix)
-  const pushRouteForTab = (key) => {
+  const goTab = useCallback((key) => {
     if (key === TAB_KEYS.NOVELS) navigate('/rankings/Novel');
     else if (key === TAB_KEYS.READERS) navigate('/rankings/Readers');
     else navigate('/rankings/Writers');
-  };
+    setActiveTab(key);
+    setCatsOpen(key === TAB_KEYS.NOVELS);
+  }, [navigate]);
 
-  // 4) Fetch data
-  useEffect(() => {
-    let cancelled = false;
-    async function fetchData() {
-      setLoading(true);
+  const fetchPage = useCallback(
+    async ({ page, pageSize, timeRange, genre, sortBy }, replace = false) => {
       setError('');
+      if (replace) setLoadingInitial(true); else setLoadingMore(true);
+
       try {
+        const payload = { page, pageSize, timeRange };
+        const g = normalizeGenre(genre);
+        if (g !== undefined) payload.genre = g;
+
         let res;
         if (activeTab === TAB_KEYS.NOVELS) {
-          res = await getNovelsLeaderboard(query);
+          res = await getNovelsLeaderboard({ ...payload, sortBy });
         } else if (activeTab === TAB_KEYS.READERS) {
-          const sortBy = query.sortBy === 'views' ? 'levelxp' : query.sortBy || 'levelxp';
-          res = await getUsersLeaderboard({ ...query, sortBy });
+          res = await getUsersLeaderboard({ ...payload, sortBy: 'levelxp' });
         } else {
-          const sortBy = query.sortBy || 'score';
-          res = await getWritersLeaderboard({ ...query, sortBy });
+          // Writers now accept 'books' | 'votes' | 'views'
+          res = await getWritersLeaderboard({ ...payload, sortBy: sortBy || 'books' });
         }
-        if (!cancelled) setData({ items: res.items || [], total: res.total || 0 });
+
+        const batch = Array.isArray(res?.items) ? res.items : [];
+        const more = batch.length === pageSize;
+
+        if (replace) setItems(batch);
+        else setItems((prev) => [...prev, ...batch]);
+
+        hasMoreRef.current = more;
+        setHasMore(more);
       } catch (e) {
         console.error(e);
-        if (!cancelled) setError('Failed to load leaderboard. Please try again.');
+        setError('Failed to load leaderboard. Please try again.');
       } finally {
-        if (!cancelled) setLoading(false);
+        if (replace) setLoadingInitial(false); else setLoadingMore(false);
       }
-    }
-    fetchData();
-    return () => { cancelled = true; };
-  }, [activeTab, query.timeRange, query.genre, query.sortBy, query.page, query.pageSize]);
+    },
+    [activeTab]
+  );
+
+  const resetAndFetch = useCallback((patch = {}) => {
+    const base = filtersRef.current;
+    const next = { ...base, ...patch };
+    if (activeTab === TAB_KEYS.READERS) next.sortBy = 'levelxp';
+    if (!next.sortBy) next.sortBy = defaultSortFor(activeTab);
+
+    setFilters(next);
+    setItems([]);
+    pageRef.current = 1;
+    hasMoreRef.current = true;
+    setHasMore(true);
+
+    fetchPage({ page: 1, pageSize: next.pageSize, timeRange: next.timeRange, genre: next.genre, sortBy: next.sortBy }, true);
+  }, [activeTab, fetchPage]);
+
+  useEffect(() => {
+    resetAndFetch({ sortBy: defaultSortFor(activeTab) });
+  }, [activeTab, resetAndFetch]);
+
+  const loadMore = useCallback(() => {
+    if (loadingInitial || loadingMore || !hasMoreRef.current) return;
+    const nextPage = pageRef.current + 1;
+    pageRef.current = nextPage;
+    const f = filtersRef.current;
+    const sort = activeTab === TAB_KEYS.READERS ? 'levelxp' : (f.sortBy || defaultSortFor(activeTab));
+    fetchPage({ page: nextPage, pageSize: f.pageSize, timeRange: f.timeRange, genre: f.genre, sortBy: sort });
+  }, [activeTab, fetchPage, loadingInitial, loadingMore]);
+
+  const onSelectCategory = (label) => {
+    const v = String(label).toLowerCase() === 'all' ? 'all' : label;
+    resetAndFetch({ genre: v });
+  };
 
   return (
-    <div className="leaderboard-wrapper">
-      <Breadcrumb
-        items={[
-          { title: <Link to="/">Home</Link> },
-          { title: 'Leaderboard' },
-        ]}
-        style={{ marginBottom: 12 }}
-      />
+    <div className="rankings-layout">
+      <div className="rankings-breadcrumb">
+        <Breadcrumb items={[{ title: <Link to="/">Home</Link> }, { title: 'Leaderboard' }]} />
+      </div>
 
-      <Card bordered className="leaderboard-card">
-        <Tabs
-          items={tabs}
-          activeKey={activeTab}
-          onChange={(k) => {
-            setActiveTab(k);
-            setQuery((q) => {
-              const defaultSort = k === TAB_KEYS.NOVELS ? 'views' : k === TAB_KEYS.READERS ? 'levelxp' : 'score';
-              return { ...q, page: 1, sortBy: defaultSort };
-            });
-            pushRouteForTab(k);
-          }}
-        />
+      <Card bordered className="rankings-card">
+        <div className="rankings-content">
+          {/* Custom left nav (no ink bars / no borders). "Novels" is the accordion trigger. */}
+          <div className="rankings-left">
+            <nav className="side-nav" role="tablist" aria-orientation="vertical">
+              <button
+                type="button"
+                className={`side-nav-item${activeTab === TAB_KEYS.NOVELS ? ' active' : ''}`}
+                onClick={() => {
+                  if (activeTab !== TAB_KEYS.NOVELS) goTab(TAB_KEYS.NOVELS);
+                  else setCatsOpen((v) => !v);
+                }}
+                aria-selected={activeTab === TAB_KEYS.NOVELS}
+                aria-expanded={activeTab === TAB_KEYS.NOVELS ? catsOpen : undefined}
+              >
+                Novels
+                <span className={`caret ${activeTab === TAB_KEYS.NOVELS && catsOpen ? 'open' : ''}`} />
+              </button>
 
-        <LeaderboardFilters
-          tab={activeTab === TAB_KEYS.READERS ? 'users' : activeTab} // 复用 users 的过滤器定义
-          query={query}
-          onChange={(patch) => setQuery((q) => ({ ...q, ...patch, page: 1 }))}
-        />
+              {activeTab === TAB_KEYS.NOVELS && catsOpen && (
+                <div className="side-accordion-body">
+                  {['All', ...NOVEL_CATEGORIES].map((c, i) => {
+                    const current = (filtersRef.current.genre || 'all');
+                    const isActive = String(current).toLowerCase() === (String(c).toLowerCase() === 'all' ? 'all' : String(c).toLowerCase());
+                    return (
+                      <button
+                        key={`${c}-${i}`}
+                        type="button"
+                        className={`cat-pill${isActive ? ' active' : ''}`}
+                        onClick={() => onSelectCategory(c)}
+                      >
+                        {c}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
 
-        <LeaderboardList
-          tab={activeTab === TAB_KEYS.READERS ? 'users' : activeTab}
-          loading={loading}
-          error={error}
-          data={data}
-          page={query.page}
-          pageSize={query.pageSize}
-          onPageChange={(p, ps) => setQuery((q) => ({ ...q, page: p, pageSize: ps }))}
-        />
+              <button
+                type="button"
+                className={`side-nav-item${activeTab === TAB_KEYS.READERS ? ' active' : ''}`}
+                onClick={() => goTab(TAB_KEYS.READERS)}
+                aria-selected={activeTab === TAB_KEYS.READERS}
+              >
+                Readers
+              </button>
 
-        {!loading && !error && data.total === 0 && (
-          <div style={{ padding: 16 }}>
-            <Empty description="No data" />
+              <button
+                type="button"
+                className={`side-nav-item${activeTab === TAB_KEYS.WRITERS ? ' active' : ''}`}
+                onClick={() => goTab(TAB_KEYS.WRITERS)}
+                aria-selected={activeTab === TAB_KEYS.WRITERS}
+              >
+                Writers
+              </button>
+            </nav>
           </div>
-        )}
+
+          <div className="rankings-right">
+            <div className="rankings-filters">
+              <LeaderboardFilters
+                tab={activeTab === TAB_KEYS.READERS ? 'users' : activeTab}
+                query={{ ...filtersRef.current, page: pageRef.current }}
+                onChange={(patch) => {
+                  const { page: _ignore, sortBy, ...rest } = patch || {};
+                  const nextPatch = (activeTab === TAB_KEYS.READERS) ? { ...rest, sortBy: 'levelxp' } : { ...rest, sortBy };
+                  resetAndFetch(nextPatch);
+                }}
+                hideSort={activeTab === TAB_KEYS.READERS}
+              />
+            </div>
+
+            {error ? (
+              <div className="rankings-error">
+                <div className="rankings-error-text">{error}</div>
+                <Button onClick={() => resetAndFetch()}>Retry</Button>
+              </div>
+            ) : (
+              <>
+                <LeaderboardList
+                  tab={activeTab === TAB_KEYS.READERS ? 'users' : activeTab}
+                  loadingInitial={loadingInitial}
+                  loadingMore={loadingMore}
+                  data={{ items }}
+                  hasMore={hasMore}
+                  onLoadMore={loadMore}
+                />
+                {!loadingInitial && items.length === 0 && (
+                  <div style={{ padding: 16 }}>
+                    <Empty description="No data" />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
       </Card>
     </div>
   );
