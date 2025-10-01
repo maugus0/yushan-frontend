@@ -1,0 +1,439 @@
+name: Yushan Frontend CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+  security-events: write
+  pages: write
+  id-token: write
+
+jobs:
+  lint-quality:
+    name: Lint & Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies (npm ci)
+        run: npm ci
+
+      - name: Check formatting (Prettier)
+        run: npx --yes prettier@3.3.3 --check .
+
+      - name: Lint (ESLint)
+        run: npx --yes eslint@8.57.0 . --ext js,jsx
+
+      - name: Install ESLint SARIF formatter (no-save)
+        run: npm install --no-save @microsoft/eslint-formatter-sarif@3.1.0
+
+      - name: Generate ESLint SARIF
+        run: npx --yes eslint@8.57.0 . --ext js,jsx -f @microsoft/eslint-formatter-sarif -o eslint.sarif || true
+
+      - name: Upload ESLint SARIF
+        if: always() && hashFiles('eslint.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: eslint.sarif
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies (npm ci)
+        run: npm ci
+
+      - name: Run tests with coverage (CI mode)
+        run: npm test -- --watch=false --ci --coverage
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    needs: [unit-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  security-scan:
+    name: Security Scan (Snyk OSS)
+    runs-on: ubuntu-latest
+    needs: [lint-quality, unit-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Snyk CLI
+        uses: snyk/actions/setup@master
+
+      - name: Snyk Open Source scan
+        id: snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk auth "$SNYK_TOKEN"
+          snyk test \
+            --severity-threshold=high \
+            --sarif-file-output=snyk.sarif
+
+      - name: Upload Snyk SARIF to GitHub Code Scanning
+        if: always() && hashFiles('snyk.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk.sarif
+
+  build-verification:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    needs: [lint-quality, unit-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies (npm ci)
+        run: npm ci
+
+      - name: Build app
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build
+          path: build
+
+  docker-build:
+    name: Build Docker Image & Trivy Scan
+    runs-on: ubuntu-latest
+    needs: [lint-quality, unit-tests, build-verification, security-scan]
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha
+            type=raw,value=${{ github.sha }}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/${{ github.repository }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('trivy-results.sarif') != ''
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  zap-dast:
+    name: OWASP ZAP Baseline Scan
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    steps:
+      - name: Run temporary container
+        run: |
+          docker run -d --rm -p 8080:80 --name yushan-fe ghcr.io/${{ github.repository }}:${{ github.sha }}
+          # wait for container
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8080 >/dev/null; then echo "App up"; break; fi
+            sleep 2;
+          done
+
+      - name: OWASP ZAP Baseline
+        run: |
+          docker run --rm -v $(pwd):/zap/wrk -t ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py -t "http://host.docker.internal:8080" \
+            -J zap.json -w zap.md -r zap.html -a || true
+
+      - name: Stop container
+        if: always()
+        run: docker stop yushan-fe || true
+
+      - name: Upload ZAP report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-baseline
+          path: |
+            zap.html
+            zap.json
+            zap.md
+
+  deploy-pages:
+    name: Deploy GitHub Pages (gh-pages CLI)
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main')
+    runs-on: ubuntu-latest
+    needs: [zap-dast]
+    permissions:
+      contents: write
+    environment:
+      name: github-pages
+      url: https://maugus0.github.io/yushan-frontend/
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build app
+        run: npm run build
+
+      - name: Record current gh-pages HEAD (for rollback)
+        shell: bash
+        run: |
+          set -euo pipefail
+          PREV_SHA=$(git ls-remote --heads origin gh-pages | awk '{print $1}' | head -n1 || true)
+          echo "PREV_GHPAGES_SHA=$PREV_SHA" >> "$GITHUB_ENV"
+
+      - name: Deploy with gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTHOR_NAME: github-actions
+          GIT_AUTHOR_EMAIL: github-actions@github.com
+          GIT_COMMITTER_NAME: github-actions
+          GIT_COMMITTER_EMAIL: github-actions@github.com
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          npx --yes gh-pages -d build -b gh-pages \
+            -r https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git \
+            -u "github-actions <github-actions@github.com>"
+
+      - name: Health check GitHub Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://maugus0.github.io/yushan-frontend/"
+          ORIGIN=$(echo "$URL" | sed -E 's#^(https?://[^/]+)/.*#\1#')
+          echo "Checking $URL ..."
+          for i in {1..24}; do
+            # 1) index.html reachable and HTTP 200
+            if ! curl -fsS -o index_out.html "$URL"; then
+              echo "Attempt $i: index fetch failed"; sleep 10; continue
+            fi
+
+            # 2) Find main.*.js and main.*.css from HTML
+            MAIN_JS=$(grep -Eo 'src="[^"]*main\.[^"]*\.js"' index_out.html | head -n1 | sed -E 's/src="([^"]+)"/\1/') || true
+            MAIN_CSS=$(grep -Eo 'href="[^"]*main\.[^"]*\.css"' index_out.html | head -n1 | sed -E 's/href="([^"]+)"/\1/') || true
+
+            # Normalize to absolute URLs if relative
+            make_abs() {
+              local p="$1"
+              if [[ "$p" =~ ^https?:// ]]; then
+                echo "$p"
+              elif [[ "$p" =~ ^/ ]]; then
+                echo "${ORIGIN}$p"
+              else
+                echo "${URL%/}/$p"
+              fi
+            }
+            JS_URL=$(make_abs "${MAIN_JS:-}")
+            CSS_URL=$(make_abs "${MAIN_CSS:-}")
+
+            # 3) Ensure bundles respond 200 (not 404)
+            JS_OK=false; CSS_OK=false
+            if [ -n "${JS_URL}" ]; then curl -fsSLI "$JS_URL" | grep -q "^HTTP/.* 200" && JS_OK=true || JS_OK=false; fi
+            if [ -n "${CSS_URL}" ]; then curl -fsSLI "$CSS_URL" | grep -q "^HTTP/.* 200" && CSS_OK=true || CSS_OK=false; fi
+
+            if $JS_OK && $CSS_OK; then
+              echo "Health check passed on attempt $i"
+              rm -f index_out.html
+              exit 0
+            fi
+
+            echo "Attempt $i: JS_OK=$JS_OK CSS_OK=$CSS_OK (retrying)"; sleep 10
+          done
+          echo "Health check failed after retries"
+          exit 1
+
+      - name: Install Playwright (no-save) and Chromium
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save playwright@1.47.2
+          npx --yes playwright install --with-deps chromium
+
+      - name: Run Playwright smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          export URL="https://maugus0.github.io/yushan-frontend/"
+          cat > smoke.js << 'JS'
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch();
+            const context = await browser.newContext();
+            const page = await context.newPage();
+            const consoleErrors = [];
+            page.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
+            const targetUrl = process.env.URL || 'https://maugus0.github.io/yushan-frontend/';
+            await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+            // wait for some content to render under #root
+            try {
+              await page.waitForFunction(() => {
+                const root = document.getElementById('root');
+                return !!root && root.textContent && root.textContent.trim().length > 0;
+              }, { timeout: 15000 });
+            } catch (e) {
+              await browser.close();
+              console.error('Smoke: root content did not render in time');
+              process.exit(1);
+            }
+            if (consoleErrors.length > 0) {
+              await browser.close();
+              console.error('Smoke: console errors detected:\n' + consoleErrors.join('\n'));
+              process.exit(1);
+            }
+            await browser.close();
+            console.log('Smoke: page rendered without console errors');
+          })();
+          JS
+          node smoke.js
+
+      - name: Auto rollback gh-pages to previous commit on failure
+        if: failure()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${PREV_GHPAGES_SHA:-}" ]; then
+            echo "No previous gh-pages SHA found; cannot rollback"; exit 1
+          fi
+          echo "Rolling back gh-pages to $PREV_GHPAGES_SHA"
+          git fetch --prune origin gh-pages
+          if git show-ref --verify --quiet refs/heads/gh-pages; then
+            git checkout gh-pages
+          else
+            git checkout -b gh-pages origin/gh-pages
+          fi
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git reset --hard "$PREV_GHPAGES_SHA"
+          git push origin gh-pages --force
+
+  reports-summary:
+    name: Generate CI Summary & Collect Reports
+    runs-on: ubuntu-latest
+    needs: [zap-dast]
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: reports
+
+      - name: Create CI summary
+        run: |
+          {
+            echo "# Yushan Frontend – CI Reports";
+            echo "- Commit: $GITHUB_SHA";
+            echo "- Branch: ${GITHUB_REF##*/}";
+            echo "";
+            echo "## Artifacts";
+            COV=$(ls reports/**/lcov.info 2>/dev/null | head -n1 || true); if [ -n "$COV" ]; then echo "- Coverage: $COV"; fi
+            ESL=$(ls reports/**/eslint*.sarif 2>/dev/null | head -n1 || true); if [ -n "$ESL" ]; then echo "- ESLint SARIF: $ESL"; fi
+            SYN=$(ls reports/**/snyk*.sarif 2>/dev/null | head -n1 || true); if [ -n "$SYN" ]; then echo "- Snyk SARIF: $SYN"; fi
+            TRV=$(ls reports/**/trivy*.sarif 2>/dev/null | head -n1 || true); if [ -n "$TRV" ]; then echo "- Trivy SARIF: $TRV"; fi
+            ZAP=$(ls reports/**/zap.html 2>/dev/null | head -n1 || true); if [ -n "$ZAP" ]; then echo "- ZAP HTML: $ZAP"; fi
+          } > summary.md
+
+      - name: Upload consolidated report bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-reports
+          path: |
+            summary.md
+            reports/**
