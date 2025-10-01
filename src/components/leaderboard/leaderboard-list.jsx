@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { List, Avatar, Skeleton, Spin, Button } from 'antd';
+import { List, Avatar, Skeleton, Spin } from 'antd';
 import {
   CrownFilled,
   UserOutlined,
@@ -7,9 +7,7 @@ import {
   FireFilled,
   LikeFilled,
   BookFilled,
-  PlusOutlined,
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
 import { xpToLevel, levelMeta } from '../../utils/levels';
 import './leaderboard-list.css';
 
@@ -21,7 +19,7 @@ const Medal = ({ rank }) => {
 
 /**
  * Renders ranking rows with a stable CSS Grid:
- * - Novels (strict two lines): [avatar | (line1, line2) | actions(centered)]
+ * - Novels (strict two lines): [avatar | (line1, line2)]
  * - Users/Writers: [avatar | content]
  * Spinner/No-more stays at the bottom footer only.
  */
@@ -33,7 +31,6 @@ export default function LeaderboardList({
   hasMore,
   onLoadMore,
 }) {
-  const navigate = useNavigate();
   const pageSizeGuess = 20;
 
   // IO anchor and guards
@@ -89,11 +86,6 @@ export default function LeaderboardList({
     if (!loadingMore) pendingRef.current = false;
   }, [loadingMore]);
 
-  const handleAdd = (item) => {
-    // TODO: integrate with Library service
-    console.log('Add to library:', item?.title || item?.name || item?.username);
-  };
-
   const renderNovelRow = (item, index) => {
     const rank = index + 1;
     const id = item.novelId || item.id;
@@ -104,13 +96,23 @@ export default function LeaderboardList({
           <Avatar shape="square" size={48} src={item.cover} icon={<ReadOutlined />} />
         </div>
 
-        {/* Line 1: rank + title */}
+        {/* Line 1: rank + title + tags */}
         <div className="lb-cell lb-cell--content-line1">
           <Medal rank={rank} />
           <span className="rank-dot">{rank}.</span>
           <a href={`/read/${id}`} className="title-link">
-            {item.title}
+            {item.title || `Novel ${id}`}
           </a>
+          {/* Tags display */}
+          {item.tags && item.tags.length > 0 && (
+            <div className="novel-tags">
+              {item.tags.map((tag, tagIndex) => (
+                <span key={tagIndex} className="tag-pill">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Line 2: views + votes */}
@@ -122,21 +124,6 @@ export default function LeaderboardList({
           <span className="desc-item">
             <LikeFilled className="desc-icon votes" /> {item.votes?.toLocaleString?.() || 0}
           </span>
-        </div>
-
-        {/* Actions: vertically centered between two lines on the right */}
-        <div className="lb-cell lb-cell--actions-center">
-          <Button icon={<PlusOutlined />} onClick={() => handleAdd(item)} className="lb-btn">
-            Add
-          </Button>
-          <Button
-            type="primary"
-            icon={<ReadOutlined />}
-            onClick={() => navigate(`/read/${id}`)}
-            className="lb-btn-primary"
-          >
-            Read
-          </Button>
         </div>
       </div>
     );
@@ -206,7 +193,7 @@ export default function LeaderboardList({
   const listData =
     loadingInitial && (!data?.items || data.items.length === 0)
       ? Array.from({ length: pageSizeGuess }).map((_, i) => ({ __skeleton: i }))
-      : data.items;
+      : data.items || [];
 
   const showNoMore =
     !loadingInitial && !loadingMore && !hasMore && (scrolledRef.current || triedMoreRef.current);
@@ -227,10 +214,6 @@ export default function LeaderboardList({
                 </div>
                 <div className="lb-cell lb-cell--content-line2">
                   <Skeleton.Input active style={{ width: 420 }} />
-                </div>
-                <div className="lb-cell lb-cell--actions-center">
-                  <Skeleton.Button active style={{ width: 64, marginRight: 8 }} />
-                  <Skeleton.Button active style={{ width: 72 }} />
                 </div>
               </div>
             </List.Item>

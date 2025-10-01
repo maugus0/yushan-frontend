@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import 'antd/dist/reset.css';
 
@@ -74,9 +74,10 @@ function App() {
                 </LayoutWrapper>
               }
             />
-            {/* 支持排行榜子路径 */}
+            
+            {/* Leaderboard routes with support for categories */}
             <Route
-              path="/leaderboard/*"
+              path="/rankings"
               element={
                 <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
                   <Leaderboard />
@@ -84,7 +85,45 @@ function App() {
               }
             />
             <Route
-              path="/rankings/*"
+              path="/rankings/Novel"
+              element={
+                <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
+                  <Leaderboard />
+                </LayoutWrapper>
+              }
+            />
+            <Route
+              path="/rankings/Novel/:category"
+              element={
+                <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
+                  <Leaderboard />
+                </LayoutWrapper>
+              }
+            />
+            <Route
+              path="/rankings/Readers"
+              element={
+                <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
+                  <Leaderboard />
+                </LayoutWrapper>
+              }
+            />
+            <Route
+              path="/rankings/Writers"
+              element={
+                <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
+                  <Leaderboard />
+                </LayoutWrapper>
+              }
+            />
+            
+            {/* Legacy routes for backward compatibility */}
+            <Route path="/leaderboard" element={<Navigate to="/rankings/Novel" replace />} />
+            <Route path="/leaderboard/Novel" element={<Navigate to="/rankings/Novel" replace />} />
+            <Route path="/leaderboard/Readers" element={<Navigate to="/rankings/Readers" replace />} />
+            <Route path="/leaderboard/Writers" element={<Navigate to="/rankings/Writers" replace />} />
+            <Route
+              path="/leaderboard/*"
               element={
                 <LayoutWrapper isAuthenticated={isAuthenticated} user={user}>
                   <Leaderboard />
