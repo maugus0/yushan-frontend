@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { List, Avatar, Skeleton, Spin } from 'antd';
+import { Link } from 'react-router-dom';
 import {
   CrownFilled,
   UserOutlined,
@@ -17,12 +18,13 @@ const Medal = ({ rank }) => {
   return <CrownFilled style={{ color: colors[rank - 1], marginRight: 6 }} />;
 };
 
-/**
- * Renders ranking rows with a stable CSS Grid:
- * - Novels (strict two lines): [avatar | (line1, line2)]
- * - Users/Writers: [avatar | content]
- * Spinner/No-more stays at the bottom footer only.
- */
+// Format rank as 3 digits (001, 002, ...)
+const RankCell = ({ rank }) => (
+  <div className="lb-cell lb-cell--rank">
+    <span className="rank-number">{String(rank).padStart(3, '0')}</span>
+  </div>
+);
+
 export default function LeaderboardList({
   tab,
   loadingInitial,
@@ -41,8 +43,12 @@ export default function LeaderboardList({
 
   // Mark interaction so we don't auto-load on first paint
   useEffect(() => {
-    const mark = () => { scrolledRef.current = true; };
-    const onKey = (e) => { if (['PageDown', 'End', 'ArrowDown', ' '].includes(e.key)) mark(); };
+    const mark = () => {
+      scrolledRef.current = true;
+    };
+    const onKey = (e) => {
+      if (['PageDown', 'End', 'ArrowDown', ' '].includes(e.key)) mark();
+    };
     window.addEventListener('scroll', mark, { passive: true });
     window.addEventListener('wheel', mark, { passive: true });
     window.addEventListener('touchmove', mark, { passive: true });
@@ -66,7 +72,13 @@ export default function LeaderboardList({
     const io = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        if (entry.isIntersecting && scrolledRef.current && hasMore && !loadingMore && !pendingRef.current) {
+        if (
+          entry.isIntersecting &&
+          scrolledRef.current &&
+          hasMore &&
+          !loadingMore &&
+          !pendingRef.current
+        ) {
           pendingRef.current = true;
           triedMoreRef.current = true;
           loadMoreStable?.();
@@ -91,19 +103,20 @@ export default function LeaderboardList({
     const id = item.novelId || item.id;
     return (
       <div className="lb-row lb-row--novel" key={id || `novel-${index}`}>
+        <RankCell rank={rank} />
+
         {/* Avatar spans both lines */}
         <div className="lb-cell lb-cell--avatar">
           <Avatar shape="square" size={48} src={item.cover} icon={<ReadOutlined />} />
         </div>
 
-        {/* Line 1: rank + title + tags */}
+        {/* Line 1: medal + title + tags (single line, no wrapping) */}
         <div className="lb-cell lb-cell--content-line1">
           <Medal rank={rank} />
-          <span className="rank-dot">{rank}.</span>
-          <a href={`/read/${id}`} className="title-link">
+          {/* old inline rank removed; rank is now at the far left */}
+          <Link to={`/read/${id}`} className="title-link">
             {item.title || `Novel ${id}`}
-          </a>
-          {/* Tags display */}
+          </Link>
           {item.tags && item.tags.length > 0 && (
             <div className="novel-tags">
               {item.tags.map((tag, tagIndex) => (
@@ -136,21 +149,27 @@ export default function LeaderboardList({
     const xp = item.xp ?? 0;
     return (
       <div className="lb-row" key={item.userId || item.username || `user-${index}`}>
+        <RankCell rank={rank} />
+
         <div className="lb-cell lb-cell--avatar">
           <Avatar size={48} src={item.avatar} icon={<UserOutlined />} />
         </div>
         <div className="lb-cell lb-cell--content">
           <div className="row-title">
             <Medal rank={rank} />
-            <span className="rank-dot">{rank}.</span>
-            <a href={`/profile/${item.userId || item.username}`} className="title-link">
+            {/* old inline rank removed; rank is now at the far left */}
+            <Link to={`/profile/${item.userId || item.username}`} className="title-link">
               {item.username}
-            </a>
+            </Link>
           </div>
           <div className="row-desc">
-            <span className="level-pill nowrap">Lv.{level} · {meta.title}</span>
+            <span className="level-pill nowrap">
+              Lv.{level} · {meta.title}
+            </span>
             <span className="separator">•</span>
-            <span className="desc-item nowrap">Experience Points: {xp?.toLocaleString?.() || 0}</span>
+            <span className="desc-item nowrap">
+              Experience Points: {xp?.toLocaleString?.() || 0}
+            </span>
           </div>
         </div>
       </div>
@@ -161,23 +180,31 @@ export default function LeaderboardList({
     const rank = index + 1;
     return (
       <div className="lb-row" key={item.writerId || item.name || `writer-${index}`}>
+        <RankCell rank={rank} />
+
         <div className="lb-cell lb-cell--avatar">
           <Avatar size={48} src={item.avatar} icon={<UserOutlined />} />
         </div>
         <div className="lb-cell lb-cell--content">
           <div className="row-title">
             <Medal rank={rank} />
-            <span className="rank-dot">{rank}.</span>
-            <a href={`/profile/${item.writerId || item.name}`} className="title-link">
+            {/* old inline rank removed; rank is now at the far left */}
+            <Link to={`/profile/${item.writerId || item.name}`} className="title-link">
               {item.name}
-            </a>
+            </Link>
           </div>
           <div className="row-desc">
-            <span className="desc-item"><BookFilled className="desc-icon books" /> {item.books || 0}</span>
+            <span className="desc-item">
+              <BookFilled className="desc-icon books" /> {item.books || 0}
+            </span>
             <span className="separator">•</span>
-            <span className="desc-item"><LikeFilled className="desc-icon votes" /> {item.votes?.toLocaleString?.() || 0}</span>
+            <span className="desc-item">
+              <LikeFilled className="desc-icon votes" /> {item.votes?.toLocaleString?.() || 0}
+            </span>
             <span className="separator">•</span>
-            <span className="desc-item"><FireFilled className="desc-icon views" /> {item.views?.toLocaleString?.() || 0}</span>
+            <span className="desc-item">
+              <FireFilled className="desc-icon views" /> {item.views?.toLocaleString?.() || 0}
+            </span>
           </div>
         </div>
       </div>
@@ -199,15 +226,18 @@ export default function LeaderboardList({
     !loadingInitial && !loadingMore && !hasMore && (scrolledRef.current || triedMoreRef.current);
 
   return (
-    <div className="leaderboard-list">
+    <div className="leaderboard-list lb-list">
       <List
         dataSource={listData}
         renderItem={(it, idx) =>
           it.__skeleton ? (
             <List.Item key={`skeleton-${idx}`}>
               <div className="lb-row lb-row--novel">
+                <div className="lb-cell lb-cell--rank">
+                  <Skeleton.Input active style={{ width: 28 }} size="small" />
+                </div>
                 <div className="lb-cell lb-cell--avatar">
-                  <Skeleton.Avatar active size={48} shape="circle" />
+                  <Skeleton.Avatar active size={48} shape="square" />
                 </div>
                 <div className="lb-cell lb-cell--content-line1">
                   <Skeleton.Input active style={{ width: 320 }} />
@@ -225,7 +255,11 @@ export default function LeaderboardList({
           !loadingInitial ? (
             <div className="lb-footer">
               <div ref={anchorRef} className="lb-sentinel-anchor" />
-              {loadingMore ? <Spin /> : showNoMore ? <span className="lb-end">No more results</span> : null}
+              {loadingMore ? (
+                <Spin />
+              ) : showNoMore ? (
+                <span className="lb-end">No more results</span>
+              ) : null}
             </div>
           ) : null
         }

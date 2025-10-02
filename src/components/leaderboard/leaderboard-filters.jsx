@@ -23,12 +23,12 @@ export default function LeaderboardFilters({ tab, query, onChange, hideSort = fa
           { key: 'votes', label: 'Most Voted' },
         ]
       : tab === 'writers'
-      ? [
-          { key: 'books', label: 'By Books' },
-          { key: 'votes', label: 'By Votes' },
-          { key: 'views', label: 'By Views' },
-        ]
-      : [];
+        ? [
+            { key: 'books', label: 'By Books' },
+            { key: 'votes', label: 'By Votes' },
+            { key: 'views', label: 'By Views' },
+          ]
+        : [];
 
   return (
     <div className="lb-filters-bar one-line">

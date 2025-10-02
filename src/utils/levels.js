@@ -1,7 +1,7 @@
 const LEVELS = [
-  { level: 1, minXp: 0,    maxXp: 99,   weeklyTickets: 1, title: 'Newbie' },
-  { level: 2, minXp: 100,  maxXp: 499,  weeklyTickets: 2, title: 'Explorer' },
-  { level: 3, minXp: 500,  maxXp: 1999, weeklyTickets: 3, title: 'Enthusiast' },
+  { level: 1, minXp: 0, maxXp: 99, weeklyTickets: 1, title: 'Newbie' },
+  { level: 2, minXp: 100, maxXp: 499, weeklyTickets: 2, title: 'Explorer' },
+  { level: 3, minXp: 500, maxXp: 1999, weeklyTickets: 3, title: 'Enthusiast' },
   { level: 4, minXp: 2000, maxXp: 4999, weeklyTickets: 4, title: 'Master Reader' },
   { level: 5, minXp: 5000, maxXp: Infinity, weeklyTickets: 5, title: 'Legend' },
 ];

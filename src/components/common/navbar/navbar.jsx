@@ -22,7 +22,8 @@ const { Header } = Layout;
 function useIsMobile() {
   const get = () =>
     (typeof window !== 'undefined' && window.innerWidth < 768) ||
-    (typeof window !== 'undefined' && (('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0));
+    (typeof window !== 'undefined' &&
+      ('ontouchstart' in window || (navigator.maxTouchPoints || 0) > 0));
   const [isMobile, setIsMobile] = useState(get());
   useEffect(() => {
     const onResize = () => setIsMobile(get());
@@ -54,19 +55,39 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
   }, [searchExpanded]);
 
   const browseCategories = [
-    'Action', 'Adventure', 'Martial Arts', 'Fantasy', 'Sci-Fi', 'Urban',
-    'Historical', 'Eastern Fantasy', 'Wuxia', 'Xianxia', 'Military', 'Sports',
-    'Romance', 'Drama', 'Slice of Life', 'School Life', 'Comedy',
+    'Action',
+    'Adventure',
+    'Martial Arts',
+    'Fantasy',
+    'Sci-Fi',
+    'Urban',
+    'Historical',
+    'Eastern Fantasy',
+    'Wuxia',
+    'Xianxia',
+    'Military',
+    'Sports',
+    'Romance',
+    'Drama',
+    'Slice of Life',
+    'School Life',
+    'Comedy',
   ];
-  const browseMenuData = useMemo(() => ([
-    { key: 'novels', label: 'Novels', right: [{ title: 'CATEGORIES', types: browseCategories }] },
-  ]), []);
+  const browseMenuData = useMemo(
+    () => [
+      { key: 'novels', label: 'Novels', right: [{ title: 'CATEGORIES', types: browseCategories }] },
+    ],
+    []
+  );
 
-  const rankingsPopoverItems = useMemo(() => ([
-    { key: 'Novel',   label: 'Novel Rankings',   to: '/rankings/Novel' },
-    { key: 'Readers', label: 'Reader Rankings',  to: '/rankings/Readers' },
-    { key: 'Writers', label: 'Writers Rankings', to: '/rankings/Writers' },
-  ]), []);
+  const rankingsPopoverItems = useMemo(
+    () => [
+      { key: 'Novel', label: 'Novel Rankings', to: '/rankings/Novel' },
+      { key: 'Readers', label: 'Reader Rankings', to: '/rankings/Readers' },
+      { key: 'Writers', label: 'Writers Rankings', to: '/rankings/Writers' },
+    ],
+    []
+  );
 
   const handleBrowseSelect = (_sectionKey, typeLabel) => {
     if (typeLabel) {
@@ -81,10 +102,18 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
   const BrowseLabel = isMobile ? (
     <div
       style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
-      onClick={() => { navigate('/browse/novel'); setMobileMenuVisible(false); }}
+      onClick={() => {
+        navigate('/browse/novel');
+        setMobileMenuVisible(false);
+      }}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { navigate('/browse/novel'); setMobileMenuVisible(false); } }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          navigate('/browse/novel');
+          setMobileMenuVisible(false);
+        }
+      }}
     >
       <CompassOutlined style={{ fontSize: 28 }} />
       <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Browse</span>
@@ -94,7 +123,9 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
       placement="bottomLeft"
       trigger="hover"
       overlayClassName="browse-popover-overlay"
-      content={<ContentPopover data={browseMenuData} onSelect={handleBrowseSelect} categoriesOnly />}
+      content={
+        <ContentPopover data={browseMenuData} onSelect={handleBrowseSelect} categoriesOnly />
+      }
       destroyTooltipOnHide
     >
       <div
@@ -110,10 +141,18 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
   const RankingsLabel = isMobile ? (
     <div
       style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
-      onClick={() => { navigate('/rankings'); setMobileMenuVisible(false); }}
+      onClick={() => {
+        navigate('/rankings');
+        setMobileMenuVisible(false);
+      }}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { navigate('/rankings'); setMobileMenuVisible(false); } }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          navigate('/rankings');
+          setMobileMenuVisible(false);
+        }
+      }}
     >
       <BarChartOutlined style={{ fontSize: 28 }} />
       <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Rankings</span>
@@ -132,7 +171,9 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
               onClick={() => navigate(it.to)}
               role="menuitem"
               tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(it.to); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') navigate(it.to);
+              }}
             >
               {it.label}
             </div>
@@ -152,22 +193,66 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
   );
 
   const menuItems = [
-    { key: 'browse', label: BrowseLabel, onClick: () => { if (isMobile) { navigate('/browse/novel'); setMobileMenuVisible(false); } } },
-    { key: 'leaderboard', label: RankingsLabel, onClick: () => { if (isMobile) { navigate('/rankings'); setMobileMenuVisible(false); } } },
+    {
+      key: 'browse',
+      label: BrowseLabel,
+      onClick: () => {
+        if (isMobile) {
+          navigate('/browse/novel');
+          setMobileMenuVisible(false);
+        }
+      },
+    },
+    {
+      key: 'leaderboard',
+      label: RankingsLabel,
+      onClick: () => {
+        if (isMobile) {
+          navigate('/rankings');
+          setMobileMenuVisible(false);
+        }
+      },
+    },
     {
       key: 'create',
       icon: <EditOutlined style={{ fontSize: 28 }} />,
       label: <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Create</span>,
-      onClick: () => { navigate('/create'); setMobileMenuVisible(false); },
+      onClick: () => {
+        navigate('/create');
+        setMobileMenuVisible(false);
+      },
     },
   ];
 
   const userMenuItems = [
-    { key: 'profile', icon: <UserOutlined />, label: 'Profile', onClick: () => navigate('/profile') },
-    { key: 'library', icon: <BookOutlined />, label: 'My Library', onClick: () => navigate('/library') },
-    { key: 'settings', icon: <SettingOutlined />, label: 'Settings', onClick: () => navigate('/settings') },
+    {
+      key: 'profile',
+      icon: <UserOutlined />,
+      label: 'Profile',
+      onClick: () => navigate('/profile'),
+    },
+    {
+      key: 'library',
+      icon: <BookOutlined />,
+      label: 'My Library',
+      onClick: () => navigate('/library'),
+    },
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: 'Settings',
+      onClick: () => navigate('/settings'),
+    },
     { type: 'divider' },
-    { key: 'logout', icon: <LogoutOutlined />, label: 'Logout', onClick: () => { localStorage.removeItem('authToken'); window.location.reload(); } },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Logout',
+      onClick: () => {
+        localStorage.removeItem('authToken');
+        window.location.reload();
+      },
+    },
   ];
 
   const handleSearch = (value) => {
@@ -192,9 +277,12 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
             theme="dark"
             mode="horizontal"
             selectedKeys={[
-              location.pathname.startsWith('/browse') ? 'browse' :
-              (location.pathname.startsWith('/leaderboard') || location.pathname.startsWith('/rankings')) ? 'leaderboard' :
-              location.pathname.slice(1) || 'home'
+              location.pathname.startsWith('/browse')
+                ? 'browse'
+                : location.pathname.startsWith('/leaderboard') ||
+                    location.pathname.startsWith('/rankings')
+                  ? 'leaderboard'
+                  : location.pathname.slice(1) || 'home',
             ]}
             className="nav-menu"
             items={menuItems}
@@ -213,14 +301,29 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
                 className="search-input"
                 suffix={
                   <div className="search-actions">
-                    <Button type="text" icon={<SearchOutlined />} onClick={() => handleSearch(searchValue)} className="search-submit" />
-                    <Button type="text" icon={<CloseOutlined />} onClick={() => setSearchExpanded(false)} className="search-close" />
+                    <Button
+                      type="text"
+                      icon={<SearchOutlined />}
+                      onClick={() => handleSearch(searchValue)}
+                      className="search-submit"
+                    />
+                    <Button
+                      type="text"
+                      icon={<CloseOutlined />}
+                      onClick={() => setSearchExpanded(false)}
+                      className="search-close"
+                    />
                   </div>
                 }
               />
             </div>
           ) : (
-            <Button type="primary" icon={<SearchOutlined />} onClick={() => setSearchExpanded(true)} className="search-button">
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              onClick={() => setSearchExpanded(true)}
+              className="search-button"
+            >
               Search
             </Button>
           )}
@@ -229,28 +332,72 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
         <div className="navbar-actions">
           {isAuthenticated ? (
             <>
-              <Button type="text" icon={<BookOutlined />} className="nav-button" onClick={() => navigate('/library')}>Library</Button>
+              <Button
+                type="text"
+                icon={<BookOutlined />}
+                className="nav-button"
+                onClick={() => navigate('/library')}
+              >
+                Library
+              </Button>
               <Badge count={3} size="small">
-                <Button type="text" icon={<BellOutlined />} className="nav-button icon-only" onClick={() => navigate('/notifications')} />
+                <Button
+                  type="text"
+                  icon={<BellOutlined />}
+                  className="nav-button icon-only"
+                  onClick={() => navigate('/notifications')}
+                />
               </Badge>
-              <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']} overlayClassName="user-dropdown">
+              <Dropdown
+                menu={{ items: userMenuItems }}
+                placement="bottomRight"
+                trigger={['click']}
+                overlayClassName="user-dropdown"
+              >
                 <div className="user-avatar">
-                  <Avatar size={32} icon={<UserOutlined />} src={user?.avatar} style={{ cursor: 'pointer' }} />
+                  <Avatar
+                    size={32}
+                    icon={<UserOutlined />}
+                    src={user?.avatar}
+                    style={{ cursor: 'pointer' }}
+                  />
                 </div>
               </Dropdown>
             </>
           ) : (
             <div className="auth-buttons">
-              <Button type={location.pathname === '/login' ? 'primary' : 'text'} onClick={() => navigate('/login')} className={`login-btn${location.pathname === '/login' ? ' active' : ''}`}>Login</Button>
-              <Button type={location.pathname === '/register' ? 'primary' : 'text'} onClick={() => navigate('/register')} className={`signup-btn${location.pathname === '/register' ? ' active' : ''}`}>Register</Button>
+              <Button
+                type={location.pathname === '/login' ? 'primary' : 'text'}
+                onClick={() => navigate('/login')}
+                className={`login-btn${location.pathname === '/login' ? ' active' : ''}`}
+              >
+                Login
+              </Button>
+              <Button
+                type={location.pathname === '/register' ? 'primary' : 'text'}
+                onClick={() => navigate('/register')}
+                className={`signup-btn${location.pathname === '/register' ? ' active' : ''}`}
+              >
+                Register
+              </Button>
             </div>
           )}
         </div>
 
-        <Button className="mobile-menu-button" type="text" icon={<MenuOutlined />} onClick={() => setMobileMenuVisible(true)} />
+        <Button
+          className="mobile-menu-button"
+          type="text"
+          icon={<MenuOutlined />}
+          onClick={() => setMobileMenuVisible(true)}
+        />
 
         <Drawer
-          title={<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div className="logo-icon mobile">Y</div><span>Yushan</span></div>}
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className="logo-icon mobile">Y</div>
+              <span>Yushan</span>
+            </div>
+          }
           placement="right"
           onClose={() => setMobileMenuVisible(false)}
           open={mobileMenuVisible}
@@ -258,15 +405,23 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
           width={280}
         >
           <div style={{ marginBottom: '20px' }}>
-            <Input placeholder="Search novels, comics, fan-fics..." prefix={<SearchOutlined />} onPressEnter={(e) => handleSearch(e.target.value)} className="mobile-search" />
+            <Input
+              placeholder="Search novels, comics, fan-fics..."
+              prefix={<SearchOutlined />}
+              onPressEnter={(e) => handleSearch(e.target.value)}
+              className="mobile-search"
+            />
           </div>
 
           <Menu
             mode="vertical"
             selectedKeys={[
-              location.pathname.startsWith('/browse') ? 'browse' :
-              (location.pathname.startsWith('/leaderboard') || location.pathname.startsWith('/rankings')) ? 'leaderboard' :
-              location.pathname.slice(1) || 'home'
+              location.pathname.startsWith('/browse')
+                ? 'browse'
+                : location.pathname.startsWith('/leaderboard') ||
+                    location.pathname.startsWith('/rankings')
+                  ? 'leaderboard'
+                  : location.pathname.slice(1) || 'home',
             ]}
             items={menuItems}
             style={{ border: 'none', background: 'transparent' }}

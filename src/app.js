@@ -74,7 +74,7 @@ function App() {
                 </LayoutWrapper>
               }
             />
-            
+
             {/* Leaderboard routes with support for categories */}
             <Route
               path="/rankings"
@@ -116,12 +116,18 @@ function App() {
                 </LayoutWrapper>
               }
             />
-            
+
             {/* Legacy routes for backward compatibility */}
             <Route path="/leaderboard" element={<Navigate to="/rankings/Novel" replace />} />
             <Route path="/leaderboard/Novel" element={<Navigate to="/rankings/Novel" replace />} />
-            <Route path="/leaderboard/Readers" element={<Navigate to="/rankings/Readers" replace />} />
-            <Route path="/leaderboard/Writers" element={<Navigate to="/rankings/Writers" replace />} />
+            <Route
+              path="/leaderboard/Readers"
+              element={<Navigate to="/rankings/Readers" replace />}
+            />
+            <Route
+              path="/leaderboard/Writers"
+              element={<Navigate to="/rankings/Writers" replace />}
+            />
             <Route
               path="/leaderboard/*"
               element={

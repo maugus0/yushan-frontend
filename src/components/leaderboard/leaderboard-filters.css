@@ -7,13 +7,30 @@
   border-radius: 14px;
   padding: 10px 12px;
 }
-.lb-filters-bar.one-line { white-space: nowrap; overflow-x: auto; scrollbar-width: thin; }
+.lb-filters-bar.one-line {
+  white-space: nowrap;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
 
-.lb-filter-group { display: flex; align-items: center; gap: 8px; }
-.lb-filter-title { font-size: 12px; color: #9aa4b2; letter-spacing: .08em; }
+.lb-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lb-filter-title {
+  font-size: 12px;
+  color: #9aa4b2;
+  letter-spacing: 0.08em;
+}
 
-.lb-pills { display: flex; gap: 8px; }
-.lb-pills.nowrap { white-space: nowrap; }
+.lb-pills {
+  display: flex;
+  gap: 8px;
+}
+.lb-pills.nowrap {
+  white-space: nowrap;
+}
 
 .lb-pill {
   background: #fff;
@@ -24,7 +41,18 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: background .15s ease, color .15s ease, border-color .15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
-.lb-pill:hover { border-color: #c3d4ff; color: #1677ff; background: #eef3ff; }
-.lb-pill.active { background: #667ac0; color: #fff; border-color: #667ac0; }
+.lb-pill:hover {
+  border-color: #c3d4ff;
+  color: #1677ff;
+  background: #eef3ff;
+}
+.lb-pill.active {
+  background: #667ac0;
+  color: #fff;
+  border-color: #667ac0;
+}

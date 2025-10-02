@@ -1,9 +1,23 @@
 import { xpToLevel } from '../utils/levels';
 
 const GENRES = [
-  'Action', 'Adventure', 'Martial Arts', 'Fantasy', 'Sci-Fi', 'Urban',
-  'Historical', 'Eastern Fantasy', 'Wuxia', 'Xianxia', 'Military', 'Sports',
-  'Romance', 'Drama', 'Slice of Life', 'School Life', 'Comedy',
+  'Action',
+  'Adventure',
+  'Martial Arts',
+  'Fantasy',
+  'Sci-Fi',
+  'Urban',
+  'Historical',
+  'Eastern Fantasy',
+  'Wuxia',
+  'Xianxia',
+  'Military',
+  'Sports',
+  'Romance',
+  'Drama',
+  'Slice of Life',
+  'School Life',
+  'Comedy',
 ];
 
 const genreSlug = (g) => g.toLowerCase().replace(/\s+/g, '-');
@@ -12,21 +26,22 @@ const seedRand = (seed) => {
   let t = seed % 2147483647;
   return () => (t = (t * 48271) % 2147483647) / 2147483647;
 };
-const timeWeight = (timeRange) => (timeRange === 'weekly' ? 0.8 : timeRange === 'monthly' ? 0.9 : 1);
+const timeWeight = (timeRange) =>
+  timeRange === 'weekly' ? 0.8 : timeRange === 'monthly' ? 0.9 : 1;
 
 // Move computeWriterScores function here to avoid circular dependency
 const computeWriterScores = (writers) => {
-  return writers.map(writer => {
+  return writers.map((writer) => {
     // Calculate composite score based on books, votes, and views
     const booksScore = (writer.books || 0) * 1000;
     const votesScore = (writer.votes || 0) * 0.1;
     const viewsScore = (writer.views || 0) * 0.01;
-    
+
     const totalScore = booksScore + votesScore + viewsScore;
-    
+
     return {
       ...writer,
-      score: Math.round(totalScore)
+      score: Math.round(totalScore),
     };
   });
 };
@@ -36,29 +51,43 @@ function generateMock() {
 
   const novels = Array.from({ length: 160 }).map((_, i) => {
     const id = i + 1;
-    
-    // 确保每个分类都有足够的小说 - 使用轮询分配
+
+    // Ensure each category has sufficient novels - use round-robin assignment
     const primaryGenre = GENRES[i % GENRES.length];
-    
-    // 生成1-3个标签，确保第一个标签是主要分类
+
+    // Generate 1-3 tags, ensuring the first tag is the primary genre
     const numTags = Math.floor(rnd() * 3) + 1;
-    const otherGenres = GENRES.filter(g => g !== primaryGenre).sort(() => rnd() - 0.5);
+    const otherGenres = GENRES.filter((g) => g !== primaryGenre).sort(() => rnd() - 0.5);
     const tags = [primaryGenre, ...otherGenres.slice(0, numTags - 1)];
-    
+
     const views = Math.floor(rnd() * 800_000 + id * 300);
     const votes = Math.floor(rnd() * 10_000 + (id % 50) * 7);
-    
-    return {
+
+    const novel = {
       id,
       novelId: id,
-      title: `Novel #${id}`, // 确保每个小说都有标题
+      title: `Novel #${id}`, // Ensure every novel has a title
       cover: `https://picsum.photos/seed/novel_${id}/120/120`,
       genre: primaryGenre,
       genreSlug: genreSlug(primaryGenre),
-      tags: tags, // 确保每个小说都有tags
+      tags: tags, // Ensure every novel has tags
       views,
       votes,
     };
+
+    // Debug log for first 5 novels
+    if (i < 5) {
+      console.log(`Novel ${id}:`, {
+        id: novel.id,
+        novelId: novel.novelId,
+        title: novel.title,
+        tags: novel.tags,
+        hasTitle: !!novel.title,
+        titleType: typeof novel.title,
+      });
+    }
+
+    return novel;
   });
 
   const users = Array.from({ length: 300 }).map((_, i) => {
@@ -88,7 +117,16 @@ function generateMock() {
     };
   });
 
-  console.log('Generated novels sample:', novels.slice(0, 5).map(n => ({ id: n.id, title: n.title, tags: n.tags }))); // Debug log
+  console.log('Total novels generated:', novels.length);
+  console.log(
+    'Sample novels check:',
+    novels.slice(0, 3).map((n) => ({
+      id: n.id,
+      title: n.title,
+      hasTitle: !!n.title,
+      tags: n.tags,
+    }))
+  );
 
   return { novels, users, writers };
 }
@@ -108,39 +146,73 @@ function paginate(items, page, pageSize) {
 
 export async function getNovelsLeaderboard({ timeRange, genre, sortBy, page, pageSize }) {
   const w = timeWeight(timeRange);
-  let list = MOCK.novels.map((n) => ({ ...n, views: Math.floor(n.views * w), votes: Math.floor(n.votes * w) }));
-  
-  console.log('getNovelsLeaderboard called with genre:', genre); // Debug log
-  console.log('Total novels before filtering:', list.length); // Debug log
-  
-  // 改进分类过滤逻辑
+  let list = MOCK.novels.map((n) => ({
+    ...n,
+    views: Math.floor(n.views * w),
+    votes: Math.floor(n.votes * w),
+  }));
+
+  console.log('getNovelsLeaderboard called with:', { timeRange, genre, sortBy, page, pageSize });
+  console.log('Total novels before filtering:', list.length);
+
+  // Check titles before filtering
+  const titlesBeforeFilter = list.slice(0, 5).map((n) => ({
+    id: n.id,
+    title: n.title,
+    hasTitle: !!n.title,
+  }));
+  console.log('Sample titles before filter:', titlesBeforeFilter);
+
+  // Improved genre filtering logic
   if (genre && genre !== 'all') {
     const originalCount = list.length;
-    
+
     list = list.filter((n) => {
-      // 直接比较分类名（忽略大小写）
+      // Direct genre name comparison (case insensitive)
       if (n.genre && n.genre.toLowerCase() === genre.toLowerCase()) return true;
-      
-      // 检查tags数组中是否有匹配的分类（忽略大小写）
-      if (n.tags && n.tags.some(tag => tag.toLowerCase() === genre.toLowerCase())) return true;
-      
-      // 处理URL友好格式（连字符转空格）
+
+      // Check if tags array contains matching genre (case insensitive)
+      if (n.tags && n.tags.some((tag) => tag.toLowerCase() === genre.toLowerCase())) return true;
+
+      // Handle URL-friendly format (hyphen to space conversion)
       const genreWithSpaces = genre.replace(/-/g, ' ');
       if (n.genre && n.genre.toLowerCase() === genreWithSpaces.toLowerCase()) return true;
-      if (n.tags && n.tags.some(tag => tag.toLowerCase() === genreWithSpaces.toLowerCase())) return true;
-      
+      if (n.tags && n.tags.some((tag) => tag.toLowerCase() === genreWithSpaces.toLowerCase()))
+        return true;
+
       return false;
     });
-    
-    console.log(`Filtered from ${originalCount} to ${list.length} novels for genre: ${genre}`); // Debug log
+
+    console.log(`Filtered from ${originalCount} to ${list.length} novels for genre: ${genre}`);
   }
-  
+
   if (sortBy === 'votes') list.sort((a, b) => b.votes - a.votes);
   else list.sort((a, b) => b.views - a.views);
-  
-  console.log('First few novels after sorting:', list.slice(0, 3).map(n => ({ id: n.id, title: n.title, tags: n.tags }))); // Debug log
-  
-  return simulateLatency(paginate(list, page, pageSize));
+
+  // Check titles after sorting
+  const titlesAfterSort = list.slice(0, 5).map((n) => ({
+    id: n.id,
+    title: n.title,
+    hasTitle: !!n.title,
+    titleType: typeof n.title,
+  }));
+  console.log('Sample titles after sort:', titlesAfterSort);
+
+  const paginatedResult = paginate(list, page, pageSize);
+
+  // Check final paginated result
+  console.log(
+    'Final paginated result sample:',
+    paginatedResult.items.slice(0, 3).map((n) => ({
+      id: n.id,
+      novelId: n.novelId,
+      title: n.title,
+      hasTitle: !!n.title,
+      tags: n.tags,
+    }))
+  );
+
+  return simulateLatency(paginatedResult);
 }
 
 export async function getUsersLeaderboard({ timeRange, sortBy, page, pageSize }) {
@@ -156,7 +228,11 @@ export async function getUsersLeaderboard({ timeRange, sortBy, page, pageSize })
 
 export async function getWritersLeaderboard({ timeRange, sortBy, page, pageSize }) {
   const w = timeWeight(timeRange);
-  let list = MOCK.writers.map((wrt) => ({ ...wrt, views: Math.floor(wrt.views * w), votes: Math.floor(wrt.votes * w) }));
+  let list = MOCK.writers.map((wrt) => ({
+    ...wrt,
+    views: Math.floor(wrt.views * w),
+    votes: Math.floor(wrt.votes * w),
+  }));
   let withScore = computeWriterScores(list);
 
   if (sortBy === 'books') withScore.sort((a, b) => (b.books ?? 0) - (a.books ?? 0));

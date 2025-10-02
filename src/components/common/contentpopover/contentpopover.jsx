@@ -93,7 +93,8 @@ const ContentPopover = ({ data, onSelect, categoriesOnly = false }) => {
                             role="menuitem"
                             tabIndex={0}
                             onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') onSelect && onSelect(activeKey, type);
+                              if (e.key === 'Enter' || e.key === ' ')
+                                onSelect && onSelect(activeKey, type);
                             }}
                           >
                             {type}

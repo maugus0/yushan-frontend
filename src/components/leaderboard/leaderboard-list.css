@@ -1,27 +1,94 @@
-/* Leaderboard List Component Styles */
+/* Leaderboard List Component Styles (English comments) */
+
+/* Make the list horizontally scrollable if a row becomes wider than the container */
+.lb-list {
+  overflow-x: auto; /* allow horizontal growth without clipping */
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
 .lb-row {
   display: grid;
-  grid-template-columns: 56px 1fr;
+  /* New 3-column grid: rank | avatar | content */
+  grid-template-columns: 40px 56px max-content;
   gap: 8px 12px;
+  /* Row width is at least container width, but can expand to fit all content */
+  width: max-content;
+  min-width: 100%;
 }
+
 .lb-row--novel {
-  grid-template-columns: 56px 1fr; /* avatar | content */
-  grid-template-rows: auto auto;    /* line1, line2 */
+  /* rank | avatar | full content (2 rows: line1, line2) */
+  grid-template-columns: 40px 56px max-content;
+  grid-template-rows: auto auto;
+}
+
+/* Rank cell at the far left, vertically centered in the row */
+.lb-cell--rank {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center; /* vertical center within the row */
+  justify-self: center; /* horizontal center in the rank column */
+}
+
+/* For 2-line novel rows, span both lines to keep true vertical centering */
+.lb-row--novel .lb-cell--rank {
+  grid-row: 1 / span 2;
+}
+
+/* Rank number formatting: 001, 002... with tabular alignment */
+.rank-number {
+  font-weight: 700;
+  color: #6b7280; /* slate-500 */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  min-width: 3ch; /* room for 3 digits */
+  text-align: center;
+  letter-spacing: 0.4px;
 }
 
 /* Cells */
-.lb-cell--avatar { grid-row: 1 / span 2; align-self: start; }
-.lb-cell--content-line1 { 
-  grid-column: 2; 
-  grid-row: 1; 
+.lb-cell--avatar {
+  grid-column: 2; /* avatar now sits in the 2nd column */
+  grid-row: 1;
+  align-self: start;
+}
+
+/* In novel rows, make avatar span two lines */
+.lb-row--novel .lb-cell--avatar {
+  grid-row: 1 / span 2;
+}
+
+.lb-cell--content-line1 {
+  grid-column: 3; /* content starts in the 3rd column */
+  grid-row: 1;
+  /* Keep everything on one single line (no wrapping) */
+  white-space: nowrap;
   min-width: 0;
   display: flex;
   align-items: center;
   width: 100%;
 }
-.lb-cell--content-line2 { grid-column: 2; grid-row: 2; min-width: 0; }
 
-/* Novel title container - ensures everything stays on one line */
+.lb-cell--content-line2 {
+  grid-column: 3; /* second line also in the 3rd column */
+  grid-row: 2;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Users/Writers rows use a single content cell in column 3 */
+.lb-cell--content {
+  grid-column: 3;
+}
+
+/* Hide the old inline rank (e.g., "1.") since rank has moved to the left column */
+.rank-dot {
+  display: none;
+}
+
+/* Novel title container - single line layout */
 .novel-title-container {
   display: flex;
   align-items: center;
@@ -31,9 +98,13 @@
   min-width: 0;
 }
 
-/* Buttons */
-.lb-btn { border-radius: 8px; }
-.lb-btn-primary { border-radius: 8px; }
+/* Buttons (shared minimal rounding) */
+.lb-btn {
+  border-radius: 8px;
+}
+.lb-btn-primary {
+  border-radius: 8px;
+}
 
 /* Title line */
 .row-title {
@@ -44,20 +115,15 @@
   min-width: 0;
 }
 
-.rank-dot { 
-  font-weight: 600; 
-  flex-shrink: 0;
-}
-
+/* Title: do not shrink; keep full text on the same line (may overflow the row width, which is allowed to grow) */
 .title-link {
   font-weight: 600;
   color: #1f2937;
   text-decoration: none;
-  flex-shrink: 1; /* Allow title to shrink if needed */
-  max-width: 200px; /* Adjust to make room for tags */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: 0 0 auto; /* do not shrink title */
+  white-space: nowrap; /* single line */
+  overflow: visible; /* no clipping */
+  text-overflow: clip; /* no ellipsis */
 }
 
 .title-link:hover {
@@ -65,28 +131,29 @@
   text-decoration: underline;
 }
 
-/* Novel tags styling */
+/* Tags: stay on the same line, never shrink, no clipping */
 .novel-tags {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-left: 8px;
-  flex-wrap: nowrap; /* Prevent tags from wrapping to new line */
-  flex-shrink: 0;
+  gap: 6px;
+  margin-left: 10px;
+  flex-wrap: nowrap;
+  flex: 0 0 auto; /* do not shrink tags container */
+  overflow: visible; /* show all tags */
 }
 
 .tag-pill {
   display: inline-flex;
   align-items: center;
   padding: 2px 6px;
-  border-radius: 4px;
-  background: #f0f0f0;
-  color: #666;
+  border: 1px solid #dbe2f3;
+  border-radius: 999px;
+  background: #eef3ff;
+  color: #2c4db8;
   font-size: 11px;
   font-weight: 500;
   white-space: nowrap;
-  border: 1px solid #e0e0e0;
-  flex-shrink: 0;
+  flex-shrink: 0; /* each pill keeps its size */
 }
 
 /* Second line (views + votes) or generic "row-desc" */
@@ -97,11 +164,22 @@
   gap: 10px;
   color: #4b5563;
 }
-.desc-item { white-space: nowrap; }
-.separator { color: #9aa4b2; }
-.desc-icon.views { color: #fa8c16; }
-.desc-icon.votes { color: #52c41a; }
-.desc-icon.books { color: #6366f1; }
+
+.desc-item {
+  white-space: nowrap;
+}
+.separator {
+  color: #9aa4b2;
+}
+.desc-icon.views {
+  color: #fa8c16;
+}
+.desc-icon.votes {
+  color: #52c41a;
+}
+.desc-icon.books {
+  color: #6366f1;
+}
 
 /* Readers: level pill + XP in one line */
 .level-pill {
@@ -116,7 +194,10 @@
   font-size: 12px;
   white-space: nowrap;
 }
-.nowrap { white-space: nowrap; }
+
+.nowrap {
+  white-space: nowrap;
+}
 
 /* Footer strictly at the bottom */
 .lb-footer {
@@ -128,26 +209,26 @@
   padding: 8px 0 16px;
   color: #999;
 }
-.lb-sentinel-anchor { width: 100%; height: 1px; position: relative; }
-.lb-end { font-size: 12px; color: #9ca3af; white-space: nowrap; }
 
-/* Responsive */
+.lb-sentinel-anchor {
+  width: 100%;
+  height: 1px;
+  position: relative;
+}
+.lb-end {
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+/* Responsive: keep the same 3 columns on mobile */
 @media (max-width: 992px) {
-  .lb-row--novel { 
-    grid-template-columns: 56px 1fr;
+  .lb-row--novel {
+    grid-template-columns: 40px 56px max-content;
   }
-  
-  .novel-tags {
-    margin-left: 4px;
-    gap: 2px;
-  }
-  
+
   .tag-pill {
     font-size: 10px;
     padding: 1px 4px;
-  }
-  
-  .title-link {
-    max-width: 150px;
   }
 }
