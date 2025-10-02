@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Badge, Popover } from 'antd';
+import { Layout, Menu, Button, Drawer, Avatar, Dropdown, Input, Popover } from 'antd';
 import {
   MenuOutlined,
   UserOutlined,
   LogoutOutlined,
   SearchOutlined,
-  BellOutlined,
   BarChartOutlined,
   CompassOutlined,
   BookOutlined,
@@ -14,6 +13,8 @@ import {
   CloseOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux'; // use store as source of truth
+import authService from '../../../services/auth'; // unified auth operations
 import './navbar.css';
 import ContentPopover from '../contentpopover/contentpopover';
 
@@ -41,7 +42,8 @@ const slugify = (s = '') =>
     .replace(/-+/g, '-')
     .trim();
 
-const Navbar = ({ isAuthenticated = false, user = null }) => {
+// Accept optional props but default to Redux/auth when not provided
+const Navbar = ({ isAuthenticated, user }) => {
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -49,6 +51,14 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
+
+  // Prefer Redux store; fallback to authService token presence
+  const storeIsAuthenticated = useSelector((state) => state.user?.isAuthenticated);
+
+  const finalIsAuthenticated =
+    typeof isAuthenticated === 'boolean'
+      ? isAuthenticated
+      : (storeIsAuthenticated ?? authService.isAuthenticated());
 
   useEffect(() => {
     if (searchExpanded && searchInputRef.current) searchInputRef.current.focus();
@@ -101,7 +111,7 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
 
   const BrowseLabel = isMobile ? (
     <div
-      style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+      style={{ display: 'flex, alignItems: "center"', gap: 8, cursor: 'pointer' }}
       onClick={() => {
         navigate('/browse/novel');
         setMobileMenuVisible(false);
@@ -248,9 +258,15 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
       key: 'logout',
       icon: <LogoutOutlined />,
       label: 'Logout',
-      onClick: () => {
-        localStorage.removeItem('authToken');
-        window.location.reload();
+      // Use authService to clear tokens and redirect safely
+      onClick: async () => {
+        try {
+          await authService.logout();
+        } catch {
+          // Fallback if API fails
+          await authService.clearTokens?.();
+          window.location.href = '/login';
+        }
       },
     },
   ];
@@ -330,7 +346,7 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
         </div>
 
         <div className="navbar-actions">
-          {isAuthenticated ? (
+          {finalIsAuthenticated ? (
             <>
               <Button
                 type="text"
@@ -340,28 +356,29 @@ const Navbar = ({ isAuthenticated = false, user = null }) => {
               >
                 Library
               </Button>
-              <Badge count={3} size="small">
-                <Button
-                  type="text"
-                  icon={<BellOutlined />}
-                  className="nav-button icon-only"
-                  onClick={() => navigate('/notifications')}
-                />
-              </Badge>
+
+              <Dropdown menu={{ items: [{ type: 'group', label: 'Account' }, ...[]] }} />
               <Dropdown
-                menu={{ items: userMenuItems }}
+                menu={{
+                  items: userMenuItems,
+                }}
                 placement="bottomRight"
                 trigger={['click']}
                 overlayClassName="user-dropdown"
               >
-                <div className="user-avatar">
-                  <Avatar
-                    size={32}
-                    icon={<UserOutlined />}
-                    src={user?.avatar}
-                    style={{ cursor: 'pointer' }}
-                  />
-                </div>
+                <Avatar
+                  size={32}
+                  icon={<UserOutlined />}
+                  src={user?.avatarUrl}
+                  style={{
+                    cursor: 'pointer',
+                    border: 'none',
+                    boxShadow: 'none',
+                    background: 'transparent',
+                    padding: 0,
+                    margin: 0,
+                  }}
+                />
               </Dropdown>
             </>
           ) : (

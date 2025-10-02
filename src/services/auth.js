@@ -124,7 +124,7 @@ const authService = {
 
   async sendVerificationEmail(email) {
     try {
-      console.log('Sending email verification request:', { email });
+      //console.log('Sending email verification request:', { email });
       const response = await axios.post(
         `${API_URL}/auth/send-email`,
         { email },
@@ -134,19 +134,14 @@ const authService = {
           },
         }
       );
-
-      console.log('Email verification response:', response.data);
+      //console.log('Email verification response:', response.data);
       return response.data;
     } catch (error) {
       // Log detailed error information
       console.error('Send Email Error Details:', {
         status: error.response?.status,
         data: error.response?.data,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          data: error.config?.data,
-        },
+        config: error.config,
         message: error.message,
       });
       throw error;
