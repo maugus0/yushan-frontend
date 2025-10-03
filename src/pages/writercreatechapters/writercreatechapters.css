@@ -1,0 +1,14 @@
+.writercreatechapters-page {
+  padding: 32px;
+  min-height: 100vh;
+  background: #f0f2f5;
+}
+
+.writercreatechapters-editor-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(40, 49, 87, 0.08);
+  padding: 32px;
+}

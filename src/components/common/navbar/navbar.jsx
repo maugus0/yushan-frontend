@@ -18,6 +18,7 @@ import { logout } from '../../../store/slices/user';
 import './navbar.css';
 import ContentPopover from '../contentpopover/contentpopover';
 
+
 const { Header } = Layout;
 
 /** Make a URL-friendly slug (must match browse page parser) */
@@ -237,7 +238,7 @@ const Navbar = () => {
       key: 'create',
       icon: <EditOutlined style={{ fontSize: 28 }} />,
       label: <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Create</span>,
-      onClick: () => navigate('/create'),
+      onClick: () => navigate('/writerdashboard'),
     },
   ];
 

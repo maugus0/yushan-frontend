@@ -7,6 +7,11 @@
   transition: width 0.2s;
   border-right: 1px solid #e1e6f5;
   box-shadow: 2px 0 8px rgba(40, 49, 87, 0.04);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 100;
 }
 
 .writer-sider.collapsed {

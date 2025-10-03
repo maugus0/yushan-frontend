@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, App as AntApp } from 'antd';
+import { PersistGate } from 'redux-persist/integration/react';
+import { persistor } from './store';
+import { message } from 'antd';
 import 'antd/dist/reset.css'; // Import Ant Design styles
 
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setAuthenticated } from './store/slices/user';
+import authService from './services/auth';
 
 // Layout Components - Fixed to lowercase
 import LayoutWrapper from './components/common/layoutwrapper/layout-wrapper';
@@ -17,12 +22,16 @@ import Profile from './pages/profile/profile';
 import EditProfile from './pages/editprofile/editprofile';
 import Library from './pages/library/library';
 import WriterDashboard from './pages/writerdashboard/writerdashboard';
-import WriterCreate from './pages/writercreate/writercreate';
-import WriterMaintain from './pages/writermaintain/writermaintain';
+import WriterWorkspace from './pages/writerworkspace/writerworkspace';
 import WriterPromote from './pages/writerpromote/writerpromote';
+import WriterCreate from './pages/writercreate/writercreate';
+import WriterStorySetting from './pages/writerstorysetting/writerstorysetting';
+import WriterStoryProfile from './pages/writerstoryprofile/writerstoryprofile';
+import WriterCreateChapters from './pages/writercreatechapters/writercreatechapters';
 
 // Global Styles
 import './app.css';
+import './utils/axios-interceptor';
 
 // Ant Design Theme Configuration
 const themeConfig = {
@@ -51,6 +60,13 @@ const themeConfig = {
   },
 };
 
+// Set up message configuration globally
+message.config({
+  top: 24,
+  duration: 3,
+  maxCount: 3,
+});
+
 // Route protection wrapper
 const ProtectedRoute = ({ isAuthenticated, children }) => {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
@@ -58,135 +74,120 @@ const ProtectedRoute = ({ isAuthenticated, children }) => {
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
+  // AC3: Check authentication on app load
+  useEffect(() => {
+    const initAuth = () => {
+      const isAuthenticated = authService.isAuthenticated();
+      dispatch(setAuthenticated(isAuthenticated));
+    };
+
+    initAuth();
+  }, [dispatch]);
 
   return (
     <ConfigProvider theme={themeConfig}>
-      <Router
-        basename={process.env.NODE_ENV === 'production' ? '/yushan-frontend' : ''}
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true,
-        }}
-      >
-        <div className="App">
-          <Routes>
-            {/* Public routes with LayoutWrapper and redirect if authenticated */}
-            <Route
-              path="/login"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/" replace />
-                ) : (
-                  <LayoutWrapper>
-                    <Login />
-                  </LayoutWrapper>
-                )
-              }
-            />
-            <Route
-              path="/register"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/" replace />
-                ) : (
-                  <LayoutWrapper>
-                    <Register />
-                  </LayoutWrapper>
-                )
-              }
-            />
+      <PersistGate loading={null} persistor={persistor}>
+        <AntApp>
+          <Router
+            basename={process.env.NODE_ENV === 'production' ? '/yushan-frontend' : ''}
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
+            <div className="App">
+              <Routes>
+                {/* Public routes with LayoutWrapper and redirect if authenticated */}
+                <Route
+                  path="/login"
+                  element={
+                    isAuthenticated ? (
+                      <Navigate to="/" replace />
+                    ) : (
+                      <LayoutWrapper>
+                        <Login />
+                      </LayoutWrapper>
+                    )
+                  }
+                />
+                <Route
+                  path="/register"
+                  element={
+                    isAuthenticated ? (
+                      <Navigate to="/" replace />
+                    ) : (
+                      <LayoutWrapper>
+                        <Register />
+                      </LayoutWrapper>
+                    )
+                  }
+                />
 
-            <Route
-              path="/"
-              element={
-                <LayoutWrapper>
-                  <Home />
-                </LayoutWrapper>
-              }
-            />
+                <Route
+                  path="/"
+                  element={
+                    <LayoutWrapper>
+                      <Home />
+                    </LayoutWrapper>
+                  }
+                />
 
-            <Route
-              path="/writercreate"
-              element={
-                <WriterCreate />
-              }
-            />
+                <Route path="/writerdashboard" element={<WriterDashboard />} />
+                <Route path="/writerworkspace" element={<WriterWorkspace />} />
+                <Route path="/writerpromote" element={<WriterPromote />} />
+                <Route path="/writercreate" element={<WriterCreate />} />
+                <Route path="/writerstorysetting" element={<WriterStorySetting />} />
+                <Route path="/writerstoryprofile" element={<WriterStoryProfile />} />
+                <Route path="/writercreatechapters" element={<WriterCreateChapters />} />
 
-            <Route
-              path="/writermaintain"
-              element={
-                <WriterMaintain />
-              }
-            />
+                {/* Library route */}
+                <Route
+                  path="/library"
+                  element={
+                    <LayoutWrapper>
+                      <Library />
+                    </LayoutWrapper>
+                  }
+                />
 
-            <Route
-              path="/writerpromote"
-              element={
-                <WriterPromote />
-              }
-            />
-
-            <Route
-              path="/writerdashboard"
-              element={
-                <WriterDashboard />
-              }
-            />
-
-            <Route
-              path="/library"
-              element={
-                <LayoutWrapper>
-                  <Library />
-                </LayoutWrapper>
-              }
-            />
-
-            {/* Protected routes */}
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <LayoutWrapper>
-                    <Profile />
-                  </LayoutWrapper>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/editprofile"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <LayoutWrapper>
-                    <EditProfile />
-                  </LayoutWrapper>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/browse/*"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <LayoutWrapper>
-                    <Browse />
-                  </LayoutWrapper>
-                </ProtectedRoute>
-              }
-            />
-            {/* <Route
-              path="/writerworkspace"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <LayoutWrapper>
-                    <WriterWorkspace />
-                  </LayoutWrapper>
-                </ProtectedRoute>
-              }
-            /> */}
-            {/* Add more routes as needed */}
-          </Routes>
-        </div>
-      </Router>
+                {/* Protected routes */}
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <LayoutWrapper>
+                        <Profile />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/editprofile"
+                  element={
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <LayoutWrapper>
+                        <EditProfile />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/browse/*"
+                  element={
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <LayoutWrapper>
+                        <Browse />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </div>
+          </Router>
+        </AntApp>
+      </PersistGate>
     </ConfigProvider>
   );
 }

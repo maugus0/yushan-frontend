@@ -37,6 +37,7 @@ const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
             icon={<ArrowLeftOutlined />}
             className="writer-navbar-back"
             size="large"
+            onClick={() => navigate('')}
           />
         )}
         <Button
@@ -67,57 +68,22 @@ const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
             {!collapsed && <span>Dashboard</span>}
           </Button>
         </Tooltip>
-        <Popover
-          placement="right"
-          content={
-            <div className="writer-navbar-popover">
-              <Button
-                type="text"
-                icon={<PlusOutlined />}
-                block
-                style={{ textAlign: 'left' }}
-                onClick={() => {
-                  setWorkspacePopover(false);
-                  navigate('/writercreate');
-                }}
-              >
-                Create
-              </Button>
-              <Button
-                type="text"
-                icon={<ToolOutlined />}
-                block
-                style={{ textAlign: 'left' }}
-                onClick={() => {
-                  setWorkspacePopover(false);
-                  navigate('/writermaintain');
-                }}
-              >
-                Maintain
-              </Button>
-            </div>
-          }
-          trigger="click"
-          open={workspacePopover}
-          onOpenChange={setWorkspacePopover}
-        >
-          <Tooltip title="Workspace" placement="right" overlayClassName="writer-navbar-tooltip">
-            <Button
+        <Tooltip title="Workspace" placement="right" overlayClassName="writer-navbar-tooltip">
+          <Button
               type="text"
               icon={<AppstoreOutlined />}
               className="writer-navbar-btn"
               block
               size="large"
-              onClick={() => setWorkspacePopover(!workspacePopover)}
               style={{
                 justifyContent: 'flex-start',
                 ...(collapsed ? { padding: 0, width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' } : {}),
               }}
+              onClick={() => navigate('/writerworkspace')}
             >
               {!collapsed && <span>Workspace</span>}
             </Button>
-          </Tooltip>
-        </Popover>
+        </Tooltip>
         <Tooltip title="Promote" placement="right" overlayClassName="writer-navbar-tooltip">
           <Button
             type="text"

@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from "react";
-import { Button, Input, Tag, Upload, Select, Form, message, Modal, Slider } from "antd";
+import { Button, Input, Tag, Upload, Select, Form, Modal, Slider } from "antd";
 import { ArrowLeftOutlined, PlusOutlined, CloseOutlined, BookOutlined } from "@ant-design/icons";
 import WriterNavbar from "../../components/writer/writernavbar/writernavbar";
-import "./writercreate.css";
-import { useNavigate } from "react-router-dom";
+import "./writerstorysetting.css";
+import { useNavigate, useLocation } from "react-router-dom";
 import Cropper from "react-easy-crop";
 
 const typeOptions = [
@@ -15,40 +15,21 @@ const typeOptions = [
   { label: "History", value: "history", color: "#722ed1" },
 ];
 
-function getCroppedImg(imageSrc, crop, zoom, aspect = 120 / 160) {
-  return new Promise((resolve) => {
-    const image = new window.Image();
-    image.src = imageSrc;
-    image.onload = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      const naturalWidth = image.naturalWidth;
-      const naturalHeight = image.naturalHeight;
-      const cropWidth = naturalWidth * crop.width / 100;
-      const cropHeight = naturalHeight * crop.height / 100;
-      canvas.width = 120;
-      canvas.height = 160;
-      ctx.drawImage(
-        image,
-        naturalWidth * crop.x / 100,
-        naturalHeight * crop.y / 100,
-        cropWidth,
-        cropHeight,
-        0,
-        0,
-        120,
-        160
-      );
-      resolve(canvas.toDataURL("image/jpeg"));
-    };
-  });
-}
+const defaultStory = {
+  bookname: "The Lost Empire",
+  cover: "https://via.placeholder.com/120x160?text=Cover",
+  types: ["city", "adventure"],
+  synopsis: "Epic tale of a lost empire and its last survivors. Mystery, intrigue, and adventure await.",
+};
 
-const WriterCreate = () => {
-  const [coverUrl, setCoverUrl] = useState("");
-  const [selectedTypes, setSelectedTypes] = useState([]);
+const WriterStorySetting = () => {
+  const [coverUrl, setCoverUrl] = useState(defaultStory.cover);
+  const [selectedTypes, setSelectedTypes] = useState(defaultStory.types);
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const storyId = params.get("id");
   const [cropModalVisible, setCropModalVisible] = useState(false);
   const [cropImage, setCropImage] = useState("");
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -56,16 +37,6 @@ const WriterCreate = () => {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [successModal, setSuccessModal] = useState(false);
 
-  const handleTypeSelect = (value) => {
-    if (!selectedTypes.includes(value)) {
-      setSelectedTypes([...selectedTypes, value]);
-    }
-  };
-
-  const handleTypeRemove = (value) => {
-    setSelectedTypes(selectedTypes.filter((t) => t !== value));
-  };
-  
   const handleCoverChange = (info) => {
     let file;
     if (info.file && info.file.originFileObj) {
@@ -115,16 +86,8 @@ const WriterCreate = () => {
     }
   };
 
-  const handleSubmit = (values) => {
-    if (selectedTypes.length === 0) {
-      message.error("Please select at least one type.");
-      return;
-    }
-    message.success("Book created!");
+  const handleSubmit = () => {
     setSuccessModal(true);
-    form.resetFields();
-    setCoverUrl("");
-    setSelectedTypes([]);
   };
 
   return (
@@ -144,6 +107,11 @@ const WriterCreate = () => {
           form={form}
           layout="vertical"
           className="writercreate-form"
+          initialValues={{
+            bookname: defaultStory.bookname,
+            types: defaultStory.types,
+            synopsis: defaultStory.synopsis,
+          }}
           onFinish={handleSubmit}
         >
           <div className="writercreate-form-title">
@@ -193,6 +161,7 @@ const WriterCreate = () => {
             ]}
           >
             <Select
+              mode={undefined} // 去掉多选
               placeholder="Select type"
               value={selectedTypes[0] || undefined}
               onChange={value => setSelectedTypes([value])}
@@ -219,7 +188,7 @@ const WriterCreate = () => {
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" className="writercreate-submit-btn">
-              CREATE
+              UPDATE SETTING
             </Button>
           </Form.Item>
         </Form>
@@ -271,7 +240,7 @@ const WriterCreate = () => {
           <div style={{ textAlign: "center", padding: "24px 0" }}>
             <h2 style={{ color: "#52c41a", marginBottom: 12 }}>Successfully!</h2>
             <div style={{ fontSize: 16, color: "#283157", marginBottom: 24 }}>
-              Please wait for approve of admin!
+              Please wait for approve of admin.
             </div>
             <Button
               type="primary"
@@ -290,4 +259,4 @@ const WriterCreate = () => {
   );
 };
 
-export default WriterCreate;
+export default WriterStorySetting;
