@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Card, Empty, Breadcrumb, Button } from 'antd';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import './leaderboard.css';
+import './leaderboard.css'; // Ensure this file contains responsive styles
 import LeaderboardFilters from '../../components/leaderboard/leaderboard-filters';
 import LeaderboardList from '../../components/leaderboard/leaderboard-list';
 import {
@@ -34,7 +34,51 @@ const NOVEL_CATEGORIES = [
   'Comedy',
 ];
 
-// Treat "all" as undefined when calling backend
+// Persisted filtering
+const TIME_STORAGE_KEY = 'lb_time_global';
+const SORT_STORAGE_KEYS = {
+  [TAB_KEYS.NOVELS]: 'lb_sort_novels',
+  [TAB_KEYS.WRITERS]: 'lb_sort_writers',
+};
+
+function loadGlobalTimeRange() {
+  try {
+    return localStorage.getItem(TIME_STORAGE_KEY) || null;
+  } catch {
+    return null;
+  }
+}
+function saveGlobalTimeRange(timeRange) {
+  try {
+    if (timeRange) localStorage.setItem(TIME_STORAGE_KEY, timeRange);
+  } catch {
+    // ignore
+  }
+}
+function loadSortForTab(tab) {
+  try {
+    const key = SORT_STORAGE_KEYS[tab];
+    if (!key) return null;
+    return localStorage.getItem(key) || null;
+  } catch {
+    return null;
+  }
+}
+function saveSortForTab(tab, sortBy) {
+  try {
+    const key = SORT_STORAGE_KEYS[tab];
+    if (!key || !sortBy) return;
+    localStorage.setItem(key, sortBy);
+  } catch {
+    // ignore
+  }
+}
+
+function extractUrlCategory(pathname) {
+  const m = pathname.match(/(?:leaderboard|rankings)\/Novel\/([^/?#]+)/i);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
 function normalizeGenre(g) {
   if (!g) return undefined;
   return String(g).toLowerCase() === 'all' ? undefined : g;
@@ -69,14 +113,15 @@ export default function LeaderboardPage() {
     filtersRef.current = filters;
   }, [filters]);
 
-  // Parse URL to determine active tab and category
+  const urlInitializedRef = useRef(false);
+  const initialLoadDoneRef = useRef(false);
+
   useEffect(() => {
     const p = location.pathname;
     let nextTab = TAB_KEYS.NOVELS;
-    let nextGenre = 'all'; // Default to 'all' for showing all novels
-    let shouldOpenCats = true; // Default to open categories
+    let nextGenre = 'all';
+    let shouldOpenCats = true;
 
-    // Check for specific paths
     if (/(leaderboard|rankings)\/Readers/i.test(p)) {
       nextTab = TAB_KEYS.READERS;
       shouldOpenCats = false;
@@ -85,80 +130,60 @@ export default function LeaderboardPage() {
       shouldOpenCats = false;
     } else if (/(leaderboard|rankings)\/Novel/i.test(p)) {
       nextTab = TAB_KEYS.NOVELS;
-      // Extract category from URL parameters
-      if (params.category) {
-        // Don't replace hyphens with spaces - keep original format
-        const urlCategory = decodeURIComponent(params.category);
-        console.log('Raw URL Category:', urlCategory, 'Available categories:', NOVEL_CATEGORIES); // Debug log
-
-        // Find exact match in NOVEL_CATEGORIES
-        const matchedCategory = NOVEL_CATEGORIES.find(
-          (cat) => cat === urlCategory || cat.toLowerCase() === urlCategory.toLowerCase()
-        );
-
-        if (matchedCategory) {
-          nextGenre = matchedCategory; // Use the exact matched category name
-          shouldOpenCats = true; // Open categories when on a specific category page
-          console.log('Matched category:', matchedCategory); // Debug log
-        } else {
-          console.log('Category not found, trying with space replacement'); // Debug log
-          // Fallback: try replacing hyphens with spaces
-          const urlCategoryWithSpaces = urlCategory.replace(/-/g, ' ');
-          const fallbackMatch = NOVEL_CATEGORIES.find(
-            (cat) => cat.toLowerCase() === urlCategoryWithSpaces.toLowerCase()
+      const rawCategory = params.category || extractUrlCategory(p);
+      if (rawCategory) {
+        const matched =
+          NOVEL_CATEGORIES.find(
+            (cat) => cat === rawCategory || cat.toLowerCase() === rawCategory.toLowerCase()
+          ) ||
+          NOVEL_CATEGORIES.find(
+            (cat) => cat.toLowerCase() === rawCategory.replace(/-/g, ' ').toLowerCase()
           );
-          if (fallbackMatch) {
-            nextGenre = fallbackMatch;
-            shouldOpenCats = true;
-            console.log('Fallback matched category:', fallbackMatch); // Debug log
-          } else {
-            console.log('No category match found, defaulting to all'); // Debug log
-            nextGenre = 'all';
-            shouldOpenCats = true;
-          }
-        }
+        nextGenre = matched || 'all';
       } else {
-        // /rankings/Novel without category - show all novels with accordion open
         nextGenre = 'all';
-        shouldOpenCats = true; // Keep accordion open for /rankings/Novel
       }
+      shouldOpenCats = true;
     } else if (/(leaderboard|rankings)\/?$/i.test(p)) {
-      // Default route shows all novels - redirect to /rankings/Novel to maintain consistency
       nextTab = TAB_KEYS.NOVELS;
       nextGenre = 'all';
-      shouldOpenCats = true; // Open accordion for default entry
-
-      // Redirect to /rankings/Novel for consistency
+      shouldOpenCats = true;
       navigate('/rankings/Novel', { replace: true });
-      return; // Exit early to avoid state updates before redirect
+      return;
     }
 
-    console.log('Final setting genre to:', nextGenre); // Debug log
+    const savedTime = loadGlobalTimeRange() || DEFAULT_FILTERS.timeRange;
+    let savedSort = null;
+    if (nextTab === TAB_KEYS.NOVELS || nextTab === TAB_KEYS.WRITERS) {
+      savedSort = loadSortForTab(nextTab) || defaultSortFor(nextTab);
+    }
 
-    // Update tab and category state
+    const merged = {
+      ...DEFAULT_FILTERS,
+      timeRange: savedTime,
+      genre: nextGenre,
+      sortBy: savedSort,
+    };
+
     setActiveTab(nextTab);
     setCatsOpen(shouldOpenCats);
+    setFilters(merged);
 
-    // Update filters - preserve existing sortBy unless explicitly changing tabs
-    setFilters((prev) => {
-      const tabChanged = prev && activeTab !== nextTab;
-      return {
-        ...prev,
-        genre: nextGenre,
-        // Only reset sortBy when actually changing tabs, not when changing categories within novels
-        sortBy: tabChanged ? defaultSortFor(nextTab) : prev.sortBy || defaultSortFor(nextTab),
-      };
-    });
-  }, [location.pathname, params.category, navigate, activeTab]);
+    urlInitializedRef.current = true;
+    initialLoadDoneRef.current = false;
+  }, [location.pathname, params.category, navigate]);
 
-  const goTab = useCallback(
-    (key) => {
-      if (key === TAB_KEYS.NOVELS) navigate('/rankings/Novel');
-      else if (key === TAB_KEYS.READERS) navigate('/rankings/Readers');
-      else navigate('/rankings/Writers');
-    },
-    [navigate]
-  );
+  useEffect(() => {
+    if (!urlInitializedRef.current) return;
+    saveGlobalTimeRange(filters.timeRange);
+  }, [filters.timeRange]);
+
+  useEffect(() => {
+    if (!urlInitializedRef.current) return;
+    if (activeTab === TAB_KEYS.NOVELS || activeTab === TAB_KEYS.WRITERS) {
+      saveSortForTab(activeTab, filters.sortBy);
+    }
+  }, [activeTab, filters.sortBy]);
 
   const fetchPage = useCallback(
     async ({ page, pageSize, timeRange, genre, sortBy }, replace = false) => {
@@ -201,12 +226,9 @@ export default function LeaderboardPage() {
 
   const resetAndFetch = useCallback(
     (patch = {}, baseFilters) => {
-      // Use the latest filters passed in (fallback to ref if not provided)
       const base = baseFilters ?? filtersRef.current;
-
       const next = { ...base, ...patch };
 
-      // Only set default sortBy if it's not already provided
       if (activeTab === TAB_KEYS.READERS) {
         next.sortBy = 'levelxp';
       } else if (!next.sortBy) {
@@ -233,7 +255,6 @@ export default function LeaderboardPage() {
     [activeTab, fetchPage]
   );
 
-  // Helper function to refetch data with current filters
   const refetchData = useCallback(() => {
     const currentFilters = filtersRef.current;
     setItems([]);
@@ -253,25 +274,27 @@ export default function LeaderboardPage() {
     );
   }, [fetchPage]);
 
-  // Handle major changes (genre, activeTab) - these should reset sortBy if needed
   useEffect(() => {
-    // Pass the latest filters so genre from URL (e.g., Martial Arts) is preserved
+    if (!urlInitializedRef.current || initialLoadDoneRef.current) return;
+    initialLoadDoneRef.current = true;
+    resetAndFetch({}, { ...filters });
+  }, [filters, activeTab, resetAndFetch]);
+
+  useEffect(() => {
+    if (!urlInitializedRef.current) return;
+    if (!initialLoadDoneRef.current) return;
     resetAndFetch({}, { ...filters });
   }, [filters.genre, activeTab, resetAndFetch]);
 
-  // Handle timeRange changes without resetting sortBy
   useEffect(() => {
-    if (filters.timeRange) {
-      refetchData();
-    }
-  }, [filters.timeRange]);
+    if (!urlInitializedRef.current || !initialLoadDoneRef.current) return;
+    if (filters.timeRange) refetchData();
+  }, [filters.timeRange, refetchData]);
 
-  // Handle sortBy changes without resetting other filters
   useEffect(() => {
-    if (filters.sortBy) {
-      refetchData();
-    }
-  }, [filters.sortBy]);
+    if (!urlInitializedRef.current || !initialLoadDoneRef.current) return;
+    if (filters.sortBy) refetchData();
+  }, [filters.sortBy, refetchData]);
 
   const loadMore = useCallback(() => {
     if (loadingInitial || loadingMore || !hasMoreRef.current) return;
@@ -288,26 +311,28 @@ export default function LeaderboardPage() {
     });
   }, [activeTab, fetchPage, loadingInitial, loadingMore]);
 
-  // Handle category selection with URL navigation
+  const uiGenre = useMemo(() => {
+    if (!/(leaderboard|rankings)\/Novel/i.test(location.pathname)) return 'all';
+    const raw = extractUrlCategory(location.pathname);
+    if (!raw) return 'all';
+    const match =
+      NOVEL_CATEGORIES.find((c) => c.toLowerCase() === raw.toLowerCase()) ||
+      NOVEL_CATEGORIES.find((c) => c.toLowerCase() === raw.replace(/-/g, ' ').toLowerCase());
+    return match || 'all';
+  }, [location.pathname]);
+
   const onSelectCategory = useCallback(
     (label) => {
-      console.log('onSelectCategory called with label:', label); // Debug log
-
       if (String(label).toLowerCase() === 'all') {
         navigate('/rankings/Novel');
       } else {
-        // Find the exact category match to ensure proper casing
         const exactCategory = NOVEL_CATEGORIES.find(
           (cat) => cat.toLowerCase() === String(label).toLowerCase()
         );
-
         if (exactCategory) {
-          // Use the exact category name as URL path (preserve hyphens in Sci-Fi)
           const categoryPath = exactCategory.replace(/\s+/g, '-');
-          console.log('Navigating to:', `/rankings/Novel/${categoryPath}`); // Debug log
           navigate(`/rankings/Novel/${categoryPath}`);
         } else {
-          console.log('Category not found, navigating to all novels'); // Debug log
           navigate('/rankings/Novel');
         }
       }
@@ -315,22 +340,16 @@ export default function LeaderboardPage() {
     [navigate]
   );
 
-  // Handle novels nav item click
   const handleNovelsClick = useCallback(() => {
     const currentPath = location.pathname;
     const currentGenre = filters.genre || 'all';
-
-    // Check if we're currently on a specific category page
     const isOnCategoryPage = params.category && currentGenre !== 'all';
 
     if (isOnCategoryPage) {
-      // If on a category page, navigate to show all novels but keep accordion open
       navigate('/rankings/Novel');
     } else if (activeTab === TAB_KEYS.NOVELS && currentPath === '/rankings/Novel') {
-      // If already on all novels page, toggle the accordion
       setCatsOpen((prev) => !prev);
     } else {
-      // If on other tabs, navigate to novels
       navigate('/rankings/Novel');
     }
   }, [activeTab, location.pathname, filters.genre, params.category, navigate]);
@@ -343,7 +362,7 @@ export default function LeaderboardPage() {
 
       <Card bordered className="rankings-card">
         <div className="rankings-content">
-          {/* Custom left nav with category routing support */}
+          {/* Left navigation with tabs and categories */}
           <div className="rankings-left">
             <nav className="side-nav" role="tablist" aria-orientation="vertical">
               <button
@@ -359,24 +378,18 @@ export default function LeaderboardPage() {
                 />
               </button>
 
-              {/* Novel categories accordion - shows when novels tab is active */}
               {activeTab === TAB_KEYS.NOVELS && catsOpen && (
                 <div className="side-accordion-body">
                   <button
                     key="all-novels"
                     type="button"
-                    className={`cat-pill${filters.genre === 'all' || !filters.genre ? ' active' : ''}`}
+                    className={`cat-pill${uiGenre === 'all' ? ' active' : ''}`}
                     onClick={() => onSelectCategory('all')}
                   >
                     All Novels
                   </button>
                   {NOVEL_CATEGORIES.map((category, i) => {
-                    const currentGenre = filters.genre || 'all';
-                    // Use exact string comparison since URL parsing ensures exact match
-                    const isActive = currentGenre === category;
-                    console.log(
-                      `Category: ${category}, Current: ${currentGenre}, Active: ${isActive}`
-                    ); // Debug log
+                    const isActive = uiGenre === category;
                     return (
                       <button
                         key={`${category}-${i}`}
@@ -394,7 +407,7 @@ export default function LeaderboardPage() {
               <button
                 type="button"
                 className={`side-nav-item${activeTab === TAB_KEYS.READERS ? ' active' : ''}`}
-                onClick={() => goTab(TAB_KEYS.READERS)}
+                onClick={() => navigate('/rankings/Readers')}
                 aria-selected={activeTab === TAB_KEYS.READERS}
               >
                 Readers
@@ -403,7 +416,7 @@ export default function LeaderboardPage() {
               <button
                 type="button"
                 className={`side-nav-item${activeTab === TAB_KEYS.WRITERS ? ' active' : ''}`}
-                onClick={() => goTab(TAB_KEYS.WRITERS)}
+                onClick={() => navigate('/rankings/Writers')}
                 aria-selected={activeTab === TAB_KEYS.WRITERS}
               >
                 Writers
@@ -411,16 +424,13 @@ export default function LeaderboardPage() {
             </nav>
           </div>
 
+          {/* Right: filters + list */}
           <div className="rankings-right">
             <div className="rankings-filters">
               <LeaderboardFilters
                 tab={activeTab === TAB_KEYS.READERS ? 'users' : activeTab}
                 query={{ ...filters, page: pageRef.current }}
-                onChange={(patch) => {
-                  console.log('Filter onChange called with:', patch); // Debug log
-                  // Simply update filters state, let the separate useEffects handle the logic
-                  setFilters((prev) => ({ ...prev, ...patch }));
-                }}
+                onChange={(patch) => setFilters((prev) => ({ ...prev, ...patch }))}
                 hideSort={activeTab === TAB_KEYS.READERS}
               />
             </div>

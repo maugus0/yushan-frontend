@@ -71,8 +71,8 @@ function App() {
   // AC3: Check authentication on app load
   useEffect(() => {
     const initAuth = () => {
-      const isAuthenticated = authService.isAuthenticated();
-      dispatch(setAuthenticated(isAuthenticated));
+      const isAuthed = authService.isAuthenticated();
+      dispatch(setAuthenticated(isAuthed));
     };
 
     initAuth();
@@ -157,67 +157,100 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                {/* Leaderboard routes with support for categories */}
+
+                {/* Leaderboard routes with support for categories (protected) */}
                 <Route
                   path="/rankings"
                   element={
-                    <LayoutWrapper isAuthenticated={isAuthenticated}>
-                      <Leaderboard />
-                    </LayoutWrapper>
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <LayoutWrapper isAuthenticated={isAuthenticated}>
+                        <Leaderboard />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
                   }
                 />
                 <Route
                   path="/rankings/Novel"
                   element={
-                    <LayoutWrapper isAuthenticated={isAuthenticated}>
-                      <Leaderboard />
-                    </LayoutWrapper>
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <LayoutWrapper isAuthenticated={isAuthenticated}>
+                        <Leaderboard />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
                   }
                 />
                 <Route
                   path="/rankings/Novel/:category"
                   element={
-                    <LayoutWrapper isAuthenticated={isAuthenticated}>
-                      <Leaderboard />
-                    </LayoutWrapper>
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <LayoutWrapper isAuthenticated={isAuthenticated}>
+                        <Leaderboard />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
                   }
                 />
                 <Route
                   path="/rankings/Readers"
                   element={
-                    <LayoutWrapper isAuthenticated={isAuthenticated}>
-                      <Leaderboard />
-                    </LayoutWrapper>
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <LayoutWrapper isAuthenticated={isAuthenticated}>
+                        <Leaderboard />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
                   }
                 />
                 <Route
                   path="/rankings/Writers"
                   element={
-                    <LayoutWrapper isAuthenticated={isAuthenticated}>
-                      <Leaderboard />
-                    </LayoutWrapper>
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <LayoutWrapper isAuthenticated={isAuthenticated}>
+                        <Leaderboard />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
                   }
                 />
-                {/* Legacy routes for backward compatibility */}
-                <Route path="/leaderboard" element={<Navigate to="/rankings/Novel" replace />} />
+
+                {/* Legacy routes for backward compatibility (also protected) */}
+                <Route
+                  path="/leaderboard"
+                  element={
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <Navigate to="/rankings/Novel" replace />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/leaderboard/Novel"
-                  element={<Navigate to="/rankings/Novel" replace />}
+                  element={
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <Navigate to="/rankings/Novel" replace />
+                    </ProtectedRoute>
+                  }
                 />
                 <Route
                   path="/leaderboard/Readers"
-                  element={<Navigate to="/rankings/Readers" replace />}
+                  element={
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <Navigate to="/rankings/Readers" replace />
+                    </ProtectedRoute>
+                  }
                 />
                 <Route
                   path="/leaderboard/Writers"
-                  element={<Navigate to="/rankings/Writers" replace />}
+                  element={
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <Navigate to="/rankings/Writers" replace />
+                    </ProtectedRoute>
+                  }
                 />
                 <Route
                   path="/leaderboard/*"
                   element={
-                    <LayoutWrapper isAuthenticated={isAuthenticated}>
-                      <Leaderboard />
-                    </LayoutWrapper>
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <LayoutWrapper isAuthenticated={isAuthenticated}>
+                        <Leaderboard />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
                   }
                 />
                 {/* Add more routes as needed */}
