@@ -94,7 +94,9 @@
 .writer-navbar-avatar {
   background: #c6cfeb;
   color: #515fa0;
-  transition: width 0.2s, height 0.2s;
+  transition:
+    width 0.2s,
+    height 0.2s;
 }
 
 .writer-sider.collapsed .writer-navbar-avatar {

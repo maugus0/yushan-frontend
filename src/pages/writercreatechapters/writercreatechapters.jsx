@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { Button, Modal } from "antd";
+import React, { useState } from 'react';
+import { Button, Modal } from 'antd';
 
-import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Editor } from "@tinymce/tinymce-react";
-import "./writercreatechapters.css";
-import WriterNavbar from "../../components/writer/writernavbar/writernavbar";
-import { useNavigate } from "react-router-dom";
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Editor } from '@tinymce/tinymce-react';
+import './writercreatechapters.css';
+import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
+import { useNavigate } from 'react-router-dom';
 
 const WriterCreateChapters = () => {
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState('');
   const navigate = useNavigate();
   const [publishModal, setPublishModal] = useState(false);
 
@@ -34,11 +34,7 @@ const WriterCreateChapters = () => {
           className="writercreatechapters-back-btn"
           onClick={() => navigate(-1)}
         />
-        <Button
-          type="primary"
-          className="writercreatechapters-create-btn"
-          onClick={handleSubmit}
-        >
+        <Button type="primary" className="writercreatechapters-create-btn" onClick={handleSubmit}>
           √ PUBLISH
         </Button>
       </div>
@@ -51,12 +47,12 @@ const WriterCreateChapters = () => {
             height: 600,
             menubar: false,
             plugins: [
-              "advlist autolink lists link image charmap preview anchor",
-              "searchreplace visualblocks code fullscreen",
-              "insertdatetime media table code help wordcount",
+              'advlist autolink lists link image charmap preview anchor',
+              'searchreplace visualblocks code fullscreen',
+              'insertdatetime media table code help wordcount',
             ],
             toolbar:
-              "undo redo | formatselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | code",
+              'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | code',
           }}
         />
       </div>
@@ -73,8 +69,7 @@ const WriterCreateChapters = () => {
           </Button>,
         ]}
         centered
-      >
-      </Modal>
+      ></Modal>
     </div>
   );
 };

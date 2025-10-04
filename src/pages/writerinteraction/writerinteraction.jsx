@@ -1,30 +1,72 @@
-import React, { useState } from "react";
-import { Button, Select, Tabs, Modal } from "antd";
-import WriterNavbar from "../../components/writer/writernavbar/writernavbar";
-import "./writerinteraction.css";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { Button, Select, Tabs, Modal } from 'antd';
+import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
+import './writerinteraction.css';
+import { useNavigate } from 'react-router-dom';
 
 const novels = [
-  { id: 1, title: "The Lost Empire" },
-  { id: 2, title: "Romance in Paris" },
-  { id: 3, title: "Star Chronicles" },
+  { id: 1, title: 'The Lost Empire' },
+  { id: 2, title: 'Romance in Paris' },
+  { id: 3, title: 'Star Chronicles' },
 ];
 
 const reviewsData = [
-  { id: 1, content: "Great story, loved the characters!", reader: "Alice", votes: 12, voteReader: "Bob", viewsReader: "Tom" },
-  { id: 2, content: "Plot twist was amazing.", reader: "Bob", votes: 8, voteReader: "Alice", viewsReader: "Jerry" },
-  { id: 3, content: "Looking forward to the next chapter.", reader: "Charlie", votes: 5, voteReader: "Sam", viewsReader: "Lucy" },
+  {
+    id: 1,
+    content: 'Great story, loved the characters!',
+    reader: 'Alice',
+    votes: 12,
+    voteReader: 'Bob',
+    viewsReader: 'Tom',
+  },
+  {
+    id: 2,
+    content: 'Plot twist was amazing.',
+    reader: 'Bob',
+    votes: 8,
+    voteReader: 'Alice',
+    viewsReader: 'Jerry',
+  },
+  {
+    id: 3,
+    content: 'Looking forward to the next chapter.',
+    reader: 'Charlie',
+    votes: 5,
+    voteReader: 'Sam',
+    viewsReader: 'Lucy',
+  },
 ];
 
 const commentsData = [
-  { id: 1, content: "Thank you for your feedback!", reader: "Author", votes: 3, voteReader: "Alice", viewsReader: "Tom" },
-  { id: 2, content: "Glad you enjoyed it!", reader: "Author", votes: 2, voteReader: "Bob", viewsReader: "Jerry" },
-  { id: 3, content: "Stay tuned!", reader: "Author", votes: 1, voteReader: "Sam", viewsReader: "Lucy" },
+  {
+    id: 1,
+    content: 'Thank you for your feedback!',
+    reader: 'Author',
+    votes: 3,
+    voteReader: 'Alice',
+    viewsReader: 'Tom',
+  },
+  {
+    id: 2,
+    content: 'Glad you enjoyed it!',
+    reader: 'Author',
+    votes: 2,
+    voteReader: 'Bob',
+    viewsReader: 'Jerry',
+  },
+  {
+    id: 3,
+    content: 'Stay tuned!',
+    reader: 'Author',
+    votes: 1,
+    voteReader: 'Sam',
+    viewsReader: 'Lucy',
+  },
 ];
 
 const WriterInteraction = () => {
   const navigate = useNavigate();
-  const [reviewsTab, setReviewsTab] = useState("reviews");
+  const [reviewsTab, setReviewsTab] = useState('reviews');
   const [reportModal, setReportModal] = useState({ visible: false, id: null });
 
   const handleReportClick = (id) => {
@@ -53,8 +95,8 @@ const WriterInteraction = () => {
               activeKey={reviewsTab}
               onChange={setReviewsTab}
               items={[
-                { key: "reviews", label: "REVIEWS" },
-                { key: "comments", label: "COMMENTS" },
+                { key: 'reviews', label: 'REVIEWS' },
+                { key: 'comments', label: 'COMMENTS' },
               ]}
               style={{ flex: 1 }}
             />
@@ -66,8 +108,8 @@ const WriterInteraction = () => {
               <span className="writerinteraction-list-col-action">ACTION</span>
             </div>
             <div className="writerinteraction-list-body">
-              {(reviewsTab === "reviews" ? reviewsData : commentsData).map(item => (
-                <div className="writerinteraction-list-row-2" key={item.id + "_" + reviewsTab}>
+              {(reviewsTab === 'reviews' ? reviewsData : commentsData).map((item) => (
+                <div className="writerinteraction-list-row-2" key={item.id + '_' + reviewsTab}>
                   <span className="writerinteraction-list-content">{item.content}</span>
                   <span className="writerinteraction-list-reader">{item.reader}</span>
                   <span className="writerinteraction-list-action">
@@ -92,8 +134,7 @@ const WriterInteraction = () => {
               </Button>,
             ]}
             centered
-          >
-          </Modal>
+          ></Modal>
         </div>
       </div>
     </div>

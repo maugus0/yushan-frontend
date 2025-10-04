@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { Button, Typography } from 'antd';
-import { EditOutlined, CheckCircleFilled, StarFilled, CheckOutlined, DeleteOutlined } from '@ant-design/icons';
+import {
+  EditOutlined,
+  CheckCircleFilled,
+  StarFilled,
+  CheckOutlined,
+  DeleteOutlined,
+} from '@ant-design/icons';
 import './library.css';
 
 const { Title, Text } = Typography;
@@ -132,9 +138,7 @@ const Library = () => {
 
   const handleToggleLibrary = (id) => {
     setHistoryList((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, inLibrary: !item.inLibrary } : item
-      )
+      prev.map((item) => (item.id === id ? { ...item, inLibrary: !item.inLibrary } : item))
     );
   };
 
@@ -145,7 +149,12 @@ const Library = () => {
           Library
         </Title>
         {tab === 'library' && !editMode ? (
-          <Button type="text" icon={<EditOutlined />} className="library-edit-btn" onClick={handleEdit}>
+          <Button
+            type="text"
+            icon={<EditOutlined />}
+            className="library-edit-btn"
+            onClick={handleEdit}
+          >
             EDIT
           </Button>
         ) : (
@@ -210,7 +219,9 @@ const Library = () => {
                       onClick={() => handleSelect(novel.id)}
                       style={{ cursor: 'pointer' }}
                     >
-                      <span className={`library-novel-check ${selectedIds.includes(novel.id) ? 'checked' : ''}`}>
+                      <span
+                        className={`library-novel-check ${selectedIds.includes(novel.id) ? 'checked' : ''}`}
+                      >
                         <CheckCircleFilled />
                       </span>
                     </div>

@@ -18,7 +18,6 @@ import authService from '../../../services/auth'; // unified auth operations
 import './navbar.css';
 import ContentPopover from '../contentpopover/contentpopover';
 
-
 const { Header } = Layout;
 
 function useIsMobile() {

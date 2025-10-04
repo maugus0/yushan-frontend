@@ -1,22 +1,22 @@
-import React, { useState } from "react";
-import { Button, Dropdown, Menu, Modal } from "antd";
-import { EllipsisOutlined } from "@ant-design/icons";
-import WriterNavbar from "../../components/writer/writernavbar/writernavbar";
-import "./writerworkspace.css";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { Button, Dropdown, Menu, Modal } from 'antd';
+import { EllipsisOutlined } from '@ant-design/icons';
+import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
+import './writerworkspace.css';
+import { useNavigate } from 'react-router-dom';
 
 const storiesData = [
   {
     id: 1,
-    title: "The Lost Empire",
-    cover: "https://via.placeholder.com/60x80?text=Story+1",
+    title: 'The Lost Empire',
+    cover: 'https://via.placeholder.com/60x80?text=Story+1',
     chapters: 12,
     words: 45000,
   },
   {
     id: 2,
-    title: "Romance in Paris",
-    cover: "https://via.placeholder.com/60x80?text=Story+2",
+    title: 'Romance in Paris',
+    cover: 'https://via.placeholder.com/60x80?text=Story+2',
     chapters: 8,
     words: 32000,
   },
@@ -28,18 +28,18 @@ const WriterWorkspace = () => {
   const [deleteModal, setDeleteModal] = useState({ visible: false, id: null });
 
   const handleMenuClick = (key, id) => {
-    if (key === "setting") {
+    if (key === 'setting') {
       navigate(`/writerstorysetting?id=${id}`);
     }
-    if (key === "delete") {
+    if (key === 'delete') {
       setDeleteModal({ visible: true, id });
     }
     // Add logic for other operations like "hide" if needed
   };
-  
+
   const handleExplore = (id) => {
-    navigate("/writerstoryprofile");
-  }
+    navigate('/writerstoryprofile');
+  };
 
   const handleDeleteConfirm = () => {
     setStories((prev) => prev.filter((story) => story.id !== deleteModal.id));
@@ -54,8 +54,8 @@ const WriterWorkspace = () => {
     <Menu
       onClick={({ key }) => handleMenuClick(key, id)}
       items={[
-        { key: "setting", label: "SETTING" },
-        { key: "delete", label: "DELETE" },
+        { key: 'setting', label: 'SETTING' },
+        { key: 'delete', label: 'DELETE' },
       ]}
     />
   );
@@ -70,7 +70,7 @@ const WriterWorkspace = () => {
             type="primary"
             className="writerworkspace-create-btn"
             onClick={() => {
-              navigate("/writercreate");
+              navigate('/writercreate');
             }}
           >
             + CREATE STORIES
@@ -87,20 +87,22 @@ const WriterWorkspace = () => {
             {stories.map((story) => (
               <div className="writerworkspace-board-row" key={story.id}>
                 <div className="board-column">
-                  <img
-                    src={story.cover}
-                    alt={story.title}
-                    className="story-cover"
-                  />
+                  <img src={story.cover} alt={story.title} className="story-cover" />
                   <span className="story-title">{story.title}</span>
                 </div>
                 <div className="board-column">{story.chapters}</div>
                 <div className="board-column">{story.words}</div>
                 <div className="board-column">
-                  <Button type="primary" className="explore-btn" onClick={() => {handleExplore(story.id)}}>
+                  <Button
+                    type="primary"
+                    className="explore-btn"
+                    onClick={() => {
+                      handleExplore(story.id);
+                    }}
+                  >
                     EXPLORE
                   </Button>
-                  <Dropdown overlay={menu(story.id)} trigger={["click"]}>
+                  <Dropdown overlay={menu(story.id)} trigger={['click']}>
                     <Button type="text" icon={<EllipsisOutlined />} />
                   </Dropdown>
                 </div>

@@ -64,7 +64,7 @@
 
 .storyprofile-cover {
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(40,49,87,0.08);
+  box-shadow: 0 2px 8px rgba(40, 49, 87, 0.08);
   object-fit: cover;
 }
 
@@ -177,7 +177,7 @@
   pointer-events: none;
 }
 
-.storyprofile-chapter-row:hover .storyprofile-chapter-edit, 
+.storyprofile-chapter-row:hover .storyprofile-chapter-edit,
 .storyprofile-chapter-row:hover .storyprofile-chapter-delete {
   opacity: 1;
   pointer-events: auto;

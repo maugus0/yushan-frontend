@@ -1,22 +1,22 @@
-import React, { useState } from "react";
-import { Button, Modal } from "antd";
-import { ArrowLeftOutlined } from "@ant-design/icons";
-import WriterNavbar from "../../components/writer/writernavbar/writernavbar";
-import "./writerstoryprofile.css";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { Button, Modal } from 'antd';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
+import './writerstoryprofile.css';
+import { useNavigate } from 'react-router-dom';
 
 const story = {
-  cover: "https://via.placeholder.com/210x280?text=Cover",
-  title: "The Lost Empire",
-  author: "John Doe",
-  type: "Fantasy",
+  cover: 'https://via.placeholder.com/210x280?text=Cover',
+  title: 'The Lost Empire',
+  author: 'John Doe',
+  type: 'Fantasy',
   chaptersNum: 12,
   words: 45000,
   comments: 32,
   chapters: [
-    { name: "Chapter 1: The Beginning", updated: "17:20 03 Oct 2025" },
-    { name: "Chapter 2: The Journey", updated: "09:15 04 Oct 2025" },
-    { name: "Chapter 3: The Encounter", updated: "21:00 05 Oct 2025" },
+    { name: 'Chapter 1: The Beginning', updated: '17:20 03 Oct 2025' },
+    { name: 'Chapter 2: The Journey', updated: '09:15 04 Oct 2025' },
+    { name: 'Chapter 3: The Encounter', updated: '21:00 05 Oct 2025' },
   ],
 };
 
@@ -24,8 +24,7 @@ const WriterStoryProfile = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ visible: false, idx: null });
 
-  const handleEdit = (idx) => {
-  };
+  const handleEdit = (idx) => {};
 
   const handleDelete = (idx) => {
     setDeleteModal({ visible: true, idx });
@@ -49,14 +48,14 @@ const WriterStoryProfile = () => {
             type="text"
             icon={<ArrowLeftOutlined />}
             className="writerstoryprofile-back-btn"
-            onClick={() => navigate("/writerworkspace")}
+            onClick={() => navigate('/writerworkspace')}
           />
           <h2 className="writerstoryprofile-title">Story</h2>
           <Button
             type="primary"
             className="writerstoryprofile-create-btn"
             onClick={() => {
-              navigate("/writercreatechapters");
+              navigate('/writercreatechapters');
             }}
           >
             + CREATE CHAPTERS
@@ -74,7 +73,8 @@ const WriterStoryProfile = () => {
             <div className="storyprofile-info">
               <div className="storyprofile-title">{story.title}</div>
               <div className="storyprofile-meta">
-                BY <span className="storyprofile-author">{story.author}</span> / IN <span className="storyprofile-type">{story.type}</span>
+                BY <span className="storyprofile-author">{story.author}</span> / IN{' '}
+                <span className="storyprofile-type">{story.type}</span>
               </div>
               <div className="storyprofile-stats-box">
                 <div className="storyprofile-stats-row">
@@ -128,8 +128,7 @@ const WriterStoryProfile = () => {
             </Button>,
           ]}
           centered
-        >
-        </Modal>
+        ></Modal>
       </div>
     </div>
   );

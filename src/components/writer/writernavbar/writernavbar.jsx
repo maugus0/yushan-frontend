@@ -48,10 +48,7 @@ const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
           onClick={() => setCollapsed(!collapsed)}
         />
       </div>
-      <div
-        className="writer-navbar-menu"
-        style={collapsed ? { alignItems: 'center' } : {}}
-      >
+      <div className="writer-navbar-menu" style={collapsed ? { alignItems: 'center' } : {}}>
         <Tooltip title="Dashboard" placement="right" overlayClassName="writer-navbar-tooltip">
           <Button
             type="text"
@@ -61,7 +58,16 @@ const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
             size="large"
             style={{
               justifyContent: 'flex-start',
-              ...(collapsed ? { padding: 0, width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' } : {}),
+              ...(collapsed
+                ? {
+                    padding: 0,
+                    width: 48,
+                    height: 48,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }
+                : {}),
             }}
             onClick={() => navigate('/writerdashboard')}
           >
@@ -70,19 +76,28 @@ const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
         </Tooltip>
         <Tooltip title="Workspace" placement="right" overlayClassName="writer-navbar-tooltip">
           <Button
-              type="text"
-              icon={<AppstoreOutlined />}
-              className="writer-navbar-btn"
-              block
-              size="large"
-              style={{
-                justifyContent: 'flex-start',
-                ...(collapsed ? { padding: 0, width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' } : {}),
-              }}
-              onClick={() => navigate('/writerworkspace')}
-            >
-              {!collapsed && <span>Workspace</span>}
-            </Button>
+            type="text"
+            icon={<AppstoreOutlined />}
+            className="writer-navbar-btn"
+            block
+            size="large"
+            style={{
+              justifyContent: 'flex-start',
+              ...(collapsed
+                ? {
+                    padding: 0,
+                    width: 48,
+                    height: 48,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }
+                : {}),
+            }}
+            onClick={() => navigate('/writerworkspace')}
+          >
+            {!collapsed && <span>Workspace</span>}
+          </Button>
         </Tooltip>
         <Tooltip title="Promote" placement="right" overlayClassName="writer-navbar-tooltip">
           <Button
@@ -93,7 +108,16 @@ const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
             size="large"
             style={{
               justifyContent: 'flex-start',
-              ...(collapsed ? { padding: 0, width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' } : {}),
+              ...(collapsed
+                ? {
+                    padding: 0,
+                    width: 48,
+                    height: 48,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }
+                : {}),
             }}
             onClick={() => navigate('/writerinteraction')}
           >
@@ -101,7 +125,7 @@ const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
           </Button>
         </Tooltip>
       </div>
-      
+
       <div className="writer-navbar-footer writer-navbar-footer-fixed">
         <Avatar
           size={40}
