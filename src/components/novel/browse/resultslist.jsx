@@ -1,6 +1,7 @@
 import React from 'react';
 import { Alert, Empty, Spin, Button } from 'antd';
 import NovelCard from './novelcard';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * ResultsList
@@ -12,7 +13,16 @@ import NovelCard from './novelcard';
  *  - onRetry: () => void
  *  - onItemClick: (novel) => void
  */
-const ResultsList = ({ novels, loading, error, viewMode, onRetry, onItemClick }) => {
+const ResultsList = ({ novels, loading, error, viewMode, onRetry }) => {
+  const navigate = useNavigate();
+
+  // Update the handleItemClick function to pass state
+  const handleItemClick = (novel) => {
+    navigate(`/novel/${novel.id}`, {
+      state: { from: '/browse' },
+    });
+  };
+
   if (loading) {
     return (
       <div role="status" aria-live="polite" style={{ textAlign: 'center', marginTop: 40 }}>
@@ -56,7 +66,7 @@ const ResultsList = ({ novels, loading, error, viewMode, onRetry, onItemClick })
     <div className={containerClass} role="list" aria-label={`Novels in ${viewMode} view`}>
       {novels.map((n) => (
         <div key={n.id} role="listitem">
-          <NovelCard novel={n} viewMode={viewMode} onClick={onItemClick} />
+          <NovelCard novel={n} viewMode={viewMode} onClick={handleItemClick} />
         </div>
       ))}
     </div>

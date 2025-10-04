@@ -441,7 +441,11 @@ const BrowsePage = () => {
             error={null}
             viewMode={viewMode}
             onRetry={handleRetry}
-            onItemClick={(n) => message.info(`Navigate to detail (placeholder): ${n.title}`)}
+            onItemClick={(n) =>
+              navigate(`/novel/${n.id}`, {
+                state: { from: '/browse' },
+              })
+            }
           />
 
           <div ref={sentinelRef} className="browse-infinite-sentinel" aria-hidden="true" />
