@@ -3,7 +3,7 @@ import { Button, Input, Upload, Select, Form, Modal, Slider } from 'antd';
 import { ArrowLeftOutlined, PlusOutlined, BookOutlined } from '@ant-design/icons';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerstorysetting.css';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Cropper from 'react-easy-crop';
 
 const typeOptions = [
@@ -39,7 +39,6 @@ const WriterStorySetting = () => {
   const [selectedTypes, setSelectedTypes] = useState(defaultStory.types);
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const location = useLocation();
   const [cropModalVisible, setCropModalVisible] = useState(false);
   const [cropImage, setCropImage] = useState('');
   const [crop, setCrop] = useState({ x: 0, y: 0 });
