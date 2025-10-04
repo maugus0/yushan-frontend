@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { Button, Input, Tag, Upload, Select, Form, message, Modal, Slider } from 'antd';
-import { ArrowLeftOutlined, PlusOutlined, CloseOutlined, BookOutlined } from '@ant-design/icons';
+import { Button, Input, Upload, Select, Form, message, Modal, Slider } from 'antd';
+import { ArrowLeftOutlined, PlusOutlined, BookOutlined } from '@ant-design/icons';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writercreate.css';
 import { useNavigate } from 'react-router-dom';
@@ -26,35 +26,6 @@ const typeOptions = [
   { label: 'Comedy', value: 'comedy' },
 ];
 
-function getCroppedImg(imageSrc, crop, zoom, aspect = 120 / 160) {
-  return new Promise((resolve) => {
-    const image = new window.Image();
-    image.src = imageSrc;
-    image.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const naturalWidth = image.naturalWidth;
-      const naturalHeight = image.naturalHeight;
-      const cropWidth = (naturalWidth * crop.width) / 100;
-      const cropHeight = (naturalHeight * crop.height) / 100;
-      canvas.width = 120;
-      canvas.height = 160;
-      ctx.drawImage(
-        image,
-        (naturalWidth * crop.x) / 100,
-        (naturalHeight * crop.y) / 100,
-        cropWidth,
-        cropHeight,
-        0,
-        0,
-        120,
-        160
-      );
-      resolve(canvas.toDataURL('image/jpeg'));
-    };
-  });
-}
-
 const WriterCreate = () => {
   const [coverUrl, setCoverUrl] = useState('');
   const [selectedTypes, setSelectedTypes] = useState([]);
@@ -66,16 +37,6 @@ const WriterCreate = () => {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [successModal, setSuccessModal] = useState(false);
-
-  const handleTypeSelect = (value) => {
-    if (!selectedTypes.includes(value)) {
-      setSelectedTypes([...selectedTypes, value]);
-    }
-  };
-
-  const handleTypeRemove = (value) => {
-    setSelectedTypes(selectedTypes.filter((t) => t !== value));
-  };
 
   const handleCoverChange = (info) => {
     let file;
@@ -126,7 +87,7 @@ const WriterCreate = () => {
     }
   };
 
-  const handleSubmit = (values) => {
+  const handleSubmit = () => {
     if (selectedTypes.length === 0) {
       message.error('Please select at least one type.');
       return;
