@@ -24,7 +24,7 @@ export default function LeaderboardFilters({ tab, query, onChange, hideSort = fa
         ]
       : tab === 'writers'
         ? [
-            { key: 'books', label: 'By Books' },
+            { key: 'books', label: 'By Novels' },
             { key: 'votes', label: 'By Votes' },
             { key: 'views', label: 'By Views' },
           ]
