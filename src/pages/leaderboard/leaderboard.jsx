@@ -1,0 +1,465 @@
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Card, Empty, Breadcrumb, Button } from 'antd';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import './leaderboard.css'; // Ensure this file contains responsive styles
+import LeaderboardFilters from '../../components/leaderboard/leaderboard-filters';
+import LeaderboardList from '../../components/leaderboard/leaderboard-list';
+import {
+  getNovelsLeaderboard,
+  getUsersLeaderboard,
+  getWritersLeaderboard,
+} from '../../services/leaderboard';
+
+const TAB_KEYS = { NOVELS: 'novels', READERS: 'users', WRITERS: 'writers' };
+
+const DEFAULT_FILTERS = { timeRange: 'overall', genre: 'all', sortBy: 'views', pageSize: 20 };
+
+const NOVEL_CATEGORIES = [
+  'Action',
+  'Adventure',
+  'Martial Arts',
+  'Fantasy',
+  'Sci-Fi',
+  'Urban',
+  'Historical',
+  'Eastern Fantasy',
+  'Wuxia',
+  'Xianxia',
+  'Military',
+  'Sports',
+  'Romance',
+  'Drama',
+  'Slice of Life',
+  'School Life',
+  'Comedy',
+];
+
+// Persisted filtering
+const TIME_STORAGE_KEY = 'lb_time_global';
+const SORT_STORAGE_KEYS = {
+  [TAB_KEYS.NOVELS]: 'lb_sort_novels',
+  [TAB_KEYS.WRITERS]: 'lb_sort_writers',
+};
+
+function loadGlobalTimeRange() {
+  try {
+    return localStorage.getItem(TIME_STORAGE_KEY) || null;
+  } catch {
+    return null;
+  }
+}
+function saveGlobalTimeRange(timeRange) {
+  try {
+    if (timeRange) localStorage.setItem(TIME_STORAGE_KEY, timeRange);
+  } catch {
+    // ignore
+  }
+}
+function loadSortForTab(tab) {
+  try {
+    const key = SORT_STORAGE_KEYS[tab];
+    if (!key) return null;
+    return localStorage.getItem(key) || null;
+  } catch {
+    return null;
+  }
+}
+function saveSortForTab(tab, sortBy) {
+  try {
+    const key = SORT_STORAGE_KEYS[tab];
+    if (!key || !sortBy) return;
+    localStorage.setItem(key, sortBy);
+  } catch {
+    // ignore
+  }
+}
+
+function extractUrlCategory(pathname) {
+  const m = pathname.match(/(?:leaderboard|rankings)\/Novel\/([^/?#]+)/i);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function normalizeGenre(g) {
+  if (!g) return undefined;
+  return String(g).toLowerCase() === 'all' ? undefined : g;
+}
+
+function defaultSortFor(tab) {
+  if (tab === TAB_KEYS.READERS) return 'levelxp';
+  if (tab === TAB_KEYS.WRITERS) return 'books';
+  return 'views';
+}
+
+export default function LeaderboardPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const params = useParams();
+
+  const [activeTab, setActiveTab] = useState(TAB_KEYS.NOVELS);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [catsOpen, setCatsOpen] = useState(true);
+
+  const [items, setItems] = useState([]);
+  const [loadingInitial, setLoadingInitial] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState('');
+
+  const pageRef = useRef(1);
+  const hasMoreRef = useRef(true);
+  const [hasMore, setHasMore] = useState(true);
+
+  const filtersRef = useRef(filters);
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
+  const urlInitializedRef = useRef(false);
+  const initialLoadDoneRef = useRef(false);
+
+  useEffect(() => {
+    const p = location.pathname;
+    let nextTab = TAB_KEYS.NOVELS;
+    let nextGenre = 'all';
+    let shouldOpenCats = true;
+
+    if (/(leaderboard|rankings)\/Readers/i.test(p)) {
+      nextTab = TAB_KEYS.READERS;
+      shouldOpenCats = false;
+    } else if (/(leaderboard|rankings)\/Writers/i.test(p)) {
+      nextTab = TAB_KEYS.WRITERS;
+      shouldOpenCats = false;
+    } else if (/(leaderboard|rankings)\/Novel/i.test(p)) {
+      nextTab = TAB_KEYS.NOVELS;
+      const rawCategory = params.category || extractUrlCategory(p);
+      if (rawCategory) {
+        const matched =
+          NOVEL_CATEGORIES.find(
+            (cat) => cat === rawCategory || cat.toLowerCase() === rawCategory.toLowerCase()
+          ) ||
+          NOVEL_CATEGORIES.find(
+            (cat) => cat.toLowerCase() === rawCategory.replace(/-/g, ' ').toLowerCase()
+          );
+        nextGenre = matched || 'all';
+      } else {
+        nextGenre = 'all';
+      }
+      shouldOpenCats = true;
+    } else if (/(leaderboard|rankings)\/?$/i.test(p)) {
+      nextTab = TAB_KEYS.NOVELS;
+      nextGenre = 'all';
+      shouldOpenCats = true;
+      navigate('/rankings/Novel', { replace: true });
+      return;
+    }
+
+    const savedTime = loadGlobalTimeRange() || DEFAULT_FILTERS.timeRange;
+    let savedSort = null;
+    if (nextTab === TAB_KEYS.NOVELS || nextTab === TAB_KEYS.WRITERS) {
+      savedSort = loadSortForTab(nextTab) || defaultSortFor(nextTab);
+    }
+
+    const merged = {
+      ...DEFAULT_FILTERS,
+      timeRange: savedTime,
+      genre: nextGenre,
+      sortBy: savedSort,
+    };
+
+    setActiveTab(nextTab);
+    setCatsOpen(shouldOpenCats);
+    setFilters(merged);
+
+    urlInitializedRef.current = true;
+    initialLoadDoneRef.current = false;
+  }, [location.pathname, params.category, navigate]);
+
+  useEffect(() => {
+    if (!urlInitializedRef.current) return;
+    saveGlobalTimeRange(filters.timeRange);
+  }, [filters.timeRange]);
+
+  useEffect(() => {
+    if (!urlInitializedRef.current) return;
+    if (activeTab === TAB_KEYS.NOVELS || activeTab === TAB_KEYS.WRITERS) {
+      saveSortForTab(activeTab, filters.sortBy);
+    }
+  }, [activeTab, filters.sortBy]);
+
+  const fetchPage = useCallback(
+    async ({ page, pageSize, timeRange, genre, sortBy }, replace = false) => {
+      setError('');
+      if (replace) setLoadingInitial(true);
+      else setLoadingMore(true);
+
+      try {
+        const payload = { page, pageSize, timeRange };
+        const g = normalizeGenre(genre);
+        if (g !== undefined) payload.genre = g;
+
+        let res;
+        if (activeTab === TAB_KEYS.NOVELS) {
+          res = await getNovelsLeaderboard({ ...payload, sortBy });
+        } else if (activeTab === TAB_KEYS.READERS) {
+          res = await getUsersLeaderboard({ ...payload, sortBy: 'levelxp' });
+        } else {
+          res = await getWritersLeaderboard({ ...payload, sortBy: sortBy || 'books' });
+        }
+
+        const batch = Array.isArray(res?.items) ? res.items : [];
+        const more = batch.length === pageSize;
+
+        if (replace) setItems(batch);
+        else setItems((prev) => [...prev, ...batch]);
+
+        hasMoreRef.current = more;
+        setHasMore(more);
+      } catch (e) {
+        console.error(e);
+        setError('Failed to load leaderboard. Please try again.');
+      } finally {
+        if (replace) setLoadingInitial(false);
+        else setLoadingMore(false);
+      }
+    },
+    [activeTab]
+  );
+
+  const resetAndFetch = useCallback(
+    (patch = {}, baseFilters) => {
+      const base = baseFilters ?? filtersRef.current;
+      const next = { ...base, ...patch };
+
+      if (activeTab === TAB_KEYS.READERS) {
+        next.sortBy = 'levelxp';
+      } else if (!next.sortBy) {
+        next.sortBy = defaultSortFor(activeTab);
+      }
+
+      setFilters(next);
+      setItems([]);
+      pageRef.current = 1;
+      hasMoreRef.current = true;
+      setHasMore(true);
+
+      fetchPage(
+        {
+          page: 1,
+          pageSize: next.pageSize,
+          timeRange: next.timeRange,
+          genre: next.genre,
+          sortBy: next.sortBy,
+        },
+        true
+      );
+    },
+    [activeTab, fetchPage]
+  );
+
+  const refetchData = useCallback(() => {
+    const currentFilters = filtersRef.current;
+    setItems([]);
+    pageRef.current = 1;
+    hasMoreRef.current = true;
+    setHasMore(true);
+
+    fetchPage(
+      {
+        page: 1,
+        pageSize: currentFilters.pageSize,
+        timeRange: currentFilters.timeRange,
+        genre: currentFilters.genre,
+        sortBy: currentFilters.sortBy,
+      },
+      true
+    );
+  }, [fetchPage]);
+
+  useEffect(() => {
+    if (!urlInitializedRef.current || initialLoadDoneRef.current) return;
+    initialLoadDoneRef.current = true;
+    resetAndFetch({}, { ...filters });
+  }, [filters, activeTab, resetAndFetch]);
+
+  useEffect(() => {
+    if (!urlInitializedRef.current) return;
+    if (!initialLoadDoneRef.current) return;
+    resetAndFetch({}, { ...filters });
+  }, [filters.genre, activeTab, resetAndFetch]);
+
+  useEffect(() => {
+    if (!urlInitializedRef.current || !initialLoadDoneRef.current) return;
+    if (filters.timeRange) refetchData();
+  }, [filters.timeRange, refetchData]);
+
+  useEffect(() => {
+    if (!urlInitializedRef.current || !initialLoadDoneRef.current) return;
+    if (filters.sortBy) refetchData();
+  }, [filters.sortBy, refetchData]);
+
+  const loadMore = useCallback(() => {
+    if (loadingInitial || loadingMore || !hasMoreRef.current) return;
+    const nextPage = pageRef.current + 1;
+    pageRef.current = nextPage;
+    const f = filtersRef.current;
+    const sort = activeTab === TAB_KEYS.READERS ? 'levelxp' : f.sortBy || defaultSortFor(activeTab);
+    fetchPage({
+      page: nextPage,
+      pageSize: f.pageSize,
+      timeRange: f.timeRange,
+      genre: f.genre,
+      sortBy: sort,
+    });
+  }, [activeTab, fetchPage, loadingInitial, loadingMore]);
+
+  const uiGenre = useMemo(() => {
+    if (!/(leaderboard|rankings)\/Novel/i.test(location.pathname)) return 'all';
+    const raw = extractUrlCategory(location.pathname);
+    if (!raw) return 'all';
+    const match =
+      NOVEL_CATEGORIES.find((c) => c.toLowerCase() === raw.toLowerCase()) ||
+      NOVEL_CATEGORIES.find((c) => c.toLowerCase() === raw.replace(/-/g, ' ').toLowerCase());
+    return match || 'all';
+  }, [location.pathname]);
+
+  const onSelectCategory = useCallback(
+    (label) => {
+      if (String(label).toLowerCase() === 'all') {
+        navigate('/rankings/Novel');
+      } else {
+        const exactCategory = NOVEL_CATEGORIES.find(
+          (cat) => cat.toLowerCase() === String(label).toLowerCase()
+        );
+        if (exactCategory) {
+          const categoryPath = exactCategory.replace(/\s+/g, '-');
+          navigate(`/rankings/Novel/${categoryPath}`);
+        } else {
+          navigate('/rankings/Novel');
+        }
+      }
+    },
+    [navigate]
+  );
+
+  const handleNovelsClick = useCallback(() => {
+    const currentPath = location.pathname;
+    const currentGenre = filters.genre || 'all';
+    const isOnCategoryPage = params.category && currentGenre !== 'all';
+
+    if (isOnCategoryPage) {
+      navigate('/rankings/Novel');
+    } else if (activeTab === TAB_KEYS.NOVELS && currentPath === '/rankings/Novel') {
+      setCatsOpen((prev) => !prev);
+    } else {
+      navigate('/rankings/Novel');
+    }
+  }, [activeTab, location.pathname, filters.genre, params.category, navigate]);
+
+  return (
+    <div className="rankings-layout">
+      <div className="rankings-breadcrumb">
+        <Breadcrumb items={[{ title: <Link to="/">Home</Link> }, { title: 'Leaderboard' }]} />
+      </div>
+
+      <Card bordered className="rankings-card">
+        <div className="rankings-content">
+          {/* Left navigation with tabs and categories */}
+          <div className="rankings-left">
+            <nav className="side-nav" role="tablist" aria-orientation="vertical">
+              <button
+                type="button"
+                className={`side-nav-item${activeTab === TAB_KEYS.NOVELS ? ' active' : ''}`}
+                onClick={handleNovelsClick}
+                aria-selected={activeTab === TAB_KEYS.NOVELS}
+                aria-expanded={activeTab === TAB_KEYS.NOVELS ? catsOpen : undefined}
+              >
+                Novels
+                <span
+                  className={`caret ${activeTab === TAB_KEYS.NOVELS && catsOpen ? 'open' : ''}`}
+                />
+              </button>
+
+              {activeTab === TAB_KEYS.NOVELS && catsOpen && (
+                <div className="side-accordion-body">
+                  <button
+                    key="all-novels"
+                    type="button"
+                    className={`cat-pill${uiGenre === 'all' ? ' active' : ''}`}
+                    onClick={() => onSelectCategory('all')}
+                  >
+                    All Novels
+                  </button>
+                  {NOVEL_CATEGORIES.map((category, i) => {
+                    const isActive = uiGenre === category;
+                    return (
+                      <button
+                        key={`${category}-${i}`}
+                        type="button"
+                        className={`cat-pill${isActive ? ' active' : ''}`}
+                        onClick={() => onSelectCategory(category)}
+                      >
+                        {category}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              <button
+                type="button"
+                className={`side-nav-item${activeTab === TAB_KEYS.READERS ? ' active' : ''}`}
+                onClick={() => navigate('/rankings/Readers')}
+                aria-selected={activeTab === TAB_KEYS.READERS}
+              >
+                Readers
+              </button>
+
+              <button
+                type="button"
+                className={`side-nav-item${activeTab === TAB_KEYS.WRITERS ? ' active' : ''}`}
+                onClick={() => navigate('/rankings/Writers')}
+                aria-selected={activeTab === TAB_KEYS.WRITERS}
+              >
+                Writers
+              </button>
+            </nav>
+          </div>
+
+          {/* Right: filters + list */}
+          <div className="rankings-right">
+            <div className="rankings-filters">
+              <LeaderboardFilters
+                tab={activeTab === TAB_KEYS.READERS ? 'users' : activeTab}
+                query={{ ...filters, page: pageRef.current }}
+                onChange={(patch) => setFilters((prev) => ({ ...prev, ...patch }))}
+                hideSort={activeTab === TAB_KEYS.READERS}
+              />
+            </div>
+
+            {error ? (
+              <div className="rankings-error">
+                <div className="rankings-error-text">{error}</div>
+                <Button onClick={() => resetAndFetch()}>Retry</Button>
+              </div>
+            ) : (
+              <>
+                <LeaderboardList
+                  tab={activeTab === TAB_KEYS.READERS ? 'users' : activeTab}
+                  loadingInitial={loadingInitial}
+                  loadingMore={loadingMore}
+                  data={{ items }}
+                  hasMore={hasMore}
+                  onLoadMore={loadMore}
+                />
+                {!loadingInitial && items.length === 0 && (
+                  <div style={{ padding: 16 }}>
+                    <Empty description="No data" />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
