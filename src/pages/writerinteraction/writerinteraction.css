@@ -1,0 +1,120 @@
+.writerinteraction-page {
+  display: flex;
+  height: 100vh;
+}
+
+.writerinteraction-content {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 220px;
+}
+
+.writerinteraction-header {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 220px;
+  height: 60px;
+  background: #fff;
+  align-items: center;
+  width: calc(100% - 220px);
+  border-bottom: 1px solid #e1e6f5;
+  z-index: 101;
+  padding: 0 32px;
+  justify-content: space-between;
+}
+
+.writerinteraction-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #283157;
+  display: flex;
+  align-items: center;
+  height: 60px;
+  margin-left: 0;
+  margin-top: 6px;
+}
+
+.writerinteraction-main {
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 20px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px 32px 24px 32px;
+}
+
+.writerinteraction-list-header-2 {
+  display: grid;
+  grid-template-columns: 4fr 2fr 1fr;
+  padding: 12px 24px;
+  font-size: 16px;
+  background: #f1f3fa;
+  font-weight: 600;
+  color: #515fa0;
+  border-radius: 8px 8px 0 0;
+}
+
+.writerinteraction-filter-row {
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.writerinteraction-list-box {
+  margin-top: 24px;
+}
+
+.writerinteraction-list-body {
+  background: #fff;
+  border-radius: 0 0 8px 8px;
+  border: 1px solid #e1e6f5;
+}
+
+
+.writerinteraction-list-row-2:last-child {
+  border-bottom: none;
+}
+
+.writerinteraction-list-content {
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.writerinteraction-list-reader {
+  color: #515fa0;
+}
+.writerinteraction-list-body {
+  background: #fff;
+  border-radius: 0 0 8px 8px;
+  border: 1px solid #e1e6f5;
+}
+
+.writerinteraction-list-row-2 {
+  display: grid;
+  grid-template-columns: 4fr 2fr 1fr;
+  align-items: center;
+  padding: 12px 24px;
+  font-size: 16px;
+  color: #283157;
+  border-bottom: 1px solid #e1e6f5;
+}
+
+.writerinteraction-list-row-2:last-child {
+  border-bottom: none;
+}
+
+.writerinteraction-list-content {
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.writerinteraction-list-reader {
+  color: #515fa0;
+}
+
+

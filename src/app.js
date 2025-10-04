@@ -23,7 +23,7 @@ import EditProfile from './pages/editprofile/editprofile';
 import Library from './pages/library/library';
 import WriterDashboard from './pages/writerdashboard/writerdashboard';
 import WriterWorkspace from './pages/writerworkspace/writerworkspace';
-import WriterPromote from './pages/writerpromote/writerpromote';
+import WriterInteraction from './pages/writerinteraction/writerinteraction';
 import WriterCreate from './pages/writercreate/writercreate';
 import WriterStorySetting from './pages/writerstorysetting/writerstorysetting';
 import WriterStoryProfile from './pages/writerstoryprofile/writerstoryprofile';
@@ -136,7 +136,7 @@ function App() {
 
                 <Route path="/writerdashboard" element={<WriterDashboard />} />
                 <Route path="/writerworkspace" element={<WriterWorkspace />} />
-                <Route path="/writerpromote" element={<WriterPromote />} />
+                <Route path="/writerinteraction" element={<WriterInteraction />} />
                 <Route path="/writercreate" element={<WriterCreate />} />
                 <Route path="/writerstorysetting" element={<WriterStorySetting />} />
                 <Route path="/writerstoryprofile" element={<WriterStoryProfile />} />

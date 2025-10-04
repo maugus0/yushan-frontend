@@ -95,9 +95,9 @@ const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
               justifyContent: 'flex-start',
               ...(collapsed ? { padding: 0, width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' } : {}),
             }}
-            onClick={() => navigate('/writerpromote')}
+            onClick={() => navigate('/writerinteraction')}
           >
-            {!collapsed && <span>Promote</span>}
+            {!collapsed && <span>Interaction</span>}
           </Button>
         </Tooltip>
       </div>

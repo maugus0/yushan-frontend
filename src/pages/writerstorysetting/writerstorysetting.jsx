@@ -161,7 +161,7 @@ const WriterStorySetting = () => {
             ]}
           >
             <Select
-              mode={undefined} // 去掉多选
+              mode={undefined}
               placeholder="Select type"
               value={selectedTypes[0] || undefined}
               onChange={value => setSelectedTypes([value])}
