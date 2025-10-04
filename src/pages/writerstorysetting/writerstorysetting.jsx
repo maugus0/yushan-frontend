@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { Button, Input, Tag, Upload, Select, Form, Modal, Slider } from 'antd';
-import { ArrowLeftOutlined, PlusOutlined, CloseOutlined, BookOutlined } from '@ant-design/icons';
+import { Button, Input, Upload, Select, Form, Modal, Slider } from 'antd';
+import { ArrowLeftOutlined, PlusOutlined, BookOutlined } from '@ant-design/icons';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerstorysetting.css';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -40,8 +40,6 @@ const WriterStorySetting = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const storyId = params.get('id');
   const [cropModalVisible, setCropModalVisible] = useState(false);
   const [cropImage, setCropImage] = useState('');
   const [crop, setCrop] = useState({ x: 0, y: 0 });

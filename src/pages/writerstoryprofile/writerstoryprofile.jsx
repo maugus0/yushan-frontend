@@ -24,7 +24,9 @@ const WriterStoryProfile = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ visible: false, idx: null });
 
-  const handleEdit = (idx) => {};
+  const handleEdit = (idx) => {
+    console.log('Edit chapter index:', idx);  
+  };
 
   const handleDelete = (idx) => {
     setDeleteModal({ visible: true, idx });

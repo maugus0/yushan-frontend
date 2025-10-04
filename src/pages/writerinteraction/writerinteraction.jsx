@@ -1,14 +1,7 @@
 import React, { useState } from 'react';
-import { Button, Select, Tabs, Modal } from 'antd';
+import { Button, Tabs, Modal } from 'antd';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerinteraction.css';
-import { useNavigate } from 'react-router-dom';
-
-const novels = [
-  { id: 1, title: 'The Lost Empire' },
-  { id: 2, title: 'Romance in Paris' },
-  { id: 3, title: 'Star Chronicles' },
-];
 
 const reviewsData = [
   {
@@ -65,7 +58,6 @@ const commentsData = [
 ];
 
 const WriterInteraction = () => {
-  const navigate = useNavigate();
   const [reviewsTab, setReviewsTab] = useState('reviews');
   const [reportModal, setReportModal] = useState({ visible: false, id: null });
 

@@ -36,7 +36,7 @@ const WriterWorkspace = () => {
     }
   };
 
-  const handleExplore = (id) => {
+  const handleExplore = () => {
     navigate('/writerstoryprofile');
   };
 

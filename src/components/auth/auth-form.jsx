@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Form, Input, Button, message, Select, DatePicker, Space, Typography } from 'antd';
 import authService from '../../services/auth';
 import dayjs from 'dayjs';
-import Testimg from '../../assets/images/testimg.png';
 
 const { Option } = Select;
 const { Text } = Typography;
