@@ -7,12 +7,23 @@ import { useNavigate } from 'react-router-dom';
 import Cropper from 'react-easy-crop';
 
 const typeOptions = [
-  { label: 'City', value: 'city', color: '#1890ff' },
-  { label: 'Fantasy', value: 'fantasy', color: '#faad14' },
-  { label: 'Romance', value: 'romance', color: '#eb2f96' },
-  { label: 'Adventure', value: 'adventure', color: '#52c41a' },
-  { label: 'Sci-Fi', value: 'scifi', color: '#13c2c2' },
-  { label: 'History', value: 'history', color: '#722ed1' },
+  { label: 'Action', value: 'action' },
+  { label: 'Adventure', value: 'adventure' },
+  { label: 'Martial Arts', value: 'martial_arts' },
+  { label: 'Fantasy', value: 'fantasy' },
+  { label: 'Sci-Fi', value: 'scifi' },
+  { label: 'Urban', value: 'urban' },
+  { label: 'Historical', value: 'historical' },
+  { label: 'Eastern Fantasy', value: 'eastern_fantasy' },
+  { label: 'Wuxia', value: 'wuxia' },
+  { label: 'Xianxia', value: 'xianxia' },
+  { label: 'Military', value: 'military' },
+  { label: 'Sports', value: 'sports' },
+  { label: 'Romance', value: 'romance' },
+  { label: 'Drama', value: 'drama' },
+  { label: 'Slice of Life', value: 'slice_of_life' },
+  { label: 'School Life', value: 'school_life' },
+  { label: 'Comedy', value: 'comedy' },
 ];
 
 function getCroppedImg(imageSrc, crop, zoom, aspect = 120 / 160) {

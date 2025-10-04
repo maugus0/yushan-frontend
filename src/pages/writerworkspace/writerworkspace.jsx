@@ -34,7 +34,6 @@ const WriterWorkspace = () => {
     if (key === 'delete') {
       setDeleteModal({ visible: true, id });
     }
-    // Add logic for other operations like "hide" if needed
   };
 
   const handleExplore = (id) => {
@@ -123,9 +122,7 @@ const WriterWorkspace = () => {
             </Button>,
           ]}
           centered
-        >
-          {/* 可在这里加一些提示内容 */}
-        </Modal>
+        ></Modal>
       </div>
     </div>
   );

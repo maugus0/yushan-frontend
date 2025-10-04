@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Button, Avatar, Tooltip, Popover } from 'antd';
+import { Layout, Button, Avatar, Tooltip } from 'antd';
 import {
   ArrowLeftOutlined,
   CloseOutlined,
@@ -8,8 +8,6 @@ import {
   AppstoreOutlined,
   RocketOutlined,
   UserOutlined,
-  PlusOutlined,
-  ToolOutlined,
 } from '@ant-design/icons';
 import './writernavbar.css';
 import { useNavigate } from 'react-router-dom';
@@ -18,7 +16,6 @@ const { Sider } = Layout;
 
 const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const [workspacePopover, setWorkspacePopover] = useState(false);
   const navigate = useNavigate();
 
   return (
