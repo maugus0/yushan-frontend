@@ -179,13 +179,6 @@ npm run build
 # Deploy the 'build' folder to your hosting service
 ```
 
-### Hosting Options
-
-- Vercel (recommended)
-- Netlify
-- GitHub Pages
-- AWS S3 + CloudFront
-
 ## 🛠️ Built With
 
 - [React](https://reactjs.org/) - Frontend framework
@@ -212,15 +205,6 @@ npm run build
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🌟 Roadmap
-
-- [ ] TypeScript migration
-- [ ] Advanced state management (Redux Toolkit)
-- [ ] PWA features (offline reading)
-- [ ] Real-time chat and comments
-- [ ] Advanced theming system
-- [ ] Mobile app (React Native)
 
 ## 📚 Learn More
 
