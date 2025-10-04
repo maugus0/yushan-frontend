@@ -37,7 +37,7 @@ const WriterNavbar = ({ user = { username: 'Writer', avatarUrl: null } }) => {
             icon={<ArrowLeftOutlined />}
             className="writer-navbar-back"
             size="large"
-            onClick={() => navigate('')}
+            onClick={() => navigate('/')}
           />
         )}
         <Button

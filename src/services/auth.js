@@ -98,6 +98,7 @@ const authService = {
         Accept: 'application/json',
       },
     });
+
     const { accessToken, refreshToken, ...userData } = response.data.data;
     this.setTokens(accessToken, refreshToken);
     store.dispatch(login(userData));
@@ -123,6 +124,7 @@ const authService = {
 
   async sendVerificationEmail(email) {
     try {
+      //console.log('Sending email verification request:', { email });
       const response = await axios.post(
         `${API_URL}/auth/send-email`,
         { email },
@@ -132,8 +134,10 @@ const authService = {
           },
         }
       );
+      //console.log('Email verification response:', response.data);
       return response.data;
     } catch (error) {
+      // Log detailed error information
       console.error('Send Email Error Details:', {
         status: error.response?.status,
         data: error.response?.data,
