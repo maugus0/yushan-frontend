@@ -5,6 +5,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { persistor } from './store';
 import { message } from 'antd';
 import 'antd/dist/reset.css'; // Import Ant Design styles
+import NovelDetailPage from './pages/novel/novelDetailPage';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { setAuthenticated } from './store/slices/user';
@@ -249,6 +250,18 @@ function App() {
                     <ProtectedRoute isAuthenticated={isAuthenticated}>
                       <LayoutWrapper isAuthenticated={isAuthenticated}>
                         <Leaderboard />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Novel detail route */}
+                <Route
+                  path="/novel/:novelId"
+                  element={
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <LayoutWrapper isAuthenticated={isAuthenticated}>
+                        <NovelDetailPage />
                       </LayoutWrapper>
                     </ProtectedRoute>
                   }
