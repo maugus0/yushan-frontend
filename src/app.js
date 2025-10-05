@@ -21,6 +21,14 @@ import Browse from './pages/browse/browse';
 import Profile from './pages/profile/profile';
 import EditProfile from './pages/editprofile/editprofile';
 import Leaderboard from './pages/leaderboard/leaderboard';
+import Library from './pages/library/library';
+import WriterDashboard from './pages/writerdashboard/writerdashboard';
+import WriterWorkspace from './pages/writerworkspace/writerworkspace';
+import WriterInteraction from './pages/writerinteraction/writerinteraction';
+import WriterCreate from './pages/writercreate/writercreate';
+import WriterStorySetting from './pages/writerstorysetting/writerstorysetting';
+import WriterStoryProfile from './pages/writerstoryprofile/writerstoryprofile';
+import WriterCreateChapters from './pages/writercreatechapters/writercreatechapters';
 
 // Global Styles
 import './app.css';
@@ -122,6 +130,24 @@ function App() {
                   element={
                     <LayoutWrapper>
                       <Home />
+                    </LayoutWrapper>
+                  }
+                />
+
+                <Route path="/writerdashboard" element={<WriterDashboard />} />
+                <Route path="/writerworkspace" element={<WriterWorkspace />} />
+                <Route path="/writerinteraction" element={<WriterInteraction />} />
+                <Route path="/writercreate" element={<WriterCreate />} />
+                <Route path="/writerstorysetting" element={<WriterStorySetting />} />
+                <Route path="/writerstoryprofile" element={<WriterStoryProfile />} />
+                <Route path="/writercreatechapters" element={<WriterCreateChapters />} />
+
+                {/* Library route */}
+                <Route
+                  path="/library"
+                  element={
+                    <LayoutWrapper>
+                      <Library />
                     </LayoutWrapper>
                   }
                 />
