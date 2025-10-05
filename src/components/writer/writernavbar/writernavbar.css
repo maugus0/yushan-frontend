@@ -1,0 +1,112 @@
+.writer-sider {
+  background: #f1f3fa;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: width 0.2s;
+  border-right: 1px solid #e1e6f5;
+  box-shadow: 2px 0 8px rgba(40, 49, 87, 0.04);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 100;
+}
+
+.writer-sider.collapsed {
+  width: 64px !important;
+}
+
+.writer-navbar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 16px 8px 16px;
+  background: #e1e6f5;
+}
+
+.writer-navbar-back,
+.writer-navbar-close {
+  color: #515fa0;
+  font-size: 20px;
+}
+
+.writer-navbar-menu {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px 0 0 0;
+  align-items: flex-start;
+}
+.writer-sider.collapsed .writer-navbar-menu {
+  align-items: center;
+}
+
+.writer-navbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  color: #515fa0;
+  padding: 0 24px;
+  height: 48px;
+  background: #f1f3fa;
+  border-radius: 8px;
+  transition: background 0.2s;
+  justify-content: flex-start;
+}
+.writer-navbar-btn:hover {
+  background: #e1e6f5;
+  color: #283157;
+}
+
+.writer-navbar-popover {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 120px;
+  padding: 8px 0;
+}
+
+.writer-navbar-tooltip {
+  font-size: 13px;
+}
+
+.writer-navbar-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 16px;
+  background: #e1e6f5;
+  border-top: 1px solid #c6cfeb;
+  transition: all 0.2s;
+}
+
+.writer-navbar-footer-fixed {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+.writer-navbar-avatar {
+  background: #c6cfeb;
+  color: #515fa0;
+  transition:
+    width 0.2s,
+    height 0.2s;
+}
+
+.writer-sider.collapsed .writer-navbar-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  font-size: 20px !important;
+}
+
+.writer-sider.collapsed .writer-navbar-username {
+  display: none;
+}
