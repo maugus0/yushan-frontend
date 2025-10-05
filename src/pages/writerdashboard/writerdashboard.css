@@ -1,0 +1,106 @@
+.writerdashboard-page {
+  min-height: 100vh;
+  background: #fff;
+  padding: 0;
+}
+
+.writerdashboard-content {
+  margin-left: 220px;
+  padding: 32px 32px 0 32px;
+}
+
+.writerdashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  position: fixed;
+  top: 0;
+  left: 220px;
+  width: calc(100% - 220px);
+  height: 60px;
+  background: #fff;
+  border-bottom: 1px solid #e1e6f5;
+  z-index: 101;
+  padding: 0 32px;
+}
+
+.writerdashboard-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #283157;
+  display: flex;
+  align-items: center;
+  height: 60px;
+  margin-left: 0;
+  margin-top: 6px;
+}
+
+.writerdashboard-novel-card {
+  width: 100%;
+  margin-top: 80px;
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.writerdashboard-novel-info {
+  display: flex;
+  align-items: flex-start;
+}
+
+.writerdashboard-novel-cover {
+  width: 96px;
+  height: 128px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-right: 24px;
+  margin-left: 20px;
+}
+
+.writerdashboard-novel-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.writerdashboard-novel-title {
+  margin-bottom: 8px !important;
+  text-align: center;
+}
+
+.writerdashboard-novel-desc {
+  margin-bottom: 16px !important;
+  display: block;
+  text-align: center;
+}
+
+.writerdashboard-novel-stat-item {
+  text-align: center;
+}
+
+.writerdashboard-novel-stat-value {
+  font-size: 18px;
+}
+
+.writerdashboard-charts-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 2%;
+  margin-bottom: 24px;
+}
+
+.writerdashboard-chart-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.writerdashboard-chart-echarts {
+  width: 100%;
+  height: 280px;
+}
+
+.writerdashboard-gender-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}

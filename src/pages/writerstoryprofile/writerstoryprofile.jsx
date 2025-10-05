@@ -26,6 +26,7 @@ const WriterStoryProfile = () => {
 
   const handleEdit = (idx) => {
     console.log('Edit chapter index:', idx);
+    navigate(`/writereditcontent/${idx}`);
   };
 
   const handleDelete = (idx) => {

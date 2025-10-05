@@ -29,6 +29,7 @@ import WriterCreate from './pages/writercreate/writercreate';
 import WriterStorySetting from './pages/writerstorysetting/writerstorysetting';
 import WriterStoryProfile from './pages/writerstoryprofile/writerstoryprofile';
 import WriterCreateChapters from './pages/writercreatechapters/writercreatechapters';
+import WriterEditContent from './pages/writereditcontent/writereditcontent';
 
 // Global Styles
 import './app.css';
@@ -141,6 +142,7 @@ function App() {
                 <Route path="/writerstorysetting" element={<WriterStorySetting />} />
                 <Route path="/writerstoryprofile" element={<WriterStoryProfile />} />
                 <Route path="/writercreatechapters" element={<WriterCreateChapters />} />
+                <Route path="/writereditcontent/:id" element={<WriterEditContent />} />
 
                 {/* Library route */}
                 <Route

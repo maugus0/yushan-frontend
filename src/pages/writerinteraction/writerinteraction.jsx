@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Tabs, Modal } from 'antd';
+import { Button, Tabs, Modal, Radio, Input, Form } from 'antd';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerinteraction.css';
 
@@ -57,15 +57,33 @@ const commentsData = [
   },
 ];
 
+const reportReasons = [
+  'Pornographic Content',
+  'Hate or bullying',
+  'Release of personal info',
+  'Other inappropriate material',
+  'Spam',
+];
+
 const WriterInteraction = () => {
   const [reviewsTab, setReviewsTab] = useState('reviews');
   const [reportModal, setReportModal] = useState({ visible: false, id: null });
+  const [reportReason, setReportReason] = useState(reportReasons[0]);
+  const [abuseContent, setAbuseContent] = useState('');
+  const [reportTried, setReportTried] = useState(false);
+  const [form] = Form.useForm();
 
   const handleReportClick = (id) => {
     setReportModal({ visible: true, id });
+    setReportReason(reportReasons[0]);
+    setAbuseContent('');
+    setReportTried(false);
+    form.resetFields();
   };
 
   const handleReportConfirm = () => {
+    setReportTried(true);
+    if (!abuseContent.trim()) return;
     setReportModal({ visible: false, id: null });
   };
 
@@ -115,18 +133,42 @@ const WriterInteraction = () => {
           </div>
           <Modal
             open={reportModal.visible}
-            title="Confirm to report?"
+            title="Report"
             onCancel={handleReportCancel}
             footer={[
-              <Button key="cancel" onClick={handleReportCancel}>
-                Cancel
-              </Button>,
-              <Button key="report" type="primary" danger onClick={handleReportConfirm}>
+              <Button key="report" type="primary" danger disabled={!abuseContent.trim()} onClick={handleReportConfirm}>
                 Report
               </Button>,
             ]}
             centered
-          ></Modal>
+          >
+            <Form form={form} layout="vertical">
+              <Form.Item label="Select a reason" required>
+                <Radio.Group
+                  value={reportReason}
+                  onChange={e => setReportReason(e.target.value)}
+                  style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
+                >
+                  {reportReasons.map(reason => (
+                    <Radio key={reason} value={reason}>{reason}</Radio>
+                  ))}
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item
+                label="Abuse details"
+                required
+                validateStatus={reportTried && !abuseContent.trim() ? 'error' : ''}
+                help={reportTried && !abuseContent.trim() ? 'Please enter abuse details.' : ''}
+              >
+                <Input.TextArea
+                  value={abuseContent}
+                  onChange={e => setAbuseContent(e.target.value)}
+                  placeholder="Describe the abuse..."
+                  rows={3}
+                />
+              </Form.Item>
+            </Form>
+          </Modal>
         </div>
       </div>
     </div>
