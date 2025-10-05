@@ -114,7 +114,11 @@ export default function LeaderboardList({
         <div className="lb-cell lb-cell--content-line1">
           <Medal rank={rank} />
           {/* old inline rank removed; rank is now at the far left */}
-          <Link to={`/read/${id}`} className="title-link">
+          <Link
+            to={`/novel/${id}`}
+            className="title-link"
+            state={{ from: window.location.pathname }}
+          >
             {item.title || `Novel ${id}`}
           </Link>
           {item.tags && item.tags.length > 0 && (
