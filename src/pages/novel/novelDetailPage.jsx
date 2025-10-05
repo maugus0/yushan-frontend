@@ -1,6 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Tag, Button, Avatar, Pagination, Tooltip, Spin, Alert, Breadcrumb } from 'antd';
+import {
+  Button,
+  Pagination,
+  Tooltip,
+  Spin,
+  Alert,
+  Breadcrumb,
+  Rate,
+  Modal,
+  Radio,
+  Input,
+} from 'antd';
 import {
   BookFilled,
   EyeFilled,
@@ -9,27 +20,29 @@ import {
   PlusOutlined,
   BarsOutlined,
   FileTextOutlined,
+  ReadOutlined,
+  BookOutlined,
+  FlagOutlined,
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import './novelDetailPage.css';
-import testImg from '../../assets/images/testimg2.png'; // Adjusted path
-import { FlagOutlined } from '@ant-design/icons'; // Import the flag icon
+import testImg from '../../assets/images/testimg2.png';
+import PowerStatusVote from '../../components/novel/novelcard/powerStatusVote';
+import ReviewSection from '../../components/novel/novelcard/reviewSection'; // fixed import casing
 
-// Mock function to fetch novel data (replace with actual API call)
 const fetchNovelById = async (novelId) => {
-  // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 300));
-
-  // Mock data - in real app, this would come from your API
   return {
     id: parseInt(novelId),
     cover: testImg,
     title: `Novel Title ${novelId}`,
-    tags: ['Fantasy', 'Xianxia', 'Action'],
+    tags: ['Fantasy'],
     chapters: 2781,
     views: 14500000,
     votes: 98500,
     author: { name: 'Author Name', avatar: '' },
+    rating: 4.8,
+    ratingsCount: 85,
     synopsis: `This is the synopsis for novel ${novelId}. In a world of cultivation, only the strong survive...`,
     rankings: [
       { type: 'Popularity Ranking', value: '#1', icon: <EyeFilled /> },
@@ -38,18 +51,15 @@ const fetchNovelById = async (novelId) => {
   };
 };
 
-// Optimize chapter generation - only create chapters for current page
 const generateChaptersForPage = (page, pageSize, totalChapters) => {
   const start = (page - 1) * pageSize;
   const end = Math.min(start + pageSize, totalChapters);
-
   return Array.from({ length: end - start }, (_, i) => ({
     id: start + i + 1,
     title: `Chapter ${start + i + 1}: The Journey Continues`,
   }));
 };
 
-// Memoized component for chapter button to prevent unnecessary re-renders
 const ChapterButton = React.memo(({ chapter, onJumpToChapter }) => (
   <Tooltip title={`Go to ${chapter.title}`}>
     <Button type="text" className="novel-chapter-btn" onClick={() => onJumpToChapter(chapter.id)}>
@@ -60,13 +70,12 @@ const ChapterButton = React.memo(({ chapter, onJumpToChapter }) => (
 
 export default function NovelDetailPage() {
   const REVIEWS_PAGE_SIZE = 30;
-  const CHAPTERS_PAGE_SIZE = 50; // 50 chapters per page (25 per column, 2 columns)
+  const CHAPTERS_PAGE_SIZE = 50;
 
   const { novelId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // State
   const [novel, setNovel] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -74,12 +83,15 @@ export default function NovelDetailPage() {
   const [page, setPage] = useState(1);
   const [chapterPage, setChapterPage] = useState(1);
   const [recentRead, setRecentRead] = useState(() => {
-    // Retrieve from local storage on initial load
     const savedRecentRead = localStorage.getItem('recentRead');
     return savedRecentRead ? JSON.parse(savedRecentRead) : null;
-  }); // State for recently read chapter
+  });
 
-  // Load novel data
+  // Report modal state (existing)
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [reportReason, setReportReason] = useState('');
+  const [reportComment, setReportComment] = useState('');
+
   useEffect(() => {
     const loadNovel = async () => {
       try {
@@ -94,30 +106,21 @@ export default function NovelDetailPage() {
         setLoading(false);
       }
     };
-
-    if (novelId) {
-      loadNovel();
-    }
+    if (novelId) loadNovel();
   }, [novelId]);
 
-  // Reset chapter pagination when switching to TOC tab
   useEffect(() => {
-    if (tab === 'toc') {
-      setChapterPage(1);
-    }
+    if (tab === 'toc') setChapterPage(1);
   }, [tab]);
 
-  // Update local storage whenever recentRead changes
   useEffect(() => {
     if (recentRead) {
       localStorage.setItem('recentRead', JSON.stringify(recentRead));
     }
   }, [recentRead]);
 
-  // Memoize breadcrumb items to prevent unnecessary recalculation
   const breadcrumbItems = useMemo(() => {
     if (!novel) return [{ title: <Link to="/">Home</Link> }];
-
     const baseItems = [{ title: <Link to="/">Home</Link> }];
     const referrer = location.state?.from || document.referrer;
 
@@ -132,14 +135,11 @@ export default function NovelDetailPage() {
         const category = categoryMatch
           ? decodeURIComponent(categoryMatch[1]).replace(/-/g, ' ')
           : null;
-
         baseItems.push({ title: <Link to="/rankings/Novel">Rankings</Link> });
-
         if (category && category !== 'all') {
           const categoryPath = category.replace(/\s+/g, '-');
           baseItems.push({ title: <Link to={`/rankings/Novel/${categoryPath}`}>{category}</Link> });
         }
-
         baseItems.push({ title: novel.title || 'Novel Details' });
       } else if (referrer.includes('/Writers')) {
         baseItems.push(
@@ -163,14 +163,13 @@ export default function NovelDetailPage() {
         { title: novel.title || 'Novel Details' }
       );
     }
-
     return baseItems;
   }, [novel, location.state?.from]);
 
-  // Memoize reviews to prevent unnecessary recalculation
+  // Mock reviews kept in parent so the title count stays unchanged
   const reviews = useMemo(() => {
     if (!novel) return [];
-    return Array.from({ length: 83 }, (_, i) => ({
+    return Array.from({ length: 12 }, (_, i) => ({
       id: i + 1,
       user: `User${i + 1}`,
       avatar: '',
@@ -179,32 +178,39 @@ export default function NovelDetailPage() {
     }));
   }, [novel]);
 
-  // Only generate chapters for current page
   const currentPageChapters = useMemo(() => {
     if (!novel) return [];
     return generateChaptersForPage(chapterPage, CHAPTERS_PAGE_SIZE, novel.chapters);
-  }, [novel, chapterPage, CHAPTERS_PAGE_SIZE]);
+  }, [novel, chapterPage]);
 
-  // Memoize paged reviews
   const pagedReviews = useMemo(() => {
     return reviews.slice((page - 1) * REVIEWS_PAGE_SIZE, page * REVIEWS_PAGE_SIZE);
-  }, [reviews, page, REVIEWS_PAGE_SIZE]);
+  }, [reviews, page]);
 
-  // Handlers
   const handleAddToLibrary = () => {
     console.log('Adding novel to library:', novel.id);
   };
 
+  const handleReadNovel = () => {
+    const startChapter = recentRead ? recentRead.id : 1;
+    navigate(`/read/${novel.id}/${startChapter}`);
+  };
+
   const handleJumpToChapter = (chapterId) => {
-    const chapterTitle = `Chapter ${chapterId}: The Journey Continues`; // Update this as per your chapter title logic
-    setRecentRead({
-      id: chapterId,
-      title: chapterTitle,
-    });
+    const chapterTitle = `Chapter ${chapterId}: The Journey Continues`;
+    setRecentRead({ id: chapterId, title: chapterTitle });
     navigate(`/read/${novel.id}/${chapterId}`);
   };
 
-  // Loading state
+  // Report modal handlers (existing)
+  const showModal = () => setIsModalVisible(true);
+  const handleOk = () => {
+    console.log('Report Reason:', reportReason);
+    console.log('Report Comment:', reportComment);
+    setIsModalVisible(false);
+  };
+  const handleCancel = () => setIsModalVisible(false);
+
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '64px' }}>
@@ -213,7 +219,6 @@ export default function NovelDetailPage() {
     );
   }
 
-  // Error state
   if (error || !novel) {
     return (
       <div style={{ padding: '32px' }}>
@@ -230,64 +235,74 @@ export default function NovelDetailPage() {
 
   return (
     <div className="novel-detail-root">
-      {/* Breadcrumb Navigation */}
       <div style={{ padding: '16px 32px 0' }}>
         <Breadcrumb items={breadcrumbItems} />
       </div>
 
-      {/* Module 1: Header/Main area */}
       <div className="novel-header">
         <div className="novel-cover">
           <img src={novel.cover} alt={novel.title} />
         </div>
         <div className="novel-header-main">
           <h1 className="novel-title">{novel.title}</h1>
-          <div className="novel-tags">
-            {novel.tags.map((tag) => (
-              <Tag key={tag} color="blue">
-                {tag}
-              </Tag>
-            ))}
-          </div>
-          <div className="novel-meta-row">
-            <span>
+
+          <div className="novel-meta-combined">
+            <div className="novel-tag-single">
+              <BookOutlined className="tag-icon" />
+              <span className="tag-text">{novel.tags[0]}</span>
+            </div>
+            <span className="meta-item">
               <BookFilled /> {novel.chapters} Chapters
             </span>
-            <span>
+            <span className="meta-item">
               <EyeFilled /> {novel.views.toLocaleString()} Views
             </span>
-            <span>
+            <span className="meta-item">
               <LikeFilled /> {novel.votes.toLocaleString()} Votes
             </span>
           </div>
-          <div className="novel-meta-row">
+
+          <div className="novel-author-row">
             <span>
-              <UserOutlined /> Author: <b>{novel.author.name}</b>
+              <UserOutlined /> Author: <span className="author-name">{novel.author.name}</span>
             </span>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              className="novel-add-btn"
-              onClick={handleAddToLibrary}
-            >
-              Add to Library
-            </Button>
           </div>
-          <div className="novel-rankings">
-            {novel.rankings.map((r) => (
-              <div key={r.type} className="novel-ranking-tag">
-                {r.icon} {r.type}: {r.value}
+
+          <div className="novel-rating-row">
+            <Rate disabled defaultValue={novel.rating} allowHalf className="rating-stars" />
+            <span className="rating-score">{novel.rating}</span>
+            <span className="rating-count">({novel.ratingsCount} ratings)</span>
+          </div>
+
+          <div className="novel-rankings-buttons-container">
+            <div className="novel-rankings-section">
+              <div className="novel-ranking-tag">
+                {novel.rankings[0].icon} {novel.rankings[0].type}: {novel.rankings[0].value}
               </div>
-            ))}
-            <div className="report-container">
-              {' '}
-              {/* Separate container for the button */}
+              <div className="novel-ranking-tag">
+                {novel.rankings[1].icon} {novel.rankings[1].type}: {novel.rankings[1].value}
+              </div>
+            </div>
+
+            <div className="novel-buttons-section">
               <Button
-                type="text"
-                className="report-button"
-                onClick={() => console.log('Reporting story')} // Add your report logic here
+                type="primary"
+                icon={<ReadOutlined />}
+                className="novel-read-btn"
+                onClick={handleReadNovel}
               >
-                <FlagOutlined style={{ marginRight: '0px', fontSize: '13px' }} />
+                Read
+              </Button>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                className="novel-add-btn"
+                onClick={handleAddToLibrary}
+              >
+                Add to Library
+              </Button>
+              <Button type="text" className="report-button" onClick={showModal}>
+                <FlagOutlined style={{ marginRight: '4px', fontSize: '13px' }} />
                 Report Story
               </Button>
             </div>
@@ -295,7 +310,40 @@ export default function NovelDetailPage() {
         </div>
       </div>
 
-      {/* Module 2: Tabs */}
+      {/* Report Story Modal (existing) */}
+      <Modal
+        className="report-modal"
+        title={<span className="report-modal-title">Report Story</span>}
+        open={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okText="REPORT"
+        cancelText="CANCEL"
+        centered
+      >
+        <div className="report-options">
+          <Radio.Group
+            className="report-radio-group"
+            onChange={(e) => setReportReason(e.target.value)}
+            value={reportReason}
+          >
+            <Radio value="Pornographic Content">Pornographic Content</Radio>
+            <Radio value="Hate or Bullying">Hate or Bullying</Radio>
+            <Radio value="Release of personal info">Release of personal info</Radio>
+            <Radio value="Other inappropriate material">Other inappropriate material</Radio>
+            <Radio value="Spam">Spam</Radio>
+          </Radio.Group>
+        </div>
+
+        <Input.TextArea
+          rows={4}
+          placeholder="Type your abuse here (Required)"
+          value={reportComment}
+          onChange={(e) => setReportComment(e.target.value)}
+          style={{ marginTop: 16 }}
+        />
+      </Modal>
+
       <div className="novel-section-nav">
         <button className={tab === 'about' ? 'active' : ''} onClick={() => setTab('about')}>
           <FileTextOutlined /> About
@@ -305,41 +353,31 @@ export default function NovelDetailPage() {
         </button>
       </div>
 
-      {/* Module 3: About */}
       {tab === 'about' && (
         <div className="novel-section">
           <h2 className="section-title">Synopsis</h2>
           <div className="novel-synopsis">{novel.synopsis}</div>
-          <h2 className="section-title">
+
+          <h2 className="section-title">Power Status</h2>
+          <PowerStatusVote ranking={1} votesLeft={1} />
+
+          {/* Add exactly 16px gap before the Reviews title */}
+          <h2 className="section-title" style={{ marginTop: 16 }}>
             Reviews <span className="review-count">({reviews.length})</span>
           </h2>
-          <div className="novel-reviews">
-            {pagedReviews.map((r) => (
-              <div key={r.id} className="review-card">
-                <Avatar icon={<UserOutlined />} src={r.avatar} />
-                <div className="review-content">
-                  <div className="review-header">
-                    <span className="review-user">{r.user}</span>
-                    <span className="review-date">{r.date}</span>
-                  </div>
-                  <div>{r.content}</div>
-                </div>
-              </div>
-            ))}
-            <div className="review-pagination">
-              <Pagination
-                current={page}
-                pageSize={REVIEWS_PAGE_SIZE}
-                total={reviews.length}
-                showSizeChanger={false}
-                onChange={setPage}
-              />
-            </div>
-          </div>
+
+          {/* Extracted review section */}
+          <ReviewSection
+            novelRating={novel.rating}
+            pagedReviews={pagedReviews}
+            total={reviews.length}
+            page={page}
+            pageSize={REVIEWS_PAGE_SIZE}
+            onChangePage={setPage}
+          />
         </div>
       )}
 
-      {/* Module 4: Table of Contents */}
       {tab === 'toc' && (
         <div className="novel-section">
           <h2 className="section-title">Recently Read</h2>
@@ -354,18 +392,15 @@ export default function NovelDetailPage() {
           )}
 
           <h2 className="section-title">
-            All Chapters
-            <span className="chapter-count">({novel.chapters} total)</span>
+            All Chapters <span className="chapter-count">({novel.chapters} total)</span>
           </h2>
 
-          {/* Chapter List - Two columns display */}
           <div className="novel-chapter-list">
             {currentPageChapters.map((ch) => (
               <ChapterButton key={ch.id} chapter={ch} onJumpToChapter={handleJumpToChapter} />
             ))}
           </div>
 
-          {/* Chapter Pagination - Bottom only */}
           <div className="chapter-pagination-bottom">
             <Pagination
               current={chapterPage}
