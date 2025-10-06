@@ -256,10 +256,15 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
         </Form.Item>
       )}
 
-      {/* Gender (optional) */}
+      {/* Gender */}
       {isRegister && (
-        <Form.Item label="Gender" name="gender">
-          <Select placeholder="Select gender (optional)" allowClear>
+        <Form.Item
+          label="Gender"
+          name="gender"
+          required
+          rules={[{ required: true, message: 'Gender is required' }]}
+        >
+          <Select placeholder="Select gender" allowClear>
             <Option value="male">Male</Option>
             <Option value="female">Female</Option>
             <Option value="prefer_not_to_say">Prefer not to say</Option>
@@ -267,12 +272,17 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
         </Form.Item>
       )}
 
-      {/* Birthday (optional) */}
+      {/* Birthday */}
       {isRegister && (
-        <Form.Item label="Birthday" name="birthday" rules={birthdayRules}>
+        <Form.Item
+          label="Birthday"
+          name="birthday"
+          required
+          rules={[{ required: true, message: 'Birthday is required' }, ...birthdayRules]}
+        >
           <DatePicker
             style={{ width: '100%' }}
-            placeholder={`Select birthday (≥ ${MIN_AGE_YEARS} years old) (optional)`}
+            placeholder={`Select birthday (≥ ${MIN_AGE_YEARS} years old)`}
             format="YYYY-MM-DD"
             disabledDate={disabledBirthdayDate}
             defaultPickerValue={maxAllowedBirthday}
