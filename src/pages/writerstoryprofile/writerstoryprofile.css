@@ -141,6 +141,30 @@
   margin-left: 5px;
 }
 
+.storyprofile-chapters-title-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.storyprofile-chapters-title-tab {
+  cursor: pointer;
+  padding: 4px 18px;
+  border-radius: 8px;
+  color: #283157;
+  background: transparent;
+  transition: background 0.2s, color 0.2s;
+  user-select: none;
+}
+
+.storyprofile-chapters-title-tab.active {
+  background: #e1e6f5;
+  color: #1890ff;
+}
+
 .storyprofile-chapters-list {
   padding: 8px 0;
   background-color: #fff;
@@ -178,9 +202,19 @@
 }
 
 .storyprofile-chapter-row:hover .storyprofile-chapter-edit,
+.storyprofile-chapter-row:hover .storyprofile-chapter-hidden,
 .storyprofile-chapter-row:hover .storyprofile-chapter-delete {
   opacity: 1;
   pointer-events: auto;
+}
+
+.storyprofile-chapter-hidden {
+  color: #faad14;
+  font-weight: 600;
+  margin-right: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  opacity: 0;
 }
 
 .storyprofile-chapter-edit {

@@ -1,61 +1,38 @@
 import React, { useState } from 'react';
-import { Button, Tabs, Modal, Radio, Input, Form } from 'antd';
+import { Button, Tabs, Modal, Radio, Input, Form, Select } from 'antd';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerinteraction.css';
 
-const reviewsData = [
-  {
-    id: 1,
-    content: 'Great story, loved the characters!',
-    reader: 'Alice',
-    votes: 12,
-    voteReader: 'Bob',
-    viewsReader: 'Tom',
-  },
-  {
-    id: 2,
-    content: 'Plot twist was amazing.',
-    reader: 'Bob',
-    votes: 8,
-    voteReader: 'Alice',
-    viewsReader: 'Jerry',
-  },
-  {
-    id: 3,
-    content: 'Looking forward to the next chapter.',
-    reader: 'Charlie',
-    votes: 5,
-    voteReader: 'Sam',
-    viewsReader: 'Lucy',
-  },
+const novels = [
+  { id: 1, title: 'Novel One' },
+  { id: 2, title: 'Novel Two' },
 ];
 
-const commentsData = [
-  {
-    id: 1,
-    content: 'Thank you for your feedback!',
-    reader: 'Author',
-    votes: 3,
-    voteReader: 'Alice',
-    viewsReader: 'Tom',
-  },
-  {
-    id: 2,
-    content: 'Glad you enjoyed it!',
-    reader: 'Author',
-    votes: 2,
-    voteReader: 'Bob',
-    viewsReader: 'Jerry',
-  },
-  {
-    id: 3,
-    content: 'Stay tuned!',
-    reader: 'Author',
-    votes: 1,
-    voteReader: 'Sam',
-    viewsReader: 'Lucy',
-  },
-];
+const reviewsData = {
+  1: [
+    { id: 1, content: 'Great story, loved the characters!', reader: 'Alice' },
+    { id: 2, content: 'Plot twist was amazing.', reader: 'Bob' },
+    { id: 3, content: 'Looking forward to the next chapter.', reader: 'Charlie' },
+  ],
+  2: [
+    { id: 1, content: 'Exciting sci-fi elements!', reader: 'David' },
+    { id: 2, content: 'Well written and engaging.', reader: 'Eva' },
+    { id: 3, content: 'Can’t wait for more.', reader: 'Frank' },
+  ],
+};
+
+const commentsData = {
+  1: [
+    { id: 1, content: 'Thank you for your feedback!', reader: 'Author' },
+    { id: 2, content: 'Glad you enjoyed it!', reader: 'Author' },
+    { id: 3, content: 'Stay tuned!', reader: 'Author' },
+  ],
+  2: [
+    { id: 1, content: 'Appreciate your thoughts!', reader: 'Author' },
+    { id: 2, content: 'More chapters coming soon!', reader: 'Author' },
+    { id: 3, content: 'Thanks for reading!', reader: 'Author' },
+  ],
+};
 
 const reportReasons = [
   'Pornographic Content',
@@ -72,6 +49,8 @@ const WriterInteraction = () => {
   const [abuseContent, setAbuseContent] = useState('');
   const [reportTried, setReportTried] = useState(false);
   const [form] = Form.useForm();
+  const [selectedNovelId, setSelectedNovelId] = useState(novels[0].id);
+  const selectedNovel = novels.find(n => n.id === selectedNovelId);
 
   const handleReportClick = (id) => {
     setReportModal({ visible: true, id });
@@ -97,6 +76,12 @@ const WriterInteraction = () => {
       <div className="writerinteraction-content">
         <div className="writerinteraction-header">
           <h2 className="writerinteraction-title">Interaction</h2>
+          <Select
+            style={{ minWidth: 200, marginLeft: 'auto' }}
+            value={selectedNovelId}
+            onChange={setSelectedNovelId}
+            options={novels.map(n => ({ label: n.title, value: n.id }))}
+          />
         </div>
         <div className="writerinteraction-main">
           <div style={{ marginBottom: 8 }}></div>
@@ -118,7 +103,10 @@ const WriterInteraction = () => {
               <span className="writerinteraction-list-col-action">ACTION</span>
             </div>
             <div className="writerinteraction-list-body">
-              {(reviewsTab === 'reviews' ? reviewsData : commentsData).map((item) => (
+              {(reviewsTab === 'reviews'
+                ? reviewsData[selectedNovelId]
+                : commentsData[selectedNovelId]
+              ).map((item) => (
                 <div className="writerinteraction-list-row-2" key={item.id + '_' + reviewsTab}>
                   <span className="writerinteraction-list-content">{item.content}</span>
                   <span className="writerinteraction-list-reader">{item.reader}</span>

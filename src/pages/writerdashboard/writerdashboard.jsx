@@ -13,7 +13,8 @@ const novels = [
     desc: 'A fantasy adventure.',
     cover: require('../../assets/images/testimg.png'),
     views: 12345,
-    power: 88,
+    votes: 88,
+    rating: 4.5,
     chapters: 12,
     words: 45000,
     viewsTrend: [100, 120, 130, 110, 90, 80, 95],
@@ -26,7 +27,8 @@ const novels = [
     desc: 'A sci-fi thriller.',
     cover: require('../../assets/images/testimg2.png'),
     views: 6789,
-    power: 72,
+    votes: 72,
+    rating: 4.0,
     chapters: 8,
     words: 32000,
     viewsTrend: [80, 85, 90, 95, 100, 105, 110],
@@ -37,8 +39,8 @@ const novels = [
 
 const statList = [
   { label: 'Views', key: 'views' },
-  { label: 'Power Ranking', key: 'power' },
-  { label: 'Chapters', key: 'chapters' },
+  { label: 'Votes', key: 'votes' },
+  { label: 'Rating', key: 'rating' },
   { label: 'Words', key: 'words' },
 ];
 

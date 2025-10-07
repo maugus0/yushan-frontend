@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Modal } from 'antd';
-
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons';
 import { Editor } from '@tinymce/tinymce-react';
 import './writercreatechapters.css';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
@@ -34,8 +33,13 @@ const WriterCreateChapters = () => {
           className="writercreatechapters-back-btn"
           onClick={() => navigate(-1)}
         />
-        <Button type="primary" className="writercreatechapters-create-btn" onClick={handleSubmit}>
-          √ PUBLISH
+        <Button
+          type="primary"
+          className="writercreatechapters-create-btn"
+          onClick={handleSubmit}
+          icon={<UploadOutlined />}
+        >
+          PUBLISH
         </Button>
       </div>
       <div className="writercreatechapters-editor-container">

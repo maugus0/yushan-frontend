@@ -14,17 +14,17 @@
 
 .writerinteraction-header {
   display: flex;
+  align-items: center;
+  justify-content: flex-start;
   position: fixed;
   top: 0;
   left: 220px;
+  width: calc(100% - 220px);
   height: 60px;
   background: #fff;
-  align-items: center;
-  width: calc(100% - 220px);
   border-bottom: 1px solid #e1e6f5;
   z-index: 101;
   padding: 0 32px;
-  justify-content: space-between;
 }
 
 .writerinteraction-title {

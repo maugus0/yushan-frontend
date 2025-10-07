@@ -6,7 +6,7 @@ import './writerstoryprofile.css';
 import { useNavigate } from 'react-router-dom';
 
 const story = {
-  cover: 'https://via.placeholder.com/210x280?text=Cover',
+  cover: require('../../assets/images/testimg.png'),
   title: 'The Lost Empire',
   author: 'John Doe',
   type: 'Fantasy',
@@ -14,24 +14,41 @@ const story = {
   words: 45000,
   comments: 32,
   chapters: [
-    { name: 'Chapter 1: The Beginning', updated: '17:20 03 Oct 2025' },
-    { name: 'Chapter 2: The Journey', updated: '09:15 04 Oct 2025' },
-    { name: 'Chapter 3: The Encounter', updated: '21:00 05 Oct 2025' },
+    { name: 'The Beginning', updated: '17:20 03 Oct 2025', type: 'published' },
+    { name: 'The Journey', updated: '09:15 04 Oct 2025', type: 'draft' },
+    { name: 'The Journey', updated: '09:15 04 Oct 2025', type: 'published' },
+    { name: 'The Journey', updated: '09:15 04 Oct 2025', type: 'draft' },
+    { name: 'The Journey', updated: '09:15 04 Oct 2025', type: 'draft' },
+    { name: 'The Encounter', updated: '21:00 05 Oct 2025', type: 'hidden' },
   ],
 };
+
+const tabList = [
+  { key: 'draft', label: 'DRAFT' },
+  { key: 'published', label: 'PUBLISHED' },
+  { key: 'hidden', label: 'HIDDEN' },
+];
 
 const WriterStoryProfile = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ visible: false, idx: null });
+  const [chapterTab, setChapterTab] = useState('published');
 
   const handleEdit = (idx) => {
-    console.log('Edit chapter index:', idx);
-    navigate(`/writereditcontent/${idx}`);
+    let query = '';
+    if (chapterTab === 'draft') query = '?from=draft';
+    if (chapterTab === 'hidden') query = '?from=hidden';
+    navigate(`/writereditcontent/${idx}${query}`);
   };
 
   const handleDelete = (idx) => {
     setDeleteModal({ visible: true, idx });
   };
+
+  const handleHidden = (idx) => {
+    // story.chapters[idx].type = 'hidden';
+    // setStory({ ...story });
+  }
 
   const handleDeleteConfirm = () => {
     // story.chapters.splice(deleteModal.idx, 1);
@@ -41,6 +58,8 @@ const WriterStoryProfile = () => {
   const handleDeleteCancel = () => {
     setDeleteModal({ visible: false, idx: null });
   };
+
+  const filteredChapters = story.chapters.filter(chapter => chapter.type === chapterTab);
 
   return (
     <div className="writerstoryprofile-page">
@@ -94,9 +113,22 @@ const WriterStoryProfile = () => {
             </div>
           </div>
           <div className="storyprofile-chapters-list-box">
-            <div className="storyprofile-chapters-title">CHAPTERS</div>
+            <div className="storyprofile-chapters-title-row">
+              {tabList.map(tab => (
+                <span
+                  key={tab.key}
+                  className={
+                    'storyprofile-chapters-title-tab' +
+                    (chapterTab === tab.key ? ' active' : '')
+                  }
+                  onClick={() => setChapterTab(tab.key)}
+                >
+                  {tab.label}
+                </span>
+              ))}
+            </div>
             <div className="storyprofile-chapters-list">
-              {story.chapters.map((chapter, idx) => (
+              {filteredChapters.map((chapter, idx) => (
                 <div
                   className="storyprofile-chapter-row"
                   key={idx}
@@ -105,6 +137,11 @@ const WriterStoryProfile = () => {
                 >
                   <span className="storyprofile-chapter-name">{chapter.name}</span>
                   <span className="storyprofile-chapter-actions">
+                    {chapterTab === 'published' && (
+                      <span className="storyprofile-chapter-hidden" onClick={() => handleHidden(idx)}>
+                        HIDDEN
+                      </span>
+                    )}
                     <span className="storyprofile-chapter-edit" onClick={() => handleEdit(idx)}>
                       EDIT
                     </span>
