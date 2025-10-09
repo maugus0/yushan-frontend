@@ -3,7 +3,7 @@ import { Breadcrumb, Drawer, message, Typography, Alert, Button } from 'antd';
 import { Link, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { FunnelPlotOutlined } from '@ant-design/icons';
 
-import ViewToggle from '../../components/novel/browse/viewToggle';
+import ViewToggle from '../../components/novel/browse/viewtoggle';
 import ResultsList from '../../components/novel/browse/resultslist';
 import GenreSidebar from '../../components/novel/browse/genresidebar';
 import './browse.css';
