@@ -51,17 +51,13 @@ export default function ReadingSettingsPage() {
             fontFamily: computedFamily,
           }}
         >
-          Preview paragraph. Adjust settings to see live changes. Lorem ipsum
-          dolor sit amet, consectetur adipiscing elit. Integer posuere erat a
-          ante. Curabitur vitae sem nec nunc placerat tincidunt.
+          Preview paragraph. Adjust settings to see live changes. Lorem ipsum dolor sit amet,
+          consectetur adipiscing elit. Integer posuere erat a ante. Curabitur vitae sem nec nunc
+          placerat tincidunt.
         </div>
 
         <div className="reading-settings-actions">
-          <button
-            type="button"
-            className="reading-settings-btn"
-            onClick={resetSettings}
-          >
+          <button type="button" className="reading-settings-btn" onClick={resetSettings}>
             Reset Defaults
           </button>
         </div>

@@ -15,8 +15,10 @@ async function fetchChapter(novelId, chapterId) {
     previousChapterId: num > 1 ? num - 1 : null,
     nextChapterId: num < 9999 ? num + 1 : null,
     // Simple mock paragraphs
-    content: Array.from({ length: 30 }, (_, i) =>
-      `<p>Paragraph ${i + 1} of chapter ${num}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>`
+    content: Array.from(
+      { length: 30 },
+      (_, i) =>
+        `<p>Paragraph ${i + 1} of chapter ${num}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>`
     ).join(''),
   };
 }
@@ -51,8 +53,8 @@ export default function ReaderPage() {
             setProgress(stored.progress || 0);
           });
         } else {
-            window.scrollTo(0, 0);
-            setProgress(0);
+          window.scrollTo(0, 0);
+          setProgress(0);
         }
       })
       .catch(() => mounted && setLoading(false));
@@ -144,13 +146,16 @@ export default function ReaderPage() {
     <div
       className="reader-page"
       style={{
-        '--_reader-font-size': `${settings.fontSize}px`,          // renamed variable
-        '--_reader-font-family': fontFamilyString,                // renamed variable
+        '--_reader-font-size': `${settings.fontSize}px`, // renamed variable
+        '--_reader-font-family': fontFamilyString, // renamed variable
       }}
     >
       <div className="reader-inner">
         <div className="reader-toolbar" style={{ position: 'relative' }}>
-          <div className="reader-toolbar-left" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <div
+            className="reader-toolbar-left"
+            style={{ display: 'flex', gap: 12, alignItems: 'center' }}
+          >
             <Link to={`/novel/${novelId}`}>← Back</Link>
             <strong>{chapter?.title || 'Loading...'}</strong>
           </div>
@@ -164,11 +169,7 @@ export default function ReaderPage() {
               Aa
             </button>
             {panelOpen && (
-              <div
-                className="reader-settings-panel"
-                role="dialog"
-                aria-label="Reading settings"
-              >
+              <div className="reader-settings-panel" role="dialog" aria-label="Reading settings">
                 <label>
                   Font Size ({settings.fontSize}px)
                   <input
@@ -181,17 +182,17 @@ export default function ReaderPage() {
                   />
                 </label>
                 <label>
-                    Font Family
-                    <span className="reading-select-wrapper">
+                  Font Family
+                  <span className="reading-select-wrapper">
                     <select
-                        className="reading-select"
-                        value={settings.fontFamily}
-                        onChange={(e) => updateSetting('fontFamily', e.target.value)}
+                      className="reading-select"
+                      value={settings.fontFamily}
+                      onChange={(e) => updateSetting('fontFamily', e.target.value)}
                     >
-                        <option value="serif">Serif (Georgia)</option>
-                        <option value="sans">Sans (System UI)</option>
+                      <option value="serif">Serif (Georgia)</option>
+                      <option value="sans">Sans (System UI)</option>
                     </select>
-                    </span>
+                  </span>
                 </label>
                 <button
                   className="reader-nav-btn"
@@ -211,26 +212,23 @@ export default function ReaderPage() {
 
         <div
           className="reader-content"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: loading ? '<p>Loading...</p>' : chapter?.content || '' }}
+          dangerouslySetInnerHTML={{
+            __html: loading ? '<p>Loading...</p>' : chapter?.content || '',
+          }}
         />
 
         <div className="reader-footer-nav">
           <button
             className="reader-nav-btn"
             disabled={!chapter?.previousChapterId}
-            onClick={() =>
-              navigate(`/read/${novelId}/${chapter.previousChapterId}`)
-            }
+            onClick={() => navigate(`/read/${novelId}/${chapter.previousChapterId}`)}
           >
             ← Previous
           </button>
           <button
             className="reader-nav-btn"
             disabled={!chapter?.nextChapterId}
-            onClick={() =>
-              navigate(`/read/${novelId}/${chapter.nextChapterId}`)
-            }
+            onClick={() => navigate(`/read/${novelId}/${chapter.nextChapterId}`)}
           >
             Next →
           </button>

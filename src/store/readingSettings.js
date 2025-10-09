@@ -34,11 +34,7 @@ export const ReadingSettingsProvider = ({ children }) => {
 
   const resetSettings = useCallback(() => setSettings(DEFAULTS), []);
 
-  return (
-    <Ctx.Provider value={{ settings, updateSetting, resetSettings }}>
-      {children}
-    </Ctx.Provider>
-  );
+  return <Ctx.Provider value={{ settings, updateSetting, resetSettings }}>{children}</Ctx.Provider>;
 };
 
 export function useReadingSettings() {

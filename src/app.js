@@ -8,6 +8,7 @@ import { ConfigProvider, App as AntApp, message } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
+import 'antd/dist/reset.css'; // Import Ant Design styles
 import { persistor } from './store';
 import { setAuthenticated } from './store/slices/user';
 import authService from './services/auth';
@@ -89,9 +90,7 @@ function App() {
           {/* NEW: Wrap the whole app so any page (reader/settings) can access reading settings */}
           <ReadingSettingsProvider>
             <Router
-              basename={
-                process.env.NODE_ENV === 'production' ? '/yushan-frontend' : ''
-              }
+              basename={process.env.NODE_ENV === 'production' ? '/yushan-frontend' : ''}
               future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
             >
               <div className="App">
@@ -314,7 +313,6 @@ function App() {
                       </ProtectedRouteWrapper>
                     }
                   />
-
                 </Routes>
               </div>
             </Router>

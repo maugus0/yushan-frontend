@@ -227,10 +227,7 @@ const Navbar = ({ isAuthenticated, user }) => {
       key: 'create',
       icon: <EditOutlined style={{ fontSize: 28 }} />,
       label: <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Create</span>,
-      onClick: () => {
-        navigate('/writerworkspace'); // restored original path
-        if (isMobile) setMobileMenuVisible(false);
-      },
+      onClick: () => navigate('/writerdashboard'),
     },
   ];
 
