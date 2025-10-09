@@ -227,7 +227,10 @@ const Navbar = ({ isAuthenticated, user }) => {
       key: 'create',
       icon: <EditOutlined style={{ fontSize: 28 }} />,
       label: <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Create</span>,
-      onClick: () => navigate('/writerdashboard'),
+      onClick: () => {
+        navigate('/writerworkspace'); // restored original path
+        if (isMobile) setMobileMenuVisible(false);
+      },
     },
   ];
 
@@ -248,19 +251,18 @@ const Navbar = ({ isAuthenticated, user }) => {
       key: 'settings',
       icon: <SettingOutlined />,
       label: 'Settings',
-      onClick: () => navigate('/settings'),
+      // Point to the new reading settings page
+      onClick: () => navigate('/settings/reading'),
     },
     { type: 'divider' },
     {
       key: 'logout',
       icon: <LogoutOutlined />,
       label: 'Logout',
-      // Use authService to clear tokens and redirect safely
       onClick: async () => {
         try {
           await authService.logout();
         } catch {
-          // Fallback if API fails
           await authService.clearTokens?.();
           window.location.href = '/login';
         }

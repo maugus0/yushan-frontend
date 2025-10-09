@@ -1,0 +1,82 @@
+.reading-settings-page {  max-width: 760px;  margin: 40px auto 80px;  padding: 0 24px;}
+.reading-settings-card {  background: #fff;  border: 1px solid #e2e8f0;  border-radius: 14px;  padding: 28px 32px 36px;  display: flex;  flex-direction: column;  gap: 28px;}
+.reading-settings-card h1 {  margin: 0;  font-size: 24px;  font-weight: 700;}
+.reading-settings-group {  display: flex;  flex-direction: column;  gap: 14px;}
+.reading-settings-group label {  font-size: 12px;  font-weight: 600;  letter-spacing: .5px;  text-transform: uppercase;  color: #475569;  display: flex;  flex-direction: column;  gap: 6px;}
+.reading-settings-group input[type=range],
+.reading-settings-group select {  width: 100%;
+}
+
+.reading-preview {
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 16px 18px;
+  /* remove var(...) usage to avoid inheriting any stale root vars */
+  line-height: 1.7;
+  background: #fafafa;
+}
+
+.reading-settings-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.reading-settings-btn {
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* NEW: custom select wrapper + styled select */
+.reading-select-wrapper {
+  position: relative;
+  display: inline-flex;
+  width: 220px;
+}
+
+.reading-select {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  padding: 8px 40px 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.reading-select:focus {
+  outline: 2px solid #1677ff33;
+  border-color: #1677ff;
+}
+
+.reading-select-wrapper::after {
+  content: '▾';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  translate: 0 -50%;
+  font-size: 12px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+/* Optional: hover state */
+.reading-select:hover {
+  border-color: #b4bac3;
+}
+
+@media (max-width: 640px) {
+  .reading-settings-card {
+    padding: 22px 20px 30px;
+  }
+}

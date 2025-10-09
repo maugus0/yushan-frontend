@@ -1,0 +1,159 @@
+.reader-inner {
+  max-width: 720px;
+  margin: 24px auto 48px;
+  width: 100%;
+  padding: 0 20px;
+  font-size: var(--_reader-font-size, 18px); /* renamed variable */
+  font-family: var(--_reader-font-family, Georgia, serif); /* renamed variable */
+  line-height: 1.7;
+}
+
+.reader-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.reader-toolbar-left a {
+  font-weight: 600;
+}
+
+.reader-settings-panel-btn {
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reader-settings-panel {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: #fff;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  width: 250px;
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  z-index: 20;
+}
+
+.reader-settings-panel label {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  font-weight: 600;
+  gap: 6px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+/* NEW: Match Reading Settings styled select */
+.reader-settings-panel .reading-select-wrapper {
+  position: relative;
+  display: inline-flex;
+  width: 100%;
+  max-width: 220px;
+}
+
+.reader-settings-panel .reading-select {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  padding: 8px 40px 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.reader-settings-panel .reading-select:focus {
+  outline: 2px solid #1677ff33;
+  border-color: #1677ff;
+}
+
+.reader-settings-panel .reading-select-wrapper::after {
+  content: '▾';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  translate: 0 -50%;
+  font-size: 12px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.reader-settings-panel .reading-select:hover {
+  border-color: #b4bac3;
+}
+
+.reader-content p {
+  margin: 0 0 0.65em;
+}
+
+.reader-footer-nav {
+  margin-top: 36px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.reader-nav-btn {
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reader-nav-btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.reader-progress-bar {
+  height: 3px;
+  background: #e5e7eb;
+  margin: 4px 0 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.reader-progress-bar span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: #1677ff;
+  width: 0;
+  transition: width .15s linear;
+}
+
+.reader-progress-text {
+  font-size: 12px;
+  color: #64748b;
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .reader-inner {
+    margin: 16px auto 40px;
+    padding: 0 16px;
+  }
+}
