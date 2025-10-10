@@ -51,7 +51,7 @@ body.reader-full-bg {
 }
 
 /* Responsive fallback: stack under content on narrow screens */
-@media (max-width: 1500px) {
+@media (max-width: 10000px) {
   .reader-aside-fixed {
     position: static;
     width: auto;

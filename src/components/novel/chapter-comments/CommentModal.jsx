@@ -3,19 +3,35 @@ import './ChapterComments.css';
 
 export default function CommentModal({ isOpen, onClose, onAddComment, defaultValue = '' }) {
   const [comment, setComment] = useState(defaultValue);
-  const inputRef = useRef(null);
+  const inputRef = useRef(null); // textarea ref
 
   useEffect(() => {
     setComment(defaultValue);
   }, [defaultValue]);
 
+  // Focus textarea when modal opens
   useEffect(() => {
     if (isOpen && inputRef.current) {
-      // focus input when modal opens
       inputRef.current.focus();
       inputRef.current.select?.();
     }
   }, [isOpen]);
+
+  // Auto-size textarea height to fit content (min 4 rows)
+  useEffect(() => {
+    if (!isOpen || !inputRef.current) return;
+    const el = inputRef.current;
+    const autosize = () => {
+      el.style.height = 'auto';
+      // Cap max height for usability; adjust as needed
+      el.style.height = Math.min(el.scrollHeight, 320) + 'px';
+    };
+    autosize();
+    // Recompute on window resize
+    const onResize = () => autosize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [comment, isOpen]);
 
   const handleAdd = useCallback(() => {
     const text = (comment || '').trim();
@@ -34,18 +50,22 @@ export default function CommentModal({ isOpen, onClose, onAddComment, defaultVal
         aria-label="Add a Paragraph Comment"
       >
         <div className="modal-title">Add a Chapter Comment</div>
-        <input
+
+        {/* Multiline textarea – default 4 rows, auto-resizes with content */}
+        <textarea
           ref={inputRef}
-          type="text"
+          className="modal-textarea"
           placeholder="What's your thought?"
+          rows={4} // default height ~ 4 lines
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') handleAdd();
+            // Cmd/Ctrl + Enter to submit; Esc to close
+            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleAdd();
             if (e.key === 'Escape') onClose?.();
           }}
-          className="modal-input"
         />
+
         <button onClick={handleAdd} className="modal-add-button" type="button">
           Add
         </button>

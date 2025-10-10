@@ -30,9 +30,24 @@
   color: #475569;
 }
 .comment-input::placeholder,
-.modal-input::placeholder {
+.modal-input::placeholder,
+.modal-textarea::placeholder {
   color: #94a3b8;
   font-size: 12px;
+}
+
+/* Multiline textarea inside the modal (4 lines default, auto-resize) */
+.modal-textarea {
+  width: 100%; /* span full modal width */
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #475569;
+  resize: none; /* we auto-size via JS */
+  overflow: hidden; /* hide scrollbar while auto-sizing */
+  box-sizing: border-box;
 }
 
 /* Comments list */
