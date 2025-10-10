@@ -1,11 +1,66 @@
+/* Global page background while on reader page (footer stays normal) */
+body.reader-full-bg {
+  background: #ffffff !important;
+}
+
+/* Reader root + layout variables */
+.reader-page {
+  position: relative;
+  /* Keep content width; only sidebar uses these vars */
+  --reader-content-max: 720px; /* content column width */
+  --reader-gap: 12px; /* gap between content and sidebar */
+  --reader-aside-width: 240px; /* smaller sidebar to fit inside card */
+  --reader-aside-top: 112px; /* JS will override to align with Aa */
+}
+
+/* Do not use any full-screen pseudo canvas to avoid footer issues */
+.reader-page::before,
+.reader-page::after {
+  content: none !important;
+}
+
+/* Centered chapter column (unchanged) */
 .reader-inner {
   max-width: 720px;
-  margin: 24px auto 48px;
   width: 100%;
+  margin: 24px auto 48px;
   padding: 0 20px;
-  font-size: var(--_reader-font-size, 18px); /* renamed variable */
-  font-family: var(--_reader-font-family, Georgia, serif); /* renamed variable */
-  line-height: 1.7;
+  font-size: var(--_reader-font-size, 18px);
+  font-family: var(--_reader-font-family, Georgia, serif);
+}
+
+/* Fixed right sidebar aligned to the right of the 720px column */
+.reader-aside-fixed {
+  position: absolute;
+  left: calc(50% + (var(--reader-content-max) / 2) + var(--reader-gap));
+  top: var(--reader-aside-top); /* aligned to toolbar “Aa” */
+  width: var(--reader-aside-width); /* narrower so it stays inside the white card */
+  z-index: 1;
+}
+
+/* Make the comments panel sticky within viewport */
+.reader-aside-fixed .chapter-comments {
+  position: sticky;
+  top: var(--reader-aside-top);
+}
+
+/* Tighten internal styles so input never overflows */
+.chapter-comments .comment-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive fallback: stack under content on narrow screens */
+@media (max-width: 1500px) {
+  .reader-aside-fixed {
+    position: static;
+    width: auto;
+    margin: 16px auto 0;
+  }
+  .reader-aside-fixed .chapter-comments {
+    position: static;
+    top: auto;
+  }
 }
 
 .reader-toolbar {
@@ -153,6 +208,26 @@
   margin-left: auto;
 }
 
+.reader-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+.reader-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.reader-aside {
+  flex: 0 0 320px;
+}
+@media (max-width: 1024px) {
+  .reader-body {
+    flex-direction: column;
+  }
+  .reader-aside {
+    flex: 1 1 auto;
+  }
+}
 @media (max-width: 768px) {
   .reader-inner {
     margin: 16px auto 40px;

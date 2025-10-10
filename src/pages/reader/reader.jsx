@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useLayoutEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useReadingSettings } from '../../store/readingSettings';
 import { saveProgress, getProgress } from '../../utils/reader';
 import './reader.css';
+import ChapterComments from '../../components/novel/chapter-comments/ChapterComments';
 
 // Mock fetch (replace with real API)
 async function fetchChapter(novelId, chapterId) {
@@ -36,6 +37,8 @@ export default function ReaderPage() {
 
   const saveTimerRef = useRef(null);
   const lastSavedRef = useRef(0);
+  const pageRef = useRef(null); // reader-page container
+  const toolbarRef = useRef(null); // top toolbar (contains Aa button)
 
   // Load chapter and restore scroll
   useEffect(() => {
@@ -126,11 +129,6 @@ export default function ReaderPage() {
 
   const pct = Math.round(progress * 100);
 
-  const fontFamilyString =
-    settings.fontFamily === 'serif'
-      ? 'Georgia, "Times New Roman", serif'
-      : 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
-
   // Cleanup any legacy global vars on mount & unmount (defensive)
   useEffect(() => {
     const root = document.documentElement;
@@ -142,16 +140,48 @@ export default function ReaderPage() {
     return clear;
   }, []);
 
+  // Keep body white background only on reader page (footer remains intact)
+  useEffect(() => {
+    document.body.classList.add('reader-full-bg');
+    return () => document.body.classList.remove('reader-full-bg');
+  }, []);
+
+  // Measure toolbar Y position and align the sidebar top to it
+  useLayoutEffect(() => {
+    const updateTop = () => {
+      if (!pageRef.current || !toolbarRef.current) return;
+      const p = pageRef.current.getBoundingClientRect();
+      const t = toolbarRef.current.getBoundingClientRect();
+      const top = Math.max(72, t.top - p.top); // fallback minimum
+      pageRef.current.style.setProperty('--reader-aside-top', `${Math.round(top)}px`);
+    };
+    updateTop();
+    window.addEventListener('resize', updateTop);
+    // Also recalc after fonts/images load
+    const i = setTimeout(updateTop, 50);
+    return () => {
+      window.removeEventListener('resize', updateTop);
+      clearTimeout(i);
+    };
+  }, []);
+
   return (
     <div
+      ref={pageRef}
       className="reader-page"
       style={{
-        '--_reader-font-size': `${settings.fontSize}px`, // renamed variable
-        '--_reader-font-family': fontFamilyString, // renamed variable
+        // Scoped reading typography (does not leak globally)
+        '--_reader-font-size': `${settings.fontSize}px`,
+        '--_reader-font-family':
+          settings.fontFamily === 'serif'
+            ? 'Georgia, "Times New Roman", serif'
+            : 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
       }}
     >
+      {/* Main centered content column */}
       <div className="reader-inner">
-        <div className="reader-toolbar" style={{ position: 'relative' }}>
+        {/* Toolbar (ref used to align sidebar header with Aa button) */}
+        <div ref={toolbarRef} className="reader-toolbar" style={{ position: 'relative' }}>
           <div
             className="reader-toolbar-left"
             style={{ display: 'flex', gap: 12, alignItems: 'center' }}
@@ -210,8 +240,9 @@ export default function ReaderPage() {
           <span style={{ width: `${pct}%` }} />
         </div>
 
+        {/* Chapter HTML */}
         <div
-          className="reader-content"
+          className="reader-content-html"
           dangerouslySetInnerHTML={{
             __html: loading ? '<p>Loading...</p>' : chapter?.content || '',
           }}
@@ -236,6 +267,15 @@ export default function ReaderPage() {
             {pct}%
           </span>
         </div>
+      </div>
+
+      {/* Right sidebar (smaller, inside white card) */}
+      <div
+        className="reader-aside-fixed"
+        role="complementary"
+        aria-label="Chapter comments sidebar"
+      >
+        <ChapterComments novelId={novelId} chapterId={chapterId} />
       </div>
     </div>
   );
