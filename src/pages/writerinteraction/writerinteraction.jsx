@@ -1,38 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Tabs, Modal, Radio, Input, Form, Select } from 'antd';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerinteraction.css';
-
-const novels = [
-  { id: 1, title: 'Novel One' },
-  { id: 2, title: 'Novel Two' },
-];
-
-const reviewsData = {
-  1: [
-    { id: 1, content: 'Great story, loved the characters!', reader: 'Alice' },
-    { id: 2, content: 'Plot twist was amazing.', reader: 'Bob' },
-    { id: 3, content: 'Looking forward to the next chapter.', reader: 'Charlie' },
-  ],
-  2: [
-    { id: 1, content: 'Exciting sci-fi elements!', reader: 'David' },
-    { id: 2, content: 'Well written and engaging.', reader: 'Eva' },
-    { id: 3, content: 'Can’t wait for more.', reader: 'Frank' },
-  ],
-};
-
-const commentsData = {
-  1: [
-    { id: 1, content: 'Thank you for your feedback!', reader: 'Author' },
-    { id: 2, content: 'Glad you enjoyed it!', reader: 'Author' },
-    { id: 3, content: 'Stay tuned!', reader: 'Author' },
-  ],
-  2: [
-    { id: 1, content: 'Appreciate your thoughts!', reader: 'Author' },
-    { id: 2, content: 'More chapters coming soon!', reader: 'Author' },
-    { id: 3, content: 'Thanks for reading!', reader: 'Author' },
-  ],
-};
+import novelService from '../../services/novel';
+import userService from '../../services/user';
+import reviewService from '../../services/review';
 
 const reportReasons = [
   'Pornographic Content',
@@ -43,14 +15,50 @@ const reportReasons = [
 ];
 
 const WriterInteraction = () => {
+  const [novels, setNovels] = useState([]);
   const [reviewsTab, setReviewsTab] = useState('reviews');
   const [reportModal, setReportModal] = useState({ visible: false, id: null });
   const [reportReason, setReportReason] = useState(reportReasons[0]);
   const [abuseContent, setAbuseContent] = useState('');
   const [reportTried, setReportTried] = useState(false);
   const [form] = Form.useForm();
-  const [selectedNovelId, setSelectedNovelId] = useState(novels[0].id);
-  const selectedNovel = novels.find(n => n.id === selectedNovelId);
+  const [selectedNovelId, setSelectedNovelId] = useState(null);
+  const [reviewsList, setReviewsList] = useState([]);
+  const [commentsList, setCommentsList] = useState([]);
+
+  useEffect(() => {
+    const getNovelData = async () => {
+      const author = await userService.getMe();
+      const data = await novelService.getNovel({ authorId: author.uuid });
+      setNovels(data || []);
+      if (data && data.length > 0) {
+        setSelectedNovelId(data[0].id);
+      }
+    };
+    getNovelData();
+  }, []);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!selectedNovelId) {
+        setReviewsList([]);
+        return;
+      }
+      const reviews = await reviewService.getReviews({ novelId: selectedNovelId });
+      setReviewsList(reviews);
+      console.log('reviews: ', reviews);
+    };
+    // const fetchComments = async () => {
+    //   if (!selectedNovelId) {
+    //     setCommentsData({});
+    //     return;
+    //   }
+    //   const comments = await reviewService.getComments({ novelId: selectedNovelId });
+    //   setCommentsData(comments);
+    // };
+    fetchReviews();
+    // fetchComments();
+  }, [selectedNovelId]);
 
   const handleReportClick = (id) => {
     setReportModal({ visible: true, id });
@@ -70,6 +78,11 @@ const WriterInteraction = () => {
     setReportModal({ visible: false, id: null });
   };
 
+  const currentList =
+    reviewsTab === 'reviews'
+      ? reviewsList
+      : commentsList;
+
   return (
     <div className="writerinteraction-page">
       <WriterNavbar />
@@ -81,6 +94,7 @@ const WriterInteraction = () => {
             value={selectedNovelId}
             onChange={setSelectedNovelId}
             options={novels.map(n => ({ label: n.title, value: n.id }))}
+            placeholder="Select a novel"
           />
         </div>
         <div className="writerinteraction-main">
@@ -103,13 +117,15 @@ const WriterInteraction = () => {
               <span className="writerinteraction-list-col-action">ACTION</span>
             </div>
             <div className="writerinteraction-list-body">
-              {(reviewsTab === 'reviews'
-                ? reviewsData[selectedNovelId]
-                : commentsData[selectedNovelId]
-              ).map((item) => (
+              {currentList.length === 0 && (
+                <div style={{ textAlign: 'center', color: '#aaa', padding: '32px 0' }}>
+                  No data.
+                </div>
+              )}
+              {currentList.map((item) => (
                 <div className="writerinteraction-list-row-2" key={item.id + '_' + reviewsTab}>
                   <span className="writerinteraction-list-content">{item.content}</span>
-                  <span className="writerinteraction-list-reader">{item.reader}</span>
+                  <span className="writerinteraction-list-reader">{item.username}</span>
                   <span className="writerinteraction-list-action">
                     <Button type="link" danger onClick={() => handleReportClick(item.id)}>
                       Report

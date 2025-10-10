@@ -1,38 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Modal } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerstoryprofile.css';
 import { useNavigate } from 'react-router-dom';
+import novelService from '../../services/novel';
 
-const story = {
-  cover: require('../../assets/images/testimg.png'),
-  title: 'The Lost Empire',
-  author: 'John Doe',
-  type: 'Fantasy',
-  chaptersNum: 12,
-  words: 45000,
-  comments: 32,
-  chapters: [
-    { name: 'The Beginning', updated: '17:20 03 Oct 2025', type: 'published' },
-    { name: 'The Journey', updated: '09:15 04 Oct 2025', type: 'draft' },
-    { name: 'The Journey', updated: '09:15 04 Oct 2025', type: 'published' },
-    { name: 'The Journey', updated: '09:15 04 Oct 2025', type: 'draft' },
-    { name: 'The Journey', updated: '09:15 04 Oct 2025', type: 'draft' },
-    { name: 'The Encounter', updated: '21:00 05 Oct 2025', type: 'hidden' },
-  ],
-};
-
-const tabList = [
-  { key: 'draft', label: 'DRAFT' },
-  { key: 'published', label: 'PUBLISHED' },
-  { key: 'hidden', label: 'HIDDEN' },
-];
 
 const WriterStoryProfile = () => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ visible: false, idx: null });
   const [chapterTab, setChapterTab] = useState('published');
+  const [story, setStory] = useState([]);
+
+  const searchParams = new URLSearchParams(window.location.search);
+  const storyId = searchParams.get('id');
+
+  useEffect(() => {
+    const getStory = async () => {
+      console.log('id: ', storyId);
+      await novelService.getNovelById(storyId).then(fetchedStory => {
+        
+        console.log('fetchedStory: ', fetchedStory);
+        if (fetchedStory) {
+          setStory(fetchedStory);
+        }
+      })
+    };
+    getStory();
+  }, []);
+
+  const tabList = [
+    { key: 'published', label: 'PUBLISHED' },
+    { key: 'draft', label: 'DRAFT' },
+    { key: 'hidden', label: 'HIDDEN' },
+  ];
 
   const handleEdit = (idx) => {
     let query = '';
@@ -59,8 +61,6 @@ const WriterStoryProfile = () => {
     setDeleteModal({ visible: false, idx: null });
   };
 
-  const filteredChapters = story.chapters.filter(chapter => chapter.type === chapterTab);
-
   return (
     <div className="writerstoryprofile-page">
       <WriterNavbar />
@@ -86,7 +86,7 @@ const WriterStoryProfile = () => {
         <div className="storyprofile-content-box">
           <div className="storyprofile-main-row">
             <img
-              src={story.cover}
+              src={story.coverImgUrl}
               alt="cover"
               className="storyprofile-cover"
               width={210}
@@ -95,8 +95,8 @@ const WriterStoryProfile = () => {
             <div className="storyprofile-info">
               <div className="storyprofile-title">{story.title}</div>
               <div className="storyprofile-meta">
-                BY <span className="storyprofile-author">{story.author}</span> / IN{' '}
-                <span className="storyprofile-type">{story.type}</span>
+                BY <span className="storyprofile-author">{story.authorUsername}</span> / IN{' '}
+                <span className="storyprofile-type">{story.categoryName}</span>
               </div>
               <div className="storyprofile-stats-box">
                 <div className="storyprofile-stats-row">
@@ -105,9 +105,9 @@ const WriterStoryProfile = () => {
                   <div className="storyprofile-stat-label">Comments</div>
                 </div>
                 <div className="storyprofile-stats-row">
-                  <div className="storyprofile-stat-value">{story.chaptersNum}</div>
-                  <div className="storyprofile-stat-value">{story.words}</div>
-                  <div className="storyprofile-stat-value">{story.comments}</div>
+                  <div className="storyprofile-stat-value">{story.chapterCnt}</div>
+                  <div className="storyprofile-stat-value">{story.wordCnt}</div>
+                  <div className="storyprofile-stat-value">{story.reviewCnt}</div>
                 </div>
               </div>
             </div>
@@ -128,12 +128,12 @@ const WriterStoryProfile = () => {
               ))}
             </div>
             <div className="storyprofile-chapters-list">
-              {filteredChapters.map((chapter, idx) => (
+              {story.chapters && story.chapters.map((chapter, idx) => (
                 <div
                   className="storyprofile-chapter-row"
                   key={idx}
-                  onMouseEnter={() => {}}
-                  onMouseLeave={() => {}}
+                  onMouseEnter={() => { }}
+                  onMouseLeave={() => { }}
                 >
                   <span className="storyprofile-chapter-name">{chapter.name}</span>
                   <span className="storyprofile-chapter-actions">

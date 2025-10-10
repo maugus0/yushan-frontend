@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Layout, Button, Avatar, Tooltip } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -9,21 +9,13 @@ import {
 } from '@ant-design/icons';
 import './writernavbar.css';
 import { useNavigate } from 'react-router-dom';
-import userService from '../../../services/user';
+import { UserContext } from '../../../store/UserContext';
 
 const { Sider } = Layout;
 
-const WriterNavbar = ({ user: initialUser = { username: 'Writer', avatarUrl: null } }) => {
-  const [user, setUser] = useState(initialUser);
+const WriterNavbar = () => {
+  const user = useContext(UserContext);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    userService.getMe().then(fetchedUser => {
-      if (fetchedUser) {
-        setUser(fetchedUser);
-      }
-    });
-  }, []);
 
   return (
     <Sider

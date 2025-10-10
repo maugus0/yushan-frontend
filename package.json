@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "https://maugus0.github.io/yushan-frontend",
-  "proxy": "http://localhost:8080",
+  "proxy": "http://localhost:8080/api",
   "dependencies": {
     "@reduxjs/toolkit": "^2.9.0",
     "@testing-library/dom": "^10.4.1",

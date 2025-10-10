@@ -17,6 +17,7 @@ import { useSelector } from 'react-redux'; // use store as source of truth
 import authService from '../../../services/auth'; // unified auth operations
 import './navbar.css';
 import ContentPopover from '../contentpopover/contentpopover';
+import userService from '../../../services/user';
 
 const { Header } = Layout;
 
@@ -63,6 +64,15 @@ const Navbar = ({ isAuthenticated, user }) => {
   useEffect(() => {
     if (searchExpanded && searchInputRef.current) searchInputRef.current.focus();
   }, [searchExpanded]);
+
+  const handleCreate = async () => {
+    const res = await userService.getMe()
+    if (res.isAuthor === true) {
+      navigate('/writerdashboard')
+    } else {
+      navigate('/writerauth')
+    }
+  }
 
   const browseCategories = [
     'Action',
@@ -227,7 +237,9 @@ const Navbar = ({ isAuthenticated, user }) => {
       key: 'create',
       icon: <EditOutlined style={{ fontSize: 28 }} />,
       label: <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 4 }}>Create</span>,
-      onClick: () => navigate('/writerdashboard'),
+      onClick: () => {
+        handleCreate();
+      },
     },
   ];
 
@@ -293,7 +305,7 @@ const Navbar = ({ isAuthenticated, user }) => {
               location.pathname.startsWith('/browse')
                 ? 'browse'
                 : location.pathname.startsWith('/leaderboard') ||
-                    location.pathname.startsWith('/rankings')
+                  location.pathname.startsWith('/rankings')
                   ? 'leaderboard'
                   : location.pathname.slice(1) || 'home',
             ]}
@@ -433,7 +445,7 @@ const Navbar = ({ isAuthenticated, user }) => {
               location.pathname.startsWith('/browse')
                 ? 'browse'
                 : location.pathname.startsWith('/leaderboard') ||
-                    location.pathname.startsWith('/rankings')
+                  location.pathname.startsWith('/rankings')
                   ? 'leaderboard'
                   : location.pathname.slice(1) || 'home',
             ]}

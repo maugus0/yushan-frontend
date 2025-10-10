@@ -1,0 +1,42 @@
+import axios from 'axios';
+
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+
+const novelService = {
+  async createNovel(novelData) {
+    const response = await axios.post(`/novels`, novelData);
+    return response.data.data;
+  },
+  async getNovel(filters) {
+    const response = await axios.get(`/novels`, {
+      params: filters
+    });
+    return response.data.data.content;
+  },
+  async getNovelById(novelId) {
+    const response = await axios.get(`/novels/${novelId}`);
+    return response.data.data;
+  },
+  async hideNovelById(novelId) {
+    const response = await axios.post(`/novels/${novelId}/hide`);
+    return response.data;
+  },
+  async unHideNovelById(novelId) {
+    const response = await axios.post(`/novels/${novelId}/unhide`);
+    return response.data;
+  },
+  async changeNovelDetailById(novelId, novelData) {
+    const response = await axios.put(`/novels/${novelId}`, novelData);
+    return response.data.data;
+  },
+  async submitNovelForReview(novelId) {
+    const response = await axios.post(`/novels/${novelId}/submit-review`);
+    return response.data;
+  },
+  async deleteNovelById(novelId) {
+    const response = await axios.post(`/novels/${novelId}/archive`);
+    return response.data;
+  }
+};
+
+export default novelService;

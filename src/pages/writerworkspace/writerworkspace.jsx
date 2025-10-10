@@ -1,92 +1,54 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Dropdown, Menu, Modal } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerworkspace.css';
 import { useNavigate } from 'react-router-dom';
+import novelService from '../../services/novel';
+import userService from '../../services/user';
 
-const storiesData = [
-  {
-    id: 1,
-    title: 'The Lost Empire',
-    cover: require('../../assets/images/testimg.png'),
-    chapters: 12,
-    words: 45000,
-    hidden: false,
-    complete: false,
-    status: 'pending',
-  },
-  {
-    id: 2,
-    title: 'Romance in Paris',
-    cover: require('../../assets/images/testimg2.png'),
-    chapters: 8,
-    words: 32000,
-    hidden: false,
-    complete: false,
-    status: 'unsuccessful',
-    reason: 'Your story was rejected because the synopsis is too short.',
-  },
-  {
-    id: 3,
-    title: 'Normal Story',
-    cover: require('../../assets/images/testimg2.png'),
-    chapters: 5,
-    words: 20000,
-    hidden: false,
-    complete: false,
-  },
-];
 
 const WriterWorkspace = () => {
-  const [stories, setStories] = useState(storiesData);
+  const [stories, setStories] = useState([]);
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ visible: false, id: null });
   const [unsuccessModal, setUnsuccessModal] = useState({ visible: false, story: null });
 
-  const handleMenuClick = (key, id) => {
+  const fetchStories = async () => {
+    const authorId = await userService.getMe();
+    const data = await novelService.getNovel({ authorId: authorId.uuid });
+    setStories(data);
+  };
+
+  useEffect(() => {
+    fetchStories();
+  }, []);
+
+  const handleMenuClick = async (key, id) => {
     if (key === 'setting') {
-      navigate(`/writerstorysetting?id=${id}`);
+      navigate(`/writercreate?id=${id}`);
     }
     if (key === 'hide') {
-      setStories(prev =>
-        prev.map(story =>
-          story.id === id ? { ...story, hidden: true } : story
-        )
-      );
+      await novelService.hideNovelById(id);
+      fetchStories();
     }
     if (key === 'show') {
-      setStories(prev =>
-        prev.map(story =>
-          story.id === id ? { ...story, hidden: false } : story
-        )
-      );
-    }
-    if (key === 'complete') {
-      setStories(prev =>
-        prev.map(story =>
-          story.id === id ? { ...story, complete: true } : story
-        )
-      );
-    }
-    if (key === 'ongoing') {
-      setStories(prev =>
-        prev.map(story =>
-          story.id === id ? { ...story, complete: false } : story
-        )
-      );
+      await novelService.unHideNovelById(id);
+      fetchStories();
     }
     if (key === 'delete') {
       setDeleteModal({ visible: true, id });
     }
   };
 
-  const handleExplore = () => {
-    navigate('/writerstoryprofile');
+  const handleExplore = (storyId) => {
+    navigate(`/writerstoryprofile?id=${storyId}`);
   };
 
-  const handleDeleteConfirm = () => {
-    setStories((prev) => prev.filter((story) => story.id !== deleteModal.id));
+  const handleDeleteConfirm = async () => {
+    console.log("deleteModal.id: ", deleteModal.id)
+    // await novelService.deleteNovelById(deleteModal.id);
+    fetchStories();
     setDeleteModal({ visible: false, id: null });
   };
 
@@ -104,12 +66,17 @@ const WriterWorkspace = () => {
 
   const handleRecreate = () => {
     setUnsuccessModal({ visible: false, story: null });
-    navigate('/writercreate');
+    const id = unsuccessModal.story?.id;
+    if (id) {
+      navigate(`/writercreate?id=${id}`);
+    } else {
+      navigate('/writercreate');
+    }
   };
 
   const menu = (id) => {
     const story = stories.find(s => s.id === id);
-    if (story && (story.status === 'pending' || story.status === 'unsuccessful')) {
+    if (story && (story.status === 'DRAFT' || story.status === 'UNDER_REVIEW')) {
       return (
         <Menu
           onClick={({ key }) => handleMenuClick(key, id)}
@@ -119,18 +86,14 @@ const WriterWorkspace = () => {
         />
       );
     }
-    // 正常菜单
     return (
       <Menu
         onClick={({ key }) => handleMenuClick(key, id)}
         items={[
-          { key: 'setting', label: 'SETTING' },
-          story && story.hidden
+          story && story.status === 'PUBLISHED' && { key: 'setting', label: 'SETTING' },
+          story && story.status === 'HIDDEN'
             ? { key: 'show', label: 'SHOW' }
             : { key: 'hide', label: 'HIDE' },
-          story && story.complete
-            ? { key: 'ongoing', label: 'ONGOING' }
-            : { key: 'complete', label: 'COMPLETE' },
           { key: 'delete', label: 'DELETE' },
         ]}
       />
@@ -164,27 +127,27 @@ const WriterWorkspace = () => {
             {stories.map((story) => (
               <div className="writerworkspace-board-row" key={story.id}>
                 <div className="board-column">
-                  <img src={story.cover} alt={story.title} className="story-cover" />
+                  <img src={story.coverImgUrl} alt={story.title} className="story-cover" />
                   <span className="story-title">
                     {story.title}
-                    {story.status === 'pending' && (
+                    {story.status === 'UNDER_REVIEW' && (
                       <span
-                        className="story-status-tag story-status-pending"
+                        className="story-status-tag story-status-UNDER_REVIEW"
                         style={{
                           marginLeft: 8,
                           padding: '2px 8px',
                           borderRadius: 8,
                           fontSize: 12,
                           color: '#fff',
-                          background: '#faad14',
+                          background: '#0a921fff',
                         }}
                       >
-                        PENDING
+                        UNDER REVIEW
                       </span>
                     )}
-                    {story.status === 'unsuccessful' && (
+                    {story.status === 'DRAFT' && (
                       <span
-                        className="story-status-tag story-status-unsuccessful"
+                        className="story-status-tag story-status-draft"
                         style={{
                           marginLeft: 8,
                           padding: '2px 8px',
@@ -199,10 +162,27 @@ const WriterWorkspace = () => {
                         UNSUCCESSFUL
                       </span>
                     )}
+                    {story.status === 'HIDDEN' && (
+                      <span
+                        className="story-status-tag story-status-hidden"
+                        style={{
+                          marginLeft: 8,
+                          padding: '2px 8px',
+                          borderRadius: 8,
+                          fontSize: 12,
+                          color: '#fff',
+                          background: '#f2a516ff',
+                          cursor: 'pointer',
+                        }}
+                        onClick={() => handleUnsuccessClick(story)}
+                      >
+                        HIDDEN
+                      </span>
+                    )}
                   </span>
                 </div>
-                <div className="board-column">{story.chapters}</div>
-                <div className="board-column">{story.words}</div>
+                <div className="board-column">{story.chapterCnt}</div>
+                <div className="board-column">{story.wordCnt}</div>
                 <div className="board-column">
                   <Button
                     type="primary"
@@ -237,7 +217,7 @@ const WriterWorkspace = () => {
         ></Modal>
         <Modal
           open={unsuccessModal.visible}
-          title="Reason for Unsuccessful"
+          title="Unsuccessful created, please modify and recreate!"
           onCancel={handleUnsuccessClose}
           footer={[
             <Button key="recreate" type="primary" onClick={handleRecreate}>
@@ -252,9 +232,6 @@ const WriterWorkspace = () => {
           ]}
           centered
         >
-          <div style={{ minHeight: 40, color: '#ff4d4f', fontWeight: 500 }}>
-            {unsuccessModal.story?.reason || 'No reason provided.'}
-          </div>
         </Modal>
       </div>
     </div>

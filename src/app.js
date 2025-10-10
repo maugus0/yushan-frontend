@@ -26,14 +26,14 @@ import WriterDashboard from './pages/writerdashboard/writerdashboard';
 import WriterWorkspace from './pages/writerworkspace/writerworkspace';
 import WriterInteraction from './pages/writerinteraction/writerinteraction';
 import WriterCreate from './pages/writercreate/writercreate';
-import WriterStorySetting from './pages/writerstorysetting/writerstorysetting';
 import WriterStoryProfile from './pages/writerstoryprofile/writerstoryprofile';
 import WriterCreateChapters from './pages/writercreatechapters/writercreatechapters';
 import WriterEditContent from './pages/writereditcontent/writereditcontent';
-
+import WriterAuth from './pages/writerauth/writerauth';
 // Global Styles
 import './app.css';
 import './utils/axios-interceptor';
+import { UserProvider } from './store/UserContext';
 
 const themeConfig = {
   token: {
@@ -90,202 +90,204 @@ function App() {
   return (
     <ConfigProvider theme={themeConfig}>
       <PersistGate loading={null} persistor={persistor}>
-        <AntApp>
-          <Router
-            basename={process.env.NODE_ENV === 'production' ? '/yushan-frontend' : ''}
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true,
-            }}
-          >
-            <div className="App">
-              <Routes>
-                {/* Public routes with LayoutWrapper and redirect if authenticated */}
-                <Route
-                  path="/login"
-                  element={
-                    isAuthenticated ? (
-                      <Navigate to="/" replace />
-                    ) : (
+        <UserProvider>
+          <AntApp>
+            <Router
+              basename={process.env.NODE_ENV === 'production' ? '/yushan-frontend' : ''}
+              future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true,
+              }}
+            >
+              <div className="App">
+                <Routes>
+                  {/* Public routes with LayoutWrapper and redirect if authenticated */}
+                  <Route
+                    path="/login"
+                    element={
+                      isAuthenticated ? (
+                        <Navigate to="/" replace />
+                      ) : (
+                        <LayoutWrapper>
+                          <Login />
+                        </LayoutWrapper>
+                      )
+                    }
+                  />
+                  <Route
+                    path="/register"
+                    element={
+                      isAuthenticated ? (
+                        <Navigate to="/" replace />
+                      ) : (
+                        <LayoutWrapper>
+                          <Register />
+                        </LayoutWrapper>
+                      )
+                    }
+                  />
+
+                  <Route
+                    path="/"
+                    element={
                       <LayoutWrapper>
-                        <Login />
+                        <Home />
                       </LayoutWrapper>
-                    )
-                  }
-                />
-                <Route
-                  path="/register"
-                  element={
-                    isAuthenticated ? (
-                      <Navigate to="/" replace />
-                    ) : (
+                    }
+                  />
+
+                  <Route path="/writerdashboard" element={<WriterDashboard />} />
+                  <Route path="/writerworkspace" element={<WriterWorkspace />} />
+                  <Route path="/writerinteraction" element={<WriterInteraction />} />
+                  <Route path="/writercreate" element={<WriterCreate />} />
+                 <Route path="/writerstoryprofile" element={<WriterStoryProfile />} />
+                  <Route path="/writercreatechapters" element={<WriterCreateChapters />} />
+                  <Route path="/writereditcontent" element={<WriterEditContent />} />
+                  <Route path="/writerauth" element={<WriterAuth />} />
+
+                  {/* Library route */}
+                  <Route
+                    path="/library"
+                    element={
                       <LayoutWrapper>
-                        <Register />
+                        <Library />
                       </LayoutWrapper>
-                    )
-                  }
-                />
+                    }
+                  />
 
-                <Route
-                  path="/"
-                  element={
-                    <LayoutWrapper>
-                      <Home />
-                    </LayoutWrapper>
-                  }
-                />
+                  {/* Protected routes */}
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <LayoutWrapper>
+                          <Profile />
+                        </LayoutWrapper>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/editprofile"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <LayoutWrapper>
+                          <EditProfile />
+                        </LayoutWrapper>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/browse/*"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <LayoutWrapper>
+                          <Browse />
+                        </LayoutWrapper>
+                      </ProtectedRoute>
+                    }
+                  />
 
-                <Route path="/writerdashboard" element={<WriterDashboard />} />
-                <Route path="/writerworkspace" element={<WriterWorkspace />} />
-                <Route path="/writerinteraction" element={<WriterInteraction />} />
-                <Route path="/writercreate" element={<WriterCreate />} />
-                <Route path="/writerstorysetting" element={<WriterStorySetting />} />
-                <Route path="/writerstoryprofile" element={<WriterStoryProfile />} />
-                <Route path="/writercreatechapters" element={<WriterCreateChapters />} />
-                <Route path="/writereditcontent/:id" element={<WriterEditContent />} />
+                  {/* Leaderboard routes with support for categories (protected) */}
+                  <Route
+                    path="/rankings"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <LayoutWrapper isAuthenticated={isAuthenticated}>
+                          <Leaderboard />
+                        </LayoutWrapper>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/rankings/Novel"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <LayoutWrapper isAuthenticated={isAuthenticated}>
+                          <Leaderboard />
+                        </LayoutWrapper>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/rankings/Novel/:category"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <LayoutWrapper isAuthenticated={isAuthenticated}>
+                          <Leaderboard />
+                        </LayoutWrapper>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/rankings/Readers"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <LayoutWrapper isAuthenticated={isAuthenticated}>
+                          <Leaderboard />
+                        </LayoutWrapper>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/rankings/Writers"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <LayoutWrapper isAuthenticated={isAuthenticated}>
+                          <Leaderboard />
+                        </LayoutWrapper>
+                      </ProtectedRoute>
+                    }
+                  />
 
-                {/* Library route */}
-                <Route
-                  path="/library"
-                  element={
-                    <LayoutWrapper>
-                      <Library />
-                    </LayoutWrapper>
-                  }
-                />
-
-                {/* Protected routes */}
-                <Route
-                  path="/profile"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <LayoutWrapper>
-                        <Profile />
-                      </LayoutWrapper>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/editprofile"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <LayoutWrapper>
-                        <EditProfile />
-                      </LayoutWrapper>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/browse/*"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <LayoutWrapper>
-                        <Browse />
-                      </LayoutWrapper>
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* Leaderboard routes with support for categories (protected) */}
-                <Route
-                  path="/rankings"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <LayoutWrapper isAuthenticated={isAuthenticated}>
-                        <Leaderboard />
-                      </LayoutWrapper>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/rankings/Novel"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <LayoutWrapper isAuthenticated={isAuthenticated}>
-                        <Leaderboard />
-                      </LayoutWrapper>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/rankings/Novel/:category"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <LayoutWrapper isAuthenticated={isAuthenticated}>
-                        <Leaderboard />
-                      </LayoutWrapper>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/rankings/Readers"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <LayoutWrapper isAuthenticated={isAuthenticated}>
-                        <Leaderboard />
-                      </LayoutWrapper>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/rankings/Writers"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <LayoutWrapper isAuthenticated={isAuthenticated}>
-                        <Leaderboard />
-                      </LayoutWrapper>
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* Legacy routes for backward compatibility (also protected) */}
-                <Route
-                  path="/leaderboard"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <Navigate to="/rankings/Novel" replace />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/leaderboard/Novel"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <Navigate to="/rankings/Novel" replace />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/leaderboard/Readers"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <Navigate to="/rankings/Readers" replace />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/leaderboard/Writers"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <Navigate to="/rankings/Writers" replace />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/leaderboard/*"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <LayoutWrapper isAuthenticated={isAuthenticated}>
-                        <Leaderboard />
-                      </LayoutWrapper>
-                    </ProtectedRoute>
-                  }
-                />
-                {/* Add more routes as needed */}
-              </Routes>
-            </div>
-          </Router>
-        </AntApp>
+                  {/* Legacy routes for backward compatibility (also protected) */}
+                  <Route
+                    path="/leaderboard"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <Navigate to="/rankings/Novel" replace />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/leaderboard/Novel"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <Navigate to="/rankings/Novel" replace />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/leaderboard/Readers"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <Navigate to="/rankings/Readers" replace />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/leaderboard/Writers"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <Navigate to="/rankings/Writers" replace />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/leaderboard/*"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <LayoutWrapper isAuthenticated={isAuthenticated}>
+                          <Leaderboard />
+                        </LayoutWrapper>
+                      </ProtectedRoute>
+                    }
+                  />
+                  {/* Add more routes as needed */}
+                </Routes>
+              </div>
+            </Router>
+          </AntApp>
+        </UserProvider>
       </PersistGate>
     </ConfigProvider>
   );
