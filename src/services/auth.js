@@ -116,15 +116,15 @@ const authService = {
     }
   },
 
-  // AC5: Handle Token Expiration
   handleUnauthorized() {
-    this.clearToken();
-    window.location.href = '/login?expired=true';
+    this.clearTokens();
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
   },
 
   async sendVerificationEmail(email) {
     try {
-      //console.log('Sending email verification request:', { email });
       const response = await axios.post(
         `${API_URL}/auth/send-email`,
         { email },
@@ -134,7 +134,6 @@ const authService = {
           },
         }
       );
-      //console.log('Email verification response:', response.data);
       return response.data;
     } catch (error) {
       // Log detailed error information

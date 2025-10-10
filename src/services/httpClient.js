@@ -36,12 +36,12 @@ const addInterceptors = (client, clientName = 'httpClient') => {
   // Request interceptor
   client.interceptors.request.use(
     (config) => {
-      // Add any common headers here
-      // config.headers.Authorization = `Bearer ${getToken()}`;
       return config;
     },
     (error) => {
-      console.error(`${clientName} request error:`, error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`${clientName} request error:`, error);
+      }
       return Promise.reject(error);
     }
   );
@@ -56,15 +56,8 @@ const addInterceptors = (client, clientName = 'httpClient') => {
 
       if (error.message?.includes('rate limit')) {
         console.warn(`${clientName}: Rate limit exceeded - throttling in effect`);
-        // You could dispatch a toast notification here
       }
-
-      if (error.response?.status === 401) {
-        // Handle authentication errors
-        console.error(`${clientName}: Authentication required`);
-        // You could redirect to login here
-      }
-
+      
       return Promise.reject(error);
     }
   );
