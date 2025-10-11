@@ -120,7 +120,7 @@ const WriterStoryProfile = () => {
               <span className="storyprofile-chapters-title-tab active">CHAPTERS</span>
             </div>
             <div className="storyprofile-chapters-list">
-              {pagedChapters.map((chapter, idx) => (
+              {pagedChapters.map((chapter) => (
                 <div
                   className="storyprofile-chapter-row"
                   key={chapter.uuid}

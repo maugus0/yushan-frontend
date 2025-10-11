@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Button, Tabs, Modal, Radio, Input, Form, Select } from 'antd';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerinteraction.css';
-import novelService from '../../services/novel';
-import userService from '../../services/user';
+// import novelService from '../../services/novel';
+// import userService from '../../services/user';
 import reviewService from '../../services/review';
 
 const reportReasons = [
