@@ -1,7 +1,6 @@
 // src/utils/axios-interceptor.js
 import axios from 'axios';
 import authService from '../services/auth';
-import store from '../store';
 
 let isRedirecting = false;
 

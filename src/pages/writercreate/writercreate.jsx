@@ -7,7 +7,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Cropper from 'react-easy-crop';
 import novelService from '../../services/novel';
 import categoriesService from '../../services/categories';
-import { type } from '@testing-library/user-event/dist/type';
 
 const WriterCreate = () => {
   const [coverUrl, setCoverUrl] = useState('');

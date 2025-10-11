@@ -3,7 +3,6 @@ import { Button, Input, message } from 'antd';
 import './writerauth.css';
 import { useNavigate } from 'react-router-dom';
 import userService from '../../services/user';
-import axios from 'axios';
 
 const COUNTDOWN_SECONDS = 300;
 

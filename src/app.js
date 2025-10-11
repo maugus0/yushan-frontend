@@ -70,17 +70,6 @@ message.config({
   maxCount: 3,
 });
 
-const ProtectedRoute = ({ isAuthenticated, children }) => {
-  if (!isAuthenticated) {
-    if (location.pathname === '/login' || location.pathname === '/register') {
-      return children;
-    }
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
-};
-
 const ProtectedRouteWrapper = ({ isAuthenticated, children }) => {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

@@ -7,7 +7,6 @@ import './profile.css';
 import * as LevelIcons from '../../components/user/icons/levelicon';
 import { MaleIcon, FemaleIcon } from '../../components/user/icons/gendericon';
 import { WriterIcon } from '../../components/user/icons/userrolesicon';
-import userService from '../../services/user';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;

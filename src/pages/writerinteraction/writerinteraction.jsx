@@ -24,18 +24,28 @@ const WriterInteraction = () => {
   const [form] = Form.useForm();
   const [selectedNovelId, setSelectedNovelId] = useState(null);
   const [reviewsList, setReviewsList] = useState([]);
-  const [commentsList, setCommentsList] = useState([]);
+  const [commentsList, setCommentsList] = useState([]); // mock comments
 
   useEffect(() => {
-    const getNovelData = async () => {
-      const author = await userService.getMe();
-      const data = await novelService.getNovel({ authorId: author.uuid });
-      setNovels(data || []);
-      if (data && data.length > 0) {
-        setSelectedNovelId(data[0].id);
-      }
-    };
-    getNovelData();
+    // mock novels
+    const mockNovels = [
+      { id: 1, title: 'Novel One' },
+      { id: 2, title: 'Novel Two' },
+    ];
+    setNovels(mockNovels);
+    setSelectedNovelId(mockNovels[0].id);
+
+    // mock reviews
+    setReviewsList([
+      { id: 101, content: 'Great story!', username: 'Alice' },
+      { id: 102, content: 'Loved the plot.', username: 'Bob' },
+    ]);
+
+    // mock comments
+    setCommentsList([
+      { id: 201, content: 'Thanks for reading!', username: 'Author' },
+      { id: 202, content: 'Appreciate your feedback.', username: 'Author' },
+    ]);
   }, []);
 
   useEffect(() => {
@@ -48,16 +58,7 @@ const WriterInteraction = () => {
       setReviewsList(reviews);
       console.log('reviews: ', reviews);
     };
-    // const fetchComments = async () => {
-    //   if (!selectedNovelId) {
-    //     setCommentsData({});
-    //     return;
-    //   }
-    //   const comments = await reviewService.getComments({ novelId: selectedNovelId });
-    //   setCommentsData(comments);
-    // };
     fetchReviews();
-    // fetchComments();
   }, [selectedNovelId]);
 
   const handleReportClick = (id) => {

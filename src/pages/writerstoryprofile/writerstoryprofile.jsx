@@ -16,7 +16,6 @@ const WriterStoryProfile = () => {
   const [story, setStory] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [chaptersData, setChaptersData] = useState([]);
-  const [totalChapters, setTotalChapters] = useState(0);
 
   const searchParams = new URLSearchParams(window.location.search);
   const storyId = searchParams.get('id');
@@ -25,7 +24,6 @@ const WriterStoryProfile = () => {
     const res = await chapterService.getChapterByNovelId(storyId, currentPage, PAGE_SIZE);
     setChaptersData(res.data.chapters || []);
     console.log('chapterData: ', res.data.chapters);
-    setTotalChapters(res.data.total || 0);
   };
   const getStory = async () => {
     await novelService.getNovelById(storyId).then((fetchedStory) => {
@@ -44,12 +42,12 @@ const WriterStoryProfile = () => {
     getChapterByNovelId();
   }, [storyId, currentPage]);
 
-  const handleEdit = (idx) => {
-    navigate(`/writercreatechapters/?novelid=${storyId}&chapterid=${idx}`);
+  const handleEdit = (chapterId) => {
+    navigate(`/writercreatechapters/?novelid=${storyId}&chapterid=${chapterId}`);
   };
 
-  const handleDelete = (idx) => {
-    setDeleteModal({ visible: true, idx });
+  const handleDelete = (chapterId) => {
+    setDeleteModal({ visible: true, idx: chapterId });
   };
 
   const handleDeleteConfirm = async () => {
