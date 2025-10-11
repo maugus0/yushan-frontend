@@ -1,14 +1,11 @@
 // Real backend API for rankings. Uses CRA dev proxy: package.json "proxy": "http://localhost:8080/api"
 import axios from 'axios';
 
-// Use same convention as auth.js
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+// Prefer explicit API base if provided; otherwise use same-origin /api (dev proxy/nginx)
+const CONFIG_URL = (process.env.REACT_APP_API_URL || '').trim();
+const BASE = CONFIG_URL ? CONFIG_URL.replace(/\/$/, '') : '/api';
 
-// In development use CRA proxy (baseURL=''), in production call API_URL directly
-const isProd = process.env.NODE_ENV === 'production';
-const BASE = isProd ? API_URL : ''; // dev: '' -> requests go to /ranking/* and are proxied
-
-// Read JWT from localStorage (auth.js uses 'jwt_token')
+// Read JWT from localStorage
 function authHeader() {
   const t = localStorage.getItem('jwt_token');
   return t ? { Authorization: `Bearer ${t}` } : {};
@@ -21,7 +18,7 @@ function normalizePage(resp) {
   return {
     items: content,
     total: d.totalElements ?? content.length ?? 0,
-    page: (d.currentPage ?? 0) + 1, // backend 0-based -> UI 1-based
+    page: (d.currentPage ?? 0) + 1,
     size: d.size ?? content.length ?? 0,
     raw: d,
   };
@@ -30,12 +27,8 @@ function normalizePage(resp) {
 export default {
   // GET /api/ranking/novel
   async getNovels({ page = 1, size = 20, categoryName } = {}) {
-    const params = { page: page - 1, size };
-    if (categoryName) params.categoryName = categoryName; // optional filter
-    const res = await axios.get(`${BASE}/ranking/novel`, {
-      params,
-      headers: authHeader(),
-    });
+    const params = { page: page - 1, size, ...(categoryName ? { categoryName } : {}) };
+    const res = await axios.get(`${BASE}/ranking/novel`, { params, headers: authHeader() });
     return normalizePage(res);
   },
 

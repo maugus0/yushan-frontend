@@ -12,13 +12,13 @@ import {
 import { xpToLevel, levelMeta } from '../../utils/levels';
 import './leaderboard-list.css';
 
-// Build absolute URL for images.
-// If backend sends "user.png" or "/assets/user.png", convert to `${API_URL}/assets/user.png`.
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+// Build absolute URL for images from backend.
+const API_URL = process.env.REACT_APP_API_URL || '';
 function toAbsoluteUrl(u) {
   if (!u) return undefined;
   const s = String(u);
-  if (/^https?:\/\//i.test(s) || /^data:/i.test(s)) return s; // already absolute
+  if (/^https?:\/\//i.test(s) || /^data:/i.test(s)) return s;
+  if (!API_URL) return s; // keep as-is in dev when no API_URL
   const base = API_URL.replace(/\/$/, '');
   const path = s.replace(/^\/+/, '');
   return `${base}/${path}`;
