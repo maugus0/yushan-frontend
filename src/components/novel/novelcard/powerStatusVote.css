@@ -1,0 +1,67 @@
+.power-status-vote {
+  display: flex;
+  justify-content: space-between; /* Space between items */
+  align-items: center;
+  background-color: #f7f8fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 40px;
+}
+
+.vote-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vote-number {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.vote-description {
+  font-size: 0.8rem;
+  color: #888;
+  line-height: 1.2;
+}
+
+.vote-button-container {
+  margin-left: auto; /* Push the button to the right */
+  margin-right: 16px; /* Margin from the right edge */
+}
+
+.vote-button {
+  background-color: orange !important; /* Keep the background orange */
+  color: white !important; /* Keep the text color white */
+  border-radius: 20px;
+  padding: 22px 70px;
+  display: flex;
+  flex-direction: column; /* Stack the text vertically */
+  align-items: center; /* Center align the text */
+  gap: 1px; /* Set spacing between VOTE and LEFT to 5px */
+  max-width: 120px; /* Set a max width to prevent overflow */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Add ellipsis for overflow text */
+}
+/* ...existing code... */
+.vote-button-title {
+  margin: 0; /* Reset margins; spacing handled by gap above */
+  font-size: 1rem; /* Larger font size for VOTE */
+  font-weight: 500;
+}
+/* ...existing code... */
+.vote-left {
+  margin: 0; /* Reset margins; spacing handled by gap above */
+  font-size: 0.6rem; /* Smaller font size for remaining votes */
+}
+
+/* Prevent the button from changing color on hover and focus */
+.vote-button:focus {
+  background-color: orange !important; /* Keep the background orange */
+  border-color: orange !important; /* Keep the border color orange */
+}
+
+.vote-button:hover {
+  background-color: rgb(255, 157, 0) !important; /* Keep the background orange on hover */
+  color: white !important; /* Keep the text color white on hover */
+}
