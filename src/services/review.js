@@ -5,10 +5,10 @@ import axios from 'axios';
 const reviewService = {
   async getReviews(filters) {
     const response = await axios.get(`/reviews`, {
-      params: filters
+      params: filters,
     });
     return response.data.data.content;
-  }
+  },
 };
 
 export default reviewService;

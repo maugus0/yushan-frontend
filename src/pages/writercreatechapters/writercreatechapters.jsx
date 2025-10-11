@@ -28,7 +28,7 @@ const WriterCreateChapters = () => {
         setChapterNumber(String(chapterData.data.chapterNumber));
         setChapterName(chapterData.data.title || '');
         setContent(chapterData.data.content || '');
-      }
+      };
       getChapterDetails();
     } else {
       const getNextChapterId = async () => {
@@ -56,10 +56,10 @@ const WriterCreateChapters = () => {
         const chapterData = {
           title: chapterName.trim(),
           content,
-          uuid: chapterId
-        }
+          uuid: chapterId,
+        };
         await chapterService.editChapters(chapterData);
-      }
+      };
       editChapterAsync();
     } else {
       const createChapterAsync = async () => {
@@ -68,11 +68,10 @@ const WriterCreateChapters = () => {
           chapterNumber: Number(chapterNumber),
           title: chapterName.trim(),
           content,
-        }
+        };
         await chapterService.createChapters(chapterData);
-      }
+      };
       createChapterAsync();
-
     }
     navigate(-1);
     setPublishModal(false);
@@ -103,7 +102,9 @@ const WriterCreateChapters = () => {
       </div>
       <div className="writercreatechapters-editor-container">
         <div style={{ marginBottom: 24 }}>
-          <label style={{ fontWeight: 500, color: '#515fa0', marginRight: 12 }}>Chapter Number</label>
+          <label style={{ fontWeight: 500, color: '#515fa0', marginRight: 12 }}>
+            Chapter Number
+          </label>
           <input
             type="text"
             value={chapterNumber}
@@ -117,14 +118,16 @@ const WriterCreateChapters = () => {
               fontSize: 15,
               background: '#f1f3fa',
               marginRight: 24,
-              color: '#888'
+              color: '#888',
             }}
           />
-          <label style={{ fontWeight: 500, color: '#515fa0', marginRight: 12, marginLeft: 12 }}>Chapter Name</label>
+          <label style={{ fontWeight: 500, color: '#515fa0', marginRight: 12, marginLeft: 12 }}>
+            Chapter Name
+          </label>
           <input
             type="text"
             value={chapterName}
-            onChange={e => setChapterName(e.target.value)}
+            onChange={(e) => setChapterName(e.target.value)}
             placeholder="Enter chapter name"
             style={{
               width: 260,
@@ -137,7 +140,7 @@ const WriterCreateChapters = () => {
           />
         </div>
         <Editor
-          apiKey="zds03d1k6akrwouyyro25otbx4v25hd4yc1p83a0lecjfwwj"
+          apiKey="i3g9n83wa35bb4y5x074zwjvwcmyeaw8ux5txo89x6xvv35c"
           value={content}
           onEditorChange={setContent}
           init={{
@@ -178,7 +181,9 @@ const WriterCreateChapters = () => {
         ]}
         centered
       >
-        <div>{errorMsg || 'Please enter a valid chapter number (digits only) and chapter name.'}</div>
+        <div>
+          {errorMsg || 'Please enter a valid chapter number (digits only) and chapter name.'}
+        </div>
       </Modal>
     </div>
   );

@@ -71,14 +71,13 @@ message.config({
 });
 
 const ProtectedRoute = ({ isAuthenticated, children }) => {
-  
   if (!isAuthenticated) {
     if (location.pathname === '/login' || location.pathname === '/register') {
       return children;
     }
     return <Navigate to="/login" replace />;
   }
-  
+
   return children;
 };
 
@@ -142,82 +141,82 @@ function App() {
                     }
                   />
 
-                <Route
-                  path="/"
-                  element={
-                    <LayoutWrapper>
-                      <Home />
-                    </LayoutWrapper>
-                  }
-                />
+                  <Route
+                    path="/"
+                    element={
+                      <LayoutWrapper>
+                        <Home />
+                      </LayoutWrapper>
+                    }
+                  />
 
-                {/* Writer routes with UserProvider */}
-                <Route
-                  path="/writerdashboard"
-                  element={
-                    <UserProvider>
-                      <WriterDashboard />
-                    </UserProvider>
-                  }
-                />
-                <Route
-                  path="/writerworkspace"
-                  element={
-                    <UserProvider>
-                      <WriterWorkspace />
-                    </UserProvider>
-                  }
-                />
-                <Route
-                  path="/writerinteraction"
-                  element={
-                    <UserProvider>
-                      <WriterInteraction />
-                    </UserProvider>
-                  }
-                />
-                <Route
-                  path="/writercreate"
-                  element={
-                    <UserProvider>
-                      <WriterCreate />
-                    </UserProvider>
-                  }
-                />
-                <Route
-                  path="/writerstoryprofile"
-                  element={
-                    <UserProvider>
-                      <WriterStoryProfile />
-                    </UserProvider>
-                  }
-                />
-                <Route
-                  path="/writercreatechapters"
-                  element={
-                    <UserProvider>
-                      <WriterCreateChapters />
-                    </UserProvider>
-                  }
-                />
-                <Route
-                  path="/writerauth"
-                  element={
-                    <UserProvider>
-                      <WriterAuth />
-                    </UserProvider>
-                  }
-                />
+                  {/* Writer routes with UserProvider */}
+                  <Route
+                    path="/writerdashboard"
+                    element={
+                      <UserProvider>
+                        <WriterDashboard />
+                      </UserProvider>
+                    }
+                  />
+                  <Route
+                    path="/writerworkspace"
+                    element={
+                      <UserProvider>
+                        <WriterWorkspace />
+                      </UserProvider>
+                    }
+                  />
+                  <Route
+                    path="/writerinteraction"
+                    element={
+                      <UserProvider>
+                        <WriterInteraction />
+                      </UserProvider>
+                    }
+                  />
+                  <Route
+                    path="/writercreate"
+                    element={
+                      <UserProvider>
+                        <WriterCreate />
+                      </UserProvider>
+                    }
+                  />
+                  <Route
+                    path="/writerstoryprofile"
+                    element={
+                      <UserProvider>
+                        <WriterStoryProfile />
+                      </UserProvider>
+                    }
+                  />
+                  <Route
+                    path="/writercreatechapters"
+                    element={
+                      <UserProvider>
+                        <WriterCreateChapters />
+                      </UserProvider>
+                    }
+                  />
+                  <Route
+                    path="/writerauth"
+                    element={
+                      <UserProvider>
+                        <WriterAuth />
+                      </UserProvider>
+                    }
+                  />
 
-                {/* Library route */}
-                <Route
-                  path="/library"
-                  element={
-                    <LayoutWrapper>
-                      <Library />
-                    </LayoutWrapper>
-                  }
-                />
+                  {/* Library route */}
+                  <Route
+                    path="/library"
+                    element={
+                      <LayoutWrapper>
+                        <Library />
+                      </LayoutWrapper>
+                    }
+                  />
 
                   {/* Library */}
                   <Route

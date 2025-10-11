@@ -6,7 +6,7 @@ const categoriesService = {
   async getCategories() {
     const response = await axios.get(`/categories`);
     return response.data.data.categories;
-  }
+  },
 };
 
 export default categoriesService;

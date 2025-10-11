@@ -24,8 +24,8 @@ axios.interceptors.response.use(
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      const isAuthEndpoint = 
-        originalRequest.url?.includes('/auth/login') || 
+      const isAuthEndpoint =
+        originalRequest.url?.includes('/auth/login') ||
         originalRequest.url?.includes('/auth/register') ||
         originalRequest.url?.includes('/auth/send-email');
 
@@ -37,26 +37,26 @@ axios.interceptors.response.use(
 
       try {
         const newToken = await authService.refreshToken();
-        
+
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        
+
         return axios(originalRequest);
       } catch (refreshError) {
         if (!isRedirecting) {
           isRedirecting = true;
-          
+
           authService.clearTokens();
-          
+
           const currentPath = window.location.pathname;
           if (currentPath !== '/login' && currentPath !== '/register') {
             window.location.href = '/login';
           }
-          
+
           setTimeout(() => {
             isRedirecting = false;
           }, 1000);
         }
-        
+
         return Promise.reject(refreshError);
       }
     }

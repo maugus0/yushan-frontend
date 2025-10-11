@@ -156,7 +156,9 @@
   border-radius: 8px;
   color: #283157;
   background: transparent;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
   user-select: none;
 }
 

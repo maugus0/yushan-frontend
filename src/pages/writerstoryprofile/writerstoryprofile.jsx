@@ -22,23 +22,19 @@ const WriterStoryProfile = () => {
   const storyId = searchParams.get('id');
 
   const getChapterByNovelId = async () => {
-    const res = await chapterService.getChapterByNovelId(
-      storyId,
-      currentPage,
-      PAGE_SIZE
-    );
+    const res = await chapterService.getChapterByNovelId(storyId, currentPage, PAGE_SIZE);
     setChaptersData(res.data.chapters || []);
-    console.log("chapterData: ", res.data.chapters);
+    console.log('chapterData: ', res.data.chapters);
     setTotalChapters(res.data.total || 0);
   };
   const getStory = async () => {
-      await novelService.getNovelById(storyId).then(fetchedStory => {
-        if (fetchedStory) {
-          setStory(fetchedStory);
-          console.log("fetchedStory: ", fetchedStory);
-        }
-      })
-    };
+    await novelService.getNovelById(storyId).then((fetchedStory) => {
+      if (fetchedStory) {
+        setStory(fetchedStory);
+        console.log('fetchedStory: ', fetchedStory);
+      }
+    });
+  };
 
   useEffect(() => {
     getStory();
@@ -57,7 +53,7 @@ const WriterStoryProfile = () => {
   };
 
   const handleDeleteConfirm = async () => {
-    console.log("deleteModal.id: ", deleteModal.idx)
+    console.log('deleteModal.id: ', deleteModal.idx);
     await chapterService.deleteChapterByChapterId(deleteModal.idx);
     getChapterByNovelId();
     getStory();
@@ -130,15 +126,21 @@ const WriterStoryProfile = () => {
                 <div
                   className="storyprofile-chapter-row"
                   key={chapter.uuid}
-                  onMouseEnter={() => { }}
-                  onMouseLeave={() => { }}
+                  onMouseEnter={() => {}}
+                  onMouseLeave={() => {}}
                 >
                   <span className="storyprofile-chapter-name">{chapter.title}</span>
                   <span className="storyprofile-chapter-actions">
-                    <span className="storyprofile-chapter-edit" onClick={() => handleEdit(chapter.uuid)}>
+                    <span
+                      className="storyprofile-chapter-edit"
+                      onClick={() => handleEdit(chapter.uuid)}
+                    >
                       EDIT
                     </span>
-                    <span className="storyprofile-chapter-delete" onClick={() => handleDelete(chapter.uuid)}>
+                    <span
+                      className="storyprofile-chapter-delete"
+                      onClick={() => handleDelete(chapter.uuid)}
+                    >
                       DELETE
                     </span>
                     <span className="storyprofile-chapter-date">
@@ -150,22 +152,27 @@ const WriterStoryProfile = () => {
                 </div>
               ))}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '16px 0' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                margin: '16px 0',
+              }}
+            >
               <Button
                 size="small"
                 disabled={currentPage === 1}
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 style={{ marginRight: 16 }}
               >
                 Prev
               </Button>
-              <span style={{ fontSize: 15, color: '#515fa0' }}>
-                Page {currentPage}
-              </span>
+              <span style={{ fontSize: 15, color: '#515fa0' }}>Page {currentPage}</span>
               <Button
                 size="small"
                 disabled={pagedChapters.length < PAGE_SIZE}
-                onClick={() => setCurrentPage(p => p + 1)}
+                onClick={() => setCurrentPage((p) => p + 1)}
                 style={{ marginLeft: 16 }}
               >
                 Next

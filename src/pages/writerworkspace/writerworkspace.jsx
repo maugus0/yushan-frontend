@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import novelService from '../../services/novel';
 import userService from '../../services/user';
 
-
 const WriterWorkspace = () => {
   const [stories, setStories] = useState([]);
   const navigate = useNavigate();
@@ -46,7 +45,7 @@ const WriterWorkspace = () => {
   };
 
   const handleDeleteConfirm = async () => {
-    console.log("deleteModal.id: ", deleteModal.id)
+    console.log('deleteModal.id: ', deleteModal.id);
     // await novelService.deleteNovelById(deleteModal.id);
     fetchStories();
     setDeleteModal({ visible: false, id: null });
@@ -75,14 +74,12 @@ const WriterWorkspace = () => {
   };
 
   const menu = (id) => {
-    const story = stories.find(s => s.id === id);
+    const story = stories.find((s) => s.id === id);
     if (story && (story.status === 'DRAFT' || story.status === 'UNDER_REVIEW')) {
       return (
         <Menu
           onClick={({ key }) => handleMenuClick(key, id)}
-          items={[
-            { key: 'delete', label: 'DELETE' },
-          ]}
+          items={[{ key: 'delete', label: 'DELETE' }]}
         />
       );
     }
@@ -223,16 +220,19 @@ const WriterWorkspace = () => {
             <Button key="recreate" type="primary" onClick={handleRecreate}>
               Recreate
             </Button>,
-            <Button key="delete" danger onClick={() => {
-              setDeleteModal({ visible: true, id: unsuccessModal.story?.id });
-              setUnsuccessModal({ visible: false, story: null });
-            }}>
+            <Button
+              key="delete"
+              danger
+              onClick={() => {
+                setDeleteModal({ visible: true, id: unsuccessModal.story?.id });
+                setUnsuccessModal({ visible: false, story: null });
+              }}
+            >
               Delete
             </Button>,
           ]}
           centered
-        >
-        </Modal>
+        ></Modal>
       </div>
     </div>
   );

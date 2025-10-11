@@ -57,7 +57,7 @@ const addInterceptors = (client, clientName = 'httpClient') => {
       if (error.message?.includes('rate limit')) {
         console.warn(`${clientName}: Rate limit exceeded - throttling in effect`);
       }
-      
+
       return Promise.reject(error);
     }
   );

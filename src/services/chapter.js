@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 // const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
 
@@ -15,8 +15,8 @@ const chapterService = {
     const response = await axios.get(`/chapters/novel/${novelId}`, {
       params: {
         page,
-        pageSize
-      }
+        pageSize,
+      },
     });
     return response.data;
   },
@@ -31,7 +31,7 @@ const chapterService = {
   async getChapterByChapterId(chapterId) {
     const response = await axios.get(`/chapters/${chapterId}`);
     return response.data;
-  }
+  },
 };
 
 export default chapterService;

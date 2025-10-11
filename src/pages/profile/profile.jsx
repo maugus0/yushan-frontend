@@ -19,8 +19,7 @@ const Profile = () => {
 
   const LevelIconComponent = LevelIcons[`LevelIcon${user.level}`] || LevelIcons.LevelIcon1;
 
-  useEffect(() => {
-  }, [])
+  useEffect(() => {}, []);
 
   return (
     <Layout className="profile-layout-wrapper">

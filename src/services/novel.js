@@ -9,7 +9,7 @@ const novelService = {
   },
   async getNovel(filters) {
     const response = await axios.get(`/novels`, {
-      params: filters
+      params: filters,
     });
     return response.data.data.content;
   },
@@ -36,7 +36,7 @@ const novelService = {
   async deleteNovelById(novelId) {
     const response = await axios.post(`/novels/${novelId}/archive`);
     return response.data;
-  }
+  },
 };
 
 export default novelService;

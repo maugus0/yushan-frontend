@@ -14,15 +14,15 @@ const WriterAuth = () => {
   const [sending, setSending] = useState(false);
   const timerRef = useRef(null);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const getUserEmail = async() => {
-      const res = await userService.getMe()
-      console.log(res.email)
-      setEmail(res.email)
-    }
-    getUserEmail()
+    const getUserEmail = async () => {
+      const res = await userService.getMe();
+      console.log(res.email);
+      setEmail(res.email);
+    };
+    getUserEmail();
   }, []);
 
   const handleSendOtp = async () => {
@@ -31,7 +31,7 @@ const WriterAuth = () => {
     message.success('OTP sent to your email.');
     setCountdown(COUNTDOWN_SECONDS);
     timerRef.current = setInterval(() => {
-      setCountdown(prev => {
+      setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timerRef.current);
           return 0;
@@ -47,7 +47,7 @@ const WriterAuth = () => {
       return;
     }
     await userService.upgradeToAuthor(otp);
-    navigate('/writerdashboard')
+    navigate('/writerdashboard');
   };
 
   const formatCountdown = (sec) => {
@@ -80,12 +80,14 @@ const WriterAuth = () => {
           >
             {countdown > 0 ? `Resend OTP (${formatCountdown(countdown)})` : 'Send OTP'}
           </Button>
-          <label className="writerauth-label" style={{ marginTop: 24 }}>OTP Code</label>
+          <label className="writerauth-label" style={{ marginTop: 24 }}>
+            OTP Code
+          </label>
           <Input
             className="writerauth-input"
             placeholder="Enter OTP code"
             value={otp}
-            onChange={e => setOtp(e.target.value)}
+            onChange={(e) => setOtp(e.target.value)}
             maxLength={8}
             autoComplete="one-time-code"
           />

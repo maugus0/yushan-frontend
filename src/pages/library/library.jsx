@@ -28,7 +28,6 @@ const Library = () => {
     fetchLibraryData();
   }, []);
 
-
   const handleEdit = () => {
     setEditMode(true);
     setSelectedIds([]);
@@ -47,12 +46,10 @@ const Library = () => {
 
   const handleRemove = () => {
     const deleteNovelsFromLibrary = async (ids) => {
-      await Promise.all(
-        ids.map((id) => libraryService.deleteNovelFromLibrary(id))
-      );
+      await Promise.all(ids.map((id) => libraryService.deleteNovelFromLibrary(id)));
       const updatedNovels = novels.filter((novel) => !ids.includes(novel.novelId));
       setNovels(updatedNovels);
-    }
+    };
     deleteNovelsFromLibrary(selectedIds);
     setEditMode(false);
     setSelectedIds([]);

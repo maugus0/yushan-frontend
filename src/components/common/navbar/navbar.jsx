@@ -66,13 +66,13 @@ const Navbar = ({ isAuthenticated, user }) => {
   }, [searchExpanded]);
 
   const handleCreate = async () => {
-    const res = await userService.getMe()
+    const res = await userService.getMe();
     if (res.isAuthor === true) {
-      navigate('/writerdashboard')
+      navigate('/writerdashboard');
     } else {
-      navigate('/writerauth')
+      navigate('/writerauth');
     }
-  }
+  };
 
   const browseCategories = [
     'Action',
@@ -304,7 +304,7 @@ const Navbar = ({ isAuthenticated, user }) => {
               location.pathname.startsWith('/browse')
                 ? 'browse'
                 : location.pathname.startsWith('/leaderboard') ||
-                  location.pathname.startsWith('/rankings')
+                    location.pathname.startsWith('/rankings')
                   ? 'leaderboard'
                   : location.pathname.slice(1) || 'home',
             ]}
@@ -444,7 +444,7 @@ const Navbar = ({ isAuthenticated, user }) => {
               location.pathname.startsWith('/browse')
                 ? 'browse'
                 : location.pathname.startsWith('/leaderboard') ||
-                  location.pathname.startsWith('/rankings')
+                    location.pathname.startsWith('/rankings')
                   ? 'leaderboard'
                   : location.pathname.slice(1) || 'home',
             ]}

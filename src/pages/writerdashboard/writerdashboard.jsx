@@ -46,7 +46,7 @@ const statList = [
 
 const WriterDashboard = () => {
   const [selectedNovelId, setSelectedNovelId] = useState(novels[0].id);
-  const selectedNovel = novels.find(n => n.id === selectedNovelId);
+  const selectedNovel = novels.find((n) => n.id === selectedNovelId);
 
   const viewsChartRef = useRef(null);
   const votesChartRef = useRef(null);
@@ -123,9 +123,21 @@ const WriterDashboard = () => {
           type: 'pie',
           radius: '50%',
           data: [
-            { value: selectedNovel.genderRatio.male, name: 'MALE', itemStyle: { color: '#a7d0f7ff' } },
-            { value: selectedNovel.genderRatio.female, name: 'FEMALE', itemStyle: { color: '#f7aad4ff' } },
-            { value: selectedNovel.genderRatio.other, name: 'PREFER NOT TO SAY', itemStyle: { color: '#cce1c1ff' } },
+            {
+              value: selectedNovel.genderRatio.male,
+              name: 'MALE',
+              itemStyle: { color: '#a7d0f7ff' },
+            },
+            {
+              value: selectedNovel.genderRatio.female,
+              name: 'FEMALE',
+              itemStyle: { color: '#f7aad4ff' },
+            },
+            {
+              value: selectedNovel.genderRatio.other,
+              name: 'PREFER NOT TO SAY',
+              itemStyle: { color: '#cce1c1ff' },
+            },
           ],
           label: { formatter: '{b}: {d}%' },
         },
@@ -156,29 +168,33 @@ const WriterDashboard = () => {
             style={{ minWidth: 200, marginLeft: 'auto' }}
             value={selectedNovelId}
             onChange={setSelectedNovelId}
-            options={novels.map(n => ({ label: n.title, value: n.id }))}
+            options={novels.map((n) => ({ label: n.title, value: n.id }))}
           />
         </div>
         <Card className="writerdashboard-novel-card" bodyStyle={{ padding: 32 }}>
           <div className="writerdashboard-novel-info">
-            <img
-              src={selectedNovel.cover}
-              alt="cover"
-              className="writerdashboard-novel-cover"
-            />
+            <img src={selectedNovel.cover} alt="cover" className="writerdashboard-novel-cover" />
             <div className="writerdashboard-novel-main">
-              <Title level={4} className="writerdashboard-novel-title">{selectedNovel.title}</Title>
-              <Text type="secondary" className="writerdashboard-novel-desc">{selectedNovel.desc}</Text>
+              <Title level={4} className="writerdashboard-novel-title">
+                {selectedNovel.title}
+              </Title>
+              <Text type="secondary" className="writerdashboard-novel-desc">
+                {selectedNovel.desc}
+              </Text>
               <div className="writerdashboard-novel-stats-list">
                 <List
                   grid={{ gutter: 16, column: 4 }}
                   dataSource={statList}
-                  renderItem={item => (
+                  renderItem={(item) => (
                     <List.Item>
                       <div className="writerdashboard-novel-stat-item">
-                        <Text strong className="writerdashboard-novel-stat-value">{selectedNovel[item.key]}</Text>
+                        <Text strong className="writerdashboard-novel-stat-value">
+                          {selectedNovel[item.key]}
+                        </Text>
                         <br />
-                        <Text type="secondary" className="writerdashboard-novel-stat-label">{item.label}</Text>
+                        <Text type="secondary" className="writerdashboard-novel-stat-label">
+                          {item.label}
+                        </Text>
                       </div>
                     </List.Item>
                   )}
@@ -188,14 +204,20 @@ const WriterDashboard = () => {
           </div>
         </Card>
         <div className="writerdashboard-charts-row">
-          <Card className="writerdashboard-chart-card" style={{ width: '49%', minHeight: 320, marginRight: '2%' }}>
+          <Card
+            className="writerdashboard-chart-card"
+            style={{ width: '49%', minHeight: 320, marginRight: '2%' }}
+          >
             <div ref={viewsChartRef} className="writerdashboard-chart-echarts" />
           </Card>
           <Card className="writerdashboard-chart-card" style={{ width: '49%', minHeight: 320 }}>
             <div ref={votesChartRef} className="writerdashboard-chart-echarts" />
           </Card>
         </div>
-        <Card className="writerdashboard-gender-card" style={{ width: '100%', minHeight: 320, marginTop: 24 }}>
+        <Card
+          className="writerdashboard-gender-card"
+          style={{ width: '100%', minHeight: 320, marginTop: 24 }}
+        >
           <div ref={genderChartRef} className="writerdashboard-chart-echarts" />
         </Card>
       </div>

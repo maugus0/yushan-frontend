@@ -78,10 +78,7 @@ const WriterInteraction = () => {
     setReportModal({ visible: false, id: null });
   };
 
-  const currentList =
-    reviewsTab === 'reviews'
-      ? reviewsList
-      : commentsList;
+  const currentList = reviewsTab === 'reviews' ? reviewsList : commentsList;
 
   return (
     <div className="writerinteraction-page">
@@ -93,7 +90,7 @@ const WriterInteraction = () => {
             style={{ minWidth: 200, marginLeft: 'auto' }}
             value={selectedNovelId}
             onChange={setSelectedNovelId}
-            options={novels.map(n => ({ label: n.title, value: n.id }))}
+            options={novels.map((n) => ({ label: n.title, value: n.id }))}
             placeholder="Select a novel"
           />
         </div>
@@ -140,7 +137,13 @@ const WriterInteraction = () => {
             title="Report"
             onCancel={handleReportCancel}
             footer={[
-              <Button key="report" type="primary" danger disabled={!abuseContent.trim()} onClick={handleReportConfirm}>
+              <Button
+                key="report"
+                type="primary"
+                danger
+                disabled={!abuseContent.trim()}
+                onClick={handleReportConfirm}
+              >
                 Report
               </Button>,
             ]}
@@ -150,11 +153,13 @@ const WriterInteraction = () => {
               <Form.Item label="Select a reason" required>
                 <Radio.Group
                   value={reportReason}
-                  onChange={e => setReportReason(e.target.value)}
+                  onChange={(e) => setReportReason(e.target.value)}
                   style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
                 >
-                  {reportReasons.map(reason => (
-                    <Radio key={reason} value={reason}>{reason}</Radio>
+                  {reportReasons.map((reason) => (
+                    <Radio key={reason} value={reason}>
+                      {reason}
+                    </Radio>
                   ))}
                 </Radio.Group>
               </Form.Item>
@@ -166,7 +171,7 @@ const WriterInteraction = () => {
               >
                 <Input.TextArea
                   value={abuseContent}
-                  onChange={e => setAbuseContent(e.target.value)}
+                  onChange={(e) => setAbuseContent(e.target.value)}
                   placeholder="Describe the abuse..."
                   rows={3}
                 />

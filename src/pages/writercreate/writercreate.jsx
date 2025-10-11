@@ -9,7 +9,6 @@ import novelService from '../../services/novel';
 import categoriesService from '../../services/categories';
 import { type } from '@testing-library/user-event/dist/type';
 
-
 const WriterCreate = () => {
   const [coverUrl, setCoverUrl] = useState('');
   const [form] = Form.useForm();
@@ -28,13 +27,13 @@ const WriterCreate = () => {
   const getInitialNovel = async () => {
     if (incomingId && typeOptions.length > 0) {
       const initialNovel = await novelService.getNovelById(incomingId);
-      console.log(initialNovel)
+      console.log(initialNovel);
       form.setFieldsValue({
         bookname: initialNovel.title,
         synopsis: initialNovel.synopsis,
-        types: initialNovel.categoryId
+        types: initialNovel.categoryId,
       });
-      setCoverUrl(initialNovel.coverImgUrl)
+      setCoverUrl(initialNovel.coverImgUrl);
     }
   };
 
@@ -44,11 +43,11 @@ const WriterCreate = () => {
       if (categories) {
         const opts = categories.map((category) => ({
           label: category.name,
-          value: category.id
+          value: category.id,
         }));
         setTypeOptions(opts);
       }
-    }
+    };
     getTypeOptions();
   }, []);
 
@@ -115,7 +114,7 @@ const WriterCreate = () => {
       coverImgBase64: coverUrl,
       synopsis: values.synopsis,
       categoryId: values.types,
-      isCompeleted: false
+      isCompeleted: false,
     };
     let res = null;
     if (incomingId) {
@@ -186,11 +185,7 @@ const WriterCreate = () => {
               },
             ]}
           >
-            <Select
-              placeholder="Select type"
-              options={typeOptions}
-              style={{ width: '100%' }}
-            />
+            <Select placeholder="Select type" options={typeOptions} style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item
             label="SYNOPSIS"
@@ -273,6 +268,5 @@ const WriterCreate = () => {
     </div>
   );
 };
-
 
 export default WriterCreate;

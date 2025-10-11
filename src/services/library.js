@@ -14,7 +14,7 @@ const libraryService = {
   async deleteNovelFromLibrary(novelId) {
     const response = await axios.delete(`/library/${novelId}`);
     return response.data;
-  }
+  },
 };
 
 export default libraryService;
