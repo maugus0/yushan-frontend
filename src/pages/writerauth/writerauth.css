@@ -1,0 +1,82 @@
+.writerauth-page {
+  min-height: 100vh;
+  background: #f1f3fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.writerauth-box {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(81, 95, 160, 0.08);
+  padding: 48px 36px 36px 36px;
+  min-width: 340px;
+  max-width: 380px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.writerauth-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #283157;
+  margin-bottom: 32px;
+  letter-spacing: 1px;
+}
+
+.writerauth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.writerauth-label {
+  font-size: 15px;
+  color: #515fa0;
+  margin-bottom: 6px;
+  margin-top: 12px;
+  font-weight: 500;
+}
+
+.writerauth-input {
+  border-radius: 8px !important;
+  border: 1px solid #e1e6f5 !important;
+  background: #f1f3fa !important;
+  font-size: 15px;
+  padding: 8px 12px;
+}
+
+.writerauth-send-btn {
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  background: #515fa0;
+  border: none;
+  color: #fff;
+  transition: background 0.2s;
+}
+
+.writerauth-send-btn:disabled {
+  background: #cfd6e6 !important;
+  color: #fff !important;
+}
+
+.writerauth-register-btn {
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  background: #283157;
+  border: none;
+  color: #fff;
+  margin-top: 24px;
+  transition: background 0.2s;
+}
+
+.writerauth-register-btn:disabled {
+  background: #cfd6e6 !important;
+  color: #fff !important;
+}

@@ -7,9 +7,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ConfigProvider, App as AntApp, message } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-
-import 'antd/dist/reset.css'; // Import Ant Design styles
 import { persistor } from './store';
+import 'antd/dist/reset.css';
+
 import { setAuthenticated } from './store/slices/user';
 import authService from './services/auth';
 
@@ -34,16 +34,16 @@ import Profile from './pages/profile/profile';
 import EditProfile from './pages/editprofile/editprofile';
 import Leaderboard from './pages/leaderboard/leaderboard';
 import Library from './pages/library/library';
+import WriterDashboard from './pages/writerdashboard/writerdashboard';
+import WriterWorkspace from './pages/writerworkspace/writerworkspace';
+import WriterInteraction from './pages/writerinteraction/writerinteraction';
+import WriterCreate from './pages/writercreate/writercreate';
+import WriterStoryProfile from './pages/writerstoryprofile/writerstoryprofile';
+import WriterCreateChapters from './pages/writercreatechapters/writercreatechapters';
+import WriterAuth from './pages/writerauth/writerauth';
 import NovelDetailPage from './pages/novel/novelDetailPage';
 
-// Writer-related pages
-import WriterDashboard from './pages/writerdashboard/writerdashboard';
-import WriterCreate from './pages/writercreate/writercreate';
-import WriterCreateChapters from './pages/writercreatechapters/writercreatechapters';
-import WriterWorkspace from './pages/writerworkspace/writerworkspace';
-import WriterStorySetting from './pages/writerstorysetting/writerstorysetting';
-import WriterStoryProfile from './pages/writerstoryprofile/writerstoryprofile';
-import WriterInteraction from './pages/writerinteraction/writerinteraction';
+import { UserProvider } from './store/UserContext';
 
 const themeConfig = {
   token: {
@@ -70,8 +70,12 @@ message.config({
   maxCount: 3,
 });
 
-const ProtectedRouteWrapper = ({ isAuthenticated, children }) =>
-  isAuthenticated ? children : <Navigate to="/login" replace />;
+const ProtectedRouteWrapper = ({ isAuthenticated, children }) => {
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
 
 function App() {
   const dispatch = useDispatch();
@@ -79,8 +83,13 @@ function App() {
 
   // Initialize auth state on mount (re-uses existing authService)
   useEffect(() => {
-    const authed = authService.isAuthenticated();
-    dispatch(setAuthenticated(authed));
+    const initAuth = () => {
+      const token = authService.getToken();
+      const isAuthed = !!token;
+      dispatch(setAuthenticated(isAuthed));
+    };
+
+    initAuth();
   }, [dispatch]);
 
   return (
@@ -121,7 +130,6 @@ function App() {
                     }
                   />
 
-                  {/* Public home */}
                   <Route
                     path="/"
                     element={
@@ -131,14 +139,73 @@ function App() {
                     }
                   />
 
-                  {/* Writer (kept exactly as original) */}
-                  <Route path="/writerdashboard" element={<WriterDashboard />} />
-                  <Route path="/writerworkspace" element={<WriterWorkspace />} />
-                  <Route path="/writerinteraction" element={<WriterInteraction />} />
-                  <Route path="/writercreate" element={<WriterCreate />} />
-                  <Route path="/writerstorysetting" element={<WriterStorySetting />} />
-                  <Route path="/writerstoryprofile" element={<WriterStoryProfile />} />
-                  <Route path="/writercreatechapters" element={<WriterCreateChapters />} />
+                  {/* Writer routes with UserProvider */}
+                  <Route
+                    path="/writerdashboard"
+                    element={
+                      <UserProvider>
+                        <WriterDashboard />
+                      </UserProvider>
+                    }
+                  />
+                  <Route
+                    path="/writerworkspace"
+                    element={
+                      <UserProvider>
+                        <WriterWorkspace />
+                      </UserProvider>
+                    }
+                  />
+                  <Route
+                    path="/writerinteraction"
+                    element={
+                      <UserProvider>
+                        <WriterInteraction />
+                      </UserProvider>
+                    }
+                  />
+                  <Route
+                    path="/writercreate"
+                    element={
+                      <UserProvider>
+                        <WriterCreate />
+                      </UserProvider>
+                    }
+                  />
+                  <Route
+                    path="/writerstoryprofile"
+                    element={
+                      <UserProvider>
+                        <WriterStoryProfile />
+                      </UserProvider>
+                    }
+                  />
+                  <Route
+                    path="/writercreatechapters"
+                    element={
+                      <UserProvider>
+                        <WriterCreateChapters />
+                      </UserProvider>
+                    }
+                  />
+                  <Route
+                    path="/writerauth"
+                    element={
+                      <UserProvider>
+                        <WriterAuth />
+                      </UserProvider>
+                    }
+                  />
+
+                  {/* Library route */}
+                  <Route
+                    path="/library"
+                    element={
+                      <LayoutWrapper>
+                        <Library />
+                      </LayoutWrapper>
+                    }
+                  />
 
                   {/* Library */}
                   <Route

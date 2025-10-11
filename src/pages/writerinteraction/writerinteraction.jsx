@@ -1,71 +1,77 @@
-import React, { useState } from 'react';
-import { Button, Tabs, Modal } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, Tabs, Modal, Radio, Input, Form, Select } from 'antd';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerinteraction.css';
+// import novelService from '../../services/novel';
+// import userService from '../../services/user';
+import reviewService from '../../services/review';
 
-const reviewsData = [
-  {
-    id: 1,
-    content: 'Great story, loved the characters!',
-    reader: 'Alice',
-    votes: 12,
-    voteReader: 'Bob',
-    viewsReader: 'Tom',
-  },
-  {
-    id: 2,
-    content: 'Plot twist was amazing.',
-    reader: 'Bob',
-    votes: 8,
-    voteReader: 'Alice',
-    viewsReader: 'Jerry',
-  },
-  {
-    id: 3,
-    content: 'Looking forward to the next chapter.',
-    reader: 'Charlie',
-    votes: 5,
-    voteReader: 'Sam',
-    viewsReader: 'Lucy',
-  },
-];
-
-const commentsData = [
-  {
-    id: 1,
-    content: 'Thank you for your feedback!',
-    reader: 'Author',
-    votes: 3,
-    voteReader: 'Alice',
-    viewsReader: 'Tom',
-  },
-  {
-    id: 2,
-    content: 'Glad you enjoyed it!',
-    reader: 'Author',
-    votes: 2,
-    voteReader: 'Bob',
-    viewsReader: 'Jerry',
-  },
-  {
-    id: 3,
-    content: 'Stay tuned!',
-    reader: 'Author',
-    votes: 1,
-    voteReader: 'Sam',
-    viewsReader: 'Lucy',
-  },
+const reportReasons = [
+  'Pornographic Content',
+  'Hate or bullying',
+  'Release of personal info',
+  'Other inappropriate material',
+  'Spam',
 ];
 
 const WriterInteraction = () => {
+  const [novels, setNovels] = useState([]);
   const [reviewsTab, setReviewsTab] = useState('reviews');
   const [reportModal, setReportModal] = useState({ visible: false, id: null });
+  const [reportReason, setReportReason] = useState(reportReasons[0]);
+  const [abuseContent, setAbuseContent] = useState('');
+  const [reportTried, setReportTried] = useState(false);
+  const [form] = Form.useForm();
+  const [selectedNovelId, setSelectedNovelId] = useState(null);
+  const [reviewsList, setReviewsList] = useState([]);
+  const [commentsList, setCommentsList] = useState([]); // mock comments
+
+  useEffect(() => {
+    // mock novels
+    const mockNovels = [
+      { id: 1, title: 'Novel One' },
+      { id: 2, title: 'Novel Two' },
+    ];
+    setNovels(mockNovels);
+    setSelectedNovelId(mockNovels[0].id);
+
+    // mock reviews
+    setReviewsList([
+      { id: 101, content: 'Great story!', username: 'Alice' },
+      { id: 102, content: 'Loved the plot.', username: 'Bob' },
+    ]);
+
+    // mock comments
+    setCommentsList([
+      { id: 201, content: 'Thanks for reading!', username: 'Author' },
+      { id: 202, content: 'Appreciate your feedback.', username: 'Author' },
+    ]);
+  }, []);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!selectedNovelId) {
+        setReviewsList([]);
+        return;
+      }
+      const reviews = await reviewService.getReviews({ novelId: selectedNovelId });
+      setReviewsList(reviews);
+      console.log('reviews: ', reviews);
+    };
+    fetchReviews();
+  }, [selectedNovelId]);
 
   const handleReportClick = (id) => {
     setReportModal({ visible: true, id });
+    setReportReason(reportReasons[0]);
+    setAbuseContent('');
+    setReportTried(false);
+    form.resetFields();
   };
 
   const handleReportConfirm = () => {
+    setReportTried(true);
+    if (!abuseContent.trim()) return;
     setReportModal({ visible: false, id: null });
   };
 
@@ -73,12 +79,21 @@ const WriterInteraction = () => {
     setReportModal({ visible: false, id: null });
   };
 
+  const currentList = reviewsTab === 'reviews' ? reviewsList : commentsList;
+
   return (
     <div className="writerinteraction-page">
       <WriterNavbar />
       <div className="writerinteraction-content">
         <div className="writerinteraction-header">
           <h2 className="writerinteraction-title">Interaction</h2>
+          <Select
+            style={{ minWidth: 200, marginLeft: 'auto' }}
+            value={selectedNovelId}
+            onChange={setSelectedNovelId}
+            options={novels.map((n) => ({ label: n.title, value: n.id }))}
+            placeholder="Select a novel"
+          />
         </div>
         <div className="writerinteraction-main">
           <div style={{ marginBottom: 8 }}></div>
@@ -100,10 +115,15 @@ const WriterInteraction = () => {
               <span className="writerinteraction-list-col-action">ACTION</span>
             </div>
             <div className="writerinteraction-list-body">
-              {(reviewsTab === 'reviews' ? reviewsData : commentsData).map((item) => (
+              {currentList.length === 0 && (
+                <div style={{ textAlign: 'center', color: '#aaa', padding: '32px 0' }}>
+                  No data.
+                </div>
+              )}
+              {currentList.map((item) => (
                 <div className="writerinteraction-list-row-2" key={item.id + '_' + reviewsTab}>
                   <span className="writerinteraction-list-content">{item.content}</span>
-                  <span className="writerinteraction-list-reader">{item.reader}</span>
+                  <span className="writerinteraction-list-reader">{item.username}</span>
                   <span className="writerinteraction-list-action">
                     <Button type="link" danger onClick={() => handleReportClick(item.id)}>
                       Report
@@ -115,18 +135,50 @@ const WriterInteraction = () => {
           </div>
           <Modal
             open={reportModal.visible}
-            title="Confirm to report?"
+            title="Report"
             onCancel={handleReportCancel}
             footer={[
-              <Button key="cancel" onClick={handleReportCancel}>
-                Cancel
-              </Button>,
-              <Button key="report" type="primary" danger onClick={handleReportConfirm}>
+              <Button
+                key="report"
+                type="primary"
+                danger
+                disabled={!abuseContent.trim()}
+                onClick={handleReportConfirm}
+              >
                 Report
               </Button>,
             ]}
             centered
-          ></Modal>
+          >
+            <Form form={form} layout="vertical">
+              <Form.Item label="Select a reason" required>
+                <Radio.Group
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
+                >
+                  {reportReasons.map((reason) => (
+                    <Radio key={reason} value={reason}>
+                      {reason}
+                    </Radio>
+                  ))}
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item
+                label="Abuse details"
+                required
+                validateStatus={reportTried && !abuseContent.trim() ? 'error' : ''}
+                help={reportTried && !abuseContent.trim() ? 'Please enter abuse details.' : ''}
+              >
+                <Input.TextArea
+                  value={abuseContent}
+                  onChange={(e) => setAbuseContent(e.target.value)}
+                  placeholder="Describe the abuse..."
+                  rows={3}
+                />
+              </Form.Item>
+            </Form>
+          </Modal>
         </div>
       </div>
     </div>

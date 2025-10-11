@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Layout, Button, Avatar, Typography, Divider, Tooltip } from 'antd';
 import { EditOutlined, CalendarOutlined, StarFilled } from '@ant-design/icons';
 import { useSelector } from 'react-redux'; // Import useSelector to fetch Redux data
@@ -18,6 +18,8 @@ const Profile = () => {
 
   const LevelIconComponent = LevelIcons[`LevelIcon${user.level}`] || LevelIcons.LevelIcon1;
 
+  useEffect(() => {}, []);
+
   return (
     <Layout className="profile-layout-wrapper">
       <Content>
@@ -31,8 +33,8 @@ const Profile = () => {
           <div className="profile-bg-stats">
             <div className="profile-bg-stats-group">
               <div className="profile-bg-stats-item">
-                <span className="profile-hours">{user.readTime}</span>
-                <span className="profile-hours-label">hours of reading</span>
+                <span className="profile-hours">{user.chaptersNum}</span>
+                <span className="profile-hours-label">chapters of reading</span>
               </div>
               <div className="profile-bg-stats-divider" />
               <div className="profile-bg-stats-item">
