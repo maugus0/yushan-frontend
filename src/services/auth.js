@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import store from '../store';
 import { login, logout, setAuthenticated } from '../store/slices/user';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const API_URL = process.env.REACT_APP_API_URL || ''; // remove localhost fallback to avoid GH Pages hitting localhost
 const TOKEN_KEY = 'jwt_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 

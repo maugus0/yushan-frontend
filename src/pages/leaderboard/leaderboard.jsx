@@ -1,14 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Card, Empty, Breadcrumb, Button } from 'antd';
+import { Card, Breadcrumb, Button } from 'antd';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import './leaderboard.css'; // Ensure this file contains responsive styles
 import LeaderboardFilters from '../../components/leaderboard/leaderboard-filters';
 import LeaderboardList from '../../components/leaderboard/leaderboard-list';
-import {
-  getNovelsLeaderboard,
-  getUsersLeaderboard,
-  getWritersLeaderboard,
-} from '../../services/leaderboard';
+import rankingsApi from '../../services/rankings'; // backend only
 
 const TAB_KEYS = { NOVELS: 'novels', READERS: 'users', WRITERS: 'writers' };
 
@@ -79,10 +75,10 @@ function extractUrlCategory(pathname) {
   return m ? decodeURIComponent(m[1]) : null;
 }
 
-function normalizeGenre(g) {
-  if (!g) return undefined;
-  return String(g).toLowerCase() === 'all' ? undefined : g;
-}
+// function normalizeGenre(g) {
+//   if (!g) return undefined;
+//   return String(g).toLowerCase() === 'all' ? undefined : g;
+// }
 
 function defaultSortFor(tab) {
   if (tab === TAB_KEYS.READERS) return 'levelxp';
@@ -103,6 +99,87 @@ export default function LeaderboardPage() {
   const [loadingInitial, setLoadingInitial] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState('');
+  const [isReplacing, setIsReplacing] = useState(false); // keep old list visible with a light overlay
+
+  // Latest request sequence – only accept the newest response
+  const reqSeqRef = useRef(0);
+
+  // Single source of truth fetch. Do not clear items before fetch.
+  // Accept only the newest response to avoid "flash then empty".
+  const fetchPage = useCallback(
+    async ({ page, pageSize, genre }, replace = false) => {
+      const reqId = ++reqSeqRef.current; // mark this call as the latest
+      setError('');
+      if (replace) {
+        setLoadingInitial(true);
+        setIsReplacing(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      try {
+        let res;
+        if (activeTab === TAB_KEYS.NOVELS) {
+          res = await rankingsApi.getNovels({
+            page,
+            size: pageSize,
+            categoryName: genre === 'all' ? undefined : genre,
+          });
+        } else if (activeTab === TAB_KEYS.READERS) {
+          res = await rankingsApi.getReaders({ page, size: pageSize });
+        } else {
+          res = await rankingsApi.getWriters({ page, size: pageSize });
+        }
+
+        const batch = Array.isArray(res?.items) ? res.items : [];
+        const more = batch.length === (res?.size ?? pageSize);
+
+        // Ignore stale responses
+        if (reqId !== reqSeqRef.current) return;
+
+        if (replace) {
+          // Replace with backend result (even empty) – no stale data
+          setItems(batch);
+        } else {
+          setItems((prev) => [...prev, ...batch]);
+        }
+        hasMoreRef.current = more;
+        setHasMore(more);
+      } catch (e) {
+        // Ignore stale errors
+        if (reqId !== reqSeqRef.current) return;
+
+        console.error(e);
+        setError(e?.response?.data?.message || e?.message || 'Failed to load leaderboard.');
+        if (replace) {
+          // On replace failures show empty; user can Retry
+          setItems([]);
+          setHasMore(false);
+          hasMoreRef.current = false;
+        }
+      } finally {
+        if (reqId === reqSeqRef.current) {
+          if (replace) {
+            setLoadingInitial(false);
+            setIsReplacing(false);
+          } else {
+            setLoadingMore(false);
+          }
+        }
+      }
+    },
+    [activeTab]
+  );
+
+  // Keep a ref of current items so we can preserve them during replace loads
+  const itemsRef = useRef(items);
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
+  // REMOVE unused refs (they triggered ESLint warnings)
+  // const prevSortRef = useRef(filters.sortBy);
+  // const prevTimeRef = useRef(filters.timeRange);
 
   const pageRef = useRef(1);
   const hasMoreRef = useRef(true);
@@ -115,8 +192,10 @@ export default function LeaderboardPage() {
 
   const urlInitializedRef = useRef(false);
   const initialLoadDoneRef = useRef(false);
+  const initialLoadingRef = useRef(false); // NEW: guard to prevent double initial fetch
 
   useEffect(() => {
+    // Detect tab + category from URL and prime filters
     const p = location.pathname;
     let nextTab = TAB_KEYS.NOVELS;
     let nextGenre = 'all';
@@ -169,8 +248,10 @@ export default function LeaderboardPage() {
     setCatsOpen(shouldOpenCats);
     setFilters(merged);
 
+    // Mark URL initialization; reset initial-load state
     urlInitializedRef.current = true;
     initialLoadDoneRef.current = false;
+    initialLoadingRef.current = false; // NEW: clear pending flag on route change
   }, [location.pathname, params.category, navigate]);
 
   useEffect(() => {
@@ -185,117 +266,47 @@ export default function LeaderboardPage() {
     }
   }, [activeTab, filters.sortBy]);
 
-  const fetchPage = useCallback(
-    async ({ page, pageSize, timeRange, genre, sortBy }, replace = false) => {
-      setError('');
-      if (replace) setLoadingInitial(true);
-      else setLoadingMore(true);
-
-      try {
-        const payload = { page, pageSize, timeRange };
-        const g = normalizeGenre(genre);
-        if (g !== undefined) payload.genre = g;
-
-        let res;
-        if (activeTab === TAB_KEYS.NOVELS) {
-          res = await getNovelsLeaderboard({ ...payload, sortBy });
-        } else if (activeTab === TAB_KEYS.READERS) {
-          res = await getUsersLeaderboard({ ...payload, sortBy: 'levelxp' });
-        } else {
-          res = await getWritersLeaderboard({ ...payload, sortBy: sortBy || 'books' });
-        }
-
-        const batch = Array.isArray(res?.items) ? res.items : [];
-        const more = batch.length === pageSize;
-
-        if (replace) setItems(batch);
-        else setItems((prev) => [...prev, ...batch]);
-
-        hasMoreRef.current = more;
-        setHasMore(more);
-      } catch (e) {
-        console.error(e);
-        setError('Failed to load leaderboard. Please try again.');
-      } finally {
-        if (replace) setLoadingInitial(false);
-        else setLoadingMore(false);
-      }
-    },
-    [activeTab]
-  );
-
-  const resetAndFetch = useCallback(
-    (patch = {}, baseFilters) => {
-      const base = baseFilters ?? filtersRef.current;
+  // Centralized filter change – triggers exactly one replace fetch
+  const onFiltersChange = useCallback(
+    (patch) => {
+      const base = filtersRef.current;
       const next = { ...base, ...patch };
 
-      if (activeTab === TAB_KEYS.READERS) {
-        next.sortBy = 'levelxp';
-      } else if (!next.sortBy) {
-        next.sortBy = defaultSortFor(activeTab);
-      }
+      if (activeTab === TAB_KEYS.READERS) next.sortBy = 'levelxp';
+      if (activeTab === TAB_KEYS.NOVELS && !next.sortBy) next.sortBy = 'views';
+      if (activeTab === TAB_KEYS.WRITERS && !next.sortBy) next.sortBy = 'books';
 
       setFilters(next);
-      setItems([]);
       pageRef.current = 1;
       hasMoreRef.current = true;
       setHasMore(true);
 
-      fetchPage(
-        {
-          page: 1,
-          pageSize: next.pageSize,
-          timeRange: next.timeRange,
-          genre: next.genre,
-          sortBy: next.sortBy,
-        },
-        true
-      );
+      // Debounce rapid category clicks; only the last response will be applied
+      fetchPage({ page: 1, pageSize: next.pageSize, genre: next.genre }, true);
     },
     [activeTab, fetchPage]
   );
 
-  const refetchData = useCallback(() => {
-    const currentFilters = filtersRef.current;
-    setItems([]);
+  // Retry handler: re-fetch first page with current filters (keeps old items until replaced)
+  const retry = useCallback(() => {
+    const f = filtersRef.current;
     pageRef.current = 1;
     hasMoreRef.current = true;
     setHasMore(true);
-
-    fetchPage(
-      {
-        page: 1,
-        pageSize: currentFilters.pageSize,
-        timeRange: currentFilters.timeRange,
-        genre: currentFilters.genre,
-        sortBy: currentFilters.sortBy,
-      },
-      true
-    );
+    fetchPage({ page: 1, pageSize: f.pageSize, genre: f.genre }, true);
   }, [fetchPage]);
 
+  // Initial load – once per route change
   useEffect(() => {
     if (!urlInitializedRef.current || initialLoadDoneRef.current) return;
-    initialLoadDoneRef.current = true;
-    resetAndFetch({}, { ...filters });
-  }, [filters, activeTab, resetAndFetch]);
+    initialLoadDoneRef.current = false;
+    const current = { ...filters };
+    fetchPage({ page: 1, pageSize: current.pageSize, genre: current.genre }, true).finally(() => {
+      initialLoadDoneRef.current = true;
+    });
+  }, [filters, activeTab, fetchPage]); // include fetchPage in deps; no disable comment
 
-  useEffect(() => {
-    if (!urlInitializedRef.current) return;
-    if (!initialLoadDoneRef.current) return;
-    resetAndFetch({}, { ...filters });
-  }, [filters.genre, activeTab, resetAndFetch]);
-
-  useEffect(() => {
-    if (!urlInitializedRef.current || !initialLoadDoneRef.current) return;
-    if (filters.timeRange) refetchData();
-  }, [filters.timeRange, refetchData]);
-
-  useEffect(() => {
-    if (!urlInitializedRef.current || !initialLoadDoneRef.current) return;
-    if (filters.sortBy) refetchData();
-  }, [filters.sortBy, refetchData]);
-
+  // REMOVE loadMore, uiGenre, onSelectCategory, handleNovelsClick and render...
   const loadMore = useCallback(() => {
     if (loadingInitial || loadingMore || !hasMoreRef.current) return;
     const nextPage = pageRef.current + 1;
@@ -430,7 +441,7 @@ export default function LeaderboardPage() {
               <LeaderboardFilters
                 tab={activeTab === TAB_KEYS.READERS ? 'users' : activeTab}
                 query={{ ...filters, page: pageRef.current }}
-                onChange={(patch) => setFilters((prev) => ({ ...prev, ...patch }))}
+                onChange={onFiltersChange}
                 hideSort={activeTab === TAB_KEYS.READERS}
               />
             </div>
@@ -438,10 +449,10 @@ export default function LeaderboardPage() {
             {error ? (
               <div className="rankings-error">
                 <div className="rankings-error-text">{error}</div>
-                <Button onClick={() => resetAndFetch()}>Retry</Button>
+                <Button onClick={retry}>Retry</Button>
               </div>
             ) : (
-              <>
+              <div className={`rankings-list-wrap${isReplacing ? ' replacing' : ''}`}>
                 <LeaderboardList
                   tab={activeTab === TAB_KEYS.READERS ? 'users' : activeTab}
                   loadingInitial={loadingInitial}
@@ -450,12 +461,7 @@ export default function LeaderboardPage() {
                   hasMore={hasMore}
                   onLoadMore={loadMore}
                 />
-                {!loadingInitial && items.length === 0 && (
-                  <div style={{ padding: 16 }}>
-                    <Empty description="No data" />
-                  </div>
-                )}
-              </>
+              </div>
             )}
           </div>
         </div>

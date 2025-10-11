@@ -168,6 +168,22 @@
   color: #cf1322;
 }
 
+/* Keep old items visible while replacing; add a subtle mask to indicate loading */
+.rankings-list-wrap {
+  position: relative;
+}
+.rankings-list-wrap.replacing::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.6);
+  pointer-events: none; /* do not block scroll/click */
+}
+
+/* Optional: reduce mask on dark backgrounds
+.rankings-card .rankings-list-wrap.replacing::after { background: rgba(255,255,255,0.5); }
+*/
+
 /* Responsive */
 @media (max-width: 992px) {
   .rankings-content {
