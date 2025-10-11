@@ -1,18 +1,18 @@
 import axios from 'axios';
 
-// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
 
 const chapterService = {
   async createChapters(chapterData) {
-    const response = await axios.post(`/chapters`, chapterData);
+    const response = await axios.post(`${API_URL}/chapters`, chapterData);
     return response.data;
   },
   async editChapters(chapterData) {
-    const response = await axios.put(`/chapters`, chapterData);
+    const response = await axios.put(`${API_URL}/chapters`, chapterData);
     return response.data;
   },
   async getChapterByNovelId(novelId, page, pageSize) {
-    const response = await axios.get(`/chapters/novel/${novelId}`, {
+    const response = await axios.get(`${API_URL}/chapters/novel/${novelId}`, {
       params: {
         page,
         pageSize,
@@ -21,15 +21,15 @@ const chapterService = {
     return response.data;
   },
   async getNextChapterNumber(novelId) {
-    const response = await axios.get(`/chapters/novel/${novelId}/next-number`);
+    const response = await axios.get(`${API_URL}/chapters/novel/${novelId}/next-number`);
     return response.data;
   },
   async deleteChapterByChapterId(chapterId) {
-    const response = await axios.delete(`/chapters/${chapterId}`);
+    const response = await axios.delete(`${API_URL}/chapters/${chapterId}`);
     return response.data;
   },
   async getChapterByChapterId(chapterId) {
-    const response = await axios.get(`/chapters/${chapterId}`);
+    const response = await axios.get(`${API_URL}/chapters/${chapterId}`);
     return response.data;
   },
 };
