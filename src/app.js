@@ -28,7 +28,6 @@ import WriterInteraction from './pages/writerinteraction/writerinteraction';
 import WriterCreate from './pages/writercreate/writercreate';
 import WriterStoryProfile from './pages/writerstoryprofile/writerstoryprofile';
 import WriterCreateChapters from './pages/writercreatechapters/writercreatechapters';
-import WriterEditContent from './pages/writereditcontent/writereditcontent';
 import WriterAuth from './pages/writerauth/writerauth';
 
 // Global Styles
@@ -183,14 +182,6 @@ function App() {
                   element={
                     <UserProvider>
                       <WriterCreateChapters />
-                    </UserProvider>
-                  }
-                />
-                <Route
-                  path="/writereditcontent"
-                  element={
-                    <UserProvider>
-                      <WriterEditContent />
                     </UserProvider>
                   }
                 />
