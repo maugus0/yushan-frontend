@@ -12,6 +12,18 @@ import {
 import { xpToLevel, levelMeta } from '../../utils/levels';
 import './leaderboard-list.css';
 
+// Build absolute URL for images.
+// If backend sends "user.png" or "/assets/user.png", convert to `${API_URL}/assets/user.png`.
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+function toAbsoluteUrl(u) {
+  if (!u) return undefined;
+  const s = String(u);
+  if (/^https?:\/\//i.test(s) || /^data:/i.test(s)) return s; // already absolute
+  const base = API_URL.replace(/\/$/, '');
+  const path = s.replace(/^\/+/, '');
+  return `${base}/${path}`;
+}
+
 const Medal = ({ rank }) => {
   if (rank > 3) return null;
   const colors = ['#fadb14', '#d9d9d9', '#ad6800'];
@@ -24,6 +36,9 @@ const RankCell = ({ rank }) => (
     <span className="rank-number">{String(rank).padStart(3, '0')}</span>
   </div>
 );
+
+// helper: prefer a, else b
+const or = (a, b) => (a !== undefined && a !== null ? a : b);
 
 export default function LeaderboardList({
   tab,
@@ -100,20 +115,29 @@ export default function LeaderboardList({
 
   const renderNovelRow = (item, index) => {
     const rank = index + 1;
-    const id = item.novelId || item.id;
+    // id can be id or uuid
+    const id = or(item.id, item.uuid);
+    // Ensure cover is an absolute URL; fallback to icon on error
+    const cover = toAbsoluteUrl(or(item.cover, item.coverImgUrl));
+    const views = or(item.views, item.viewCnt);
+    const votes = or(item.votes, item.voteCnt);
+
     return (
       <div className="lb-row lb-row--novel" key={id || `novel-${index}`}>
         <RankCell rank={rank} />
 
-        {/* Avatar spans both lines */}
         <div className="lb-cell lb-cell--avatar">
-          <Avatar shape="square" size={48} src={item.cover} icon={<ReadOutlined />} />
+          <Avatar
+            shape="square"
+            size={48}
+            src={cover}
+            icon={<ReadOutlined />}
+            onError={() => false} // fallback to icon if image 401/404
+          />
         </div>
 
-        {/* Line 1: medal + title + tags (single line, no wrapping) */}
         <div className="lb-cell lb-cell--content-line1">
           <Medal rank={rank} />
-          {/* old inline rank removed; rank is now at the far left */}
           <Link
             to={`/novel/${id}`}
             className="title-link"
@@ -121,7 +145,7 @@ export default function LeaderboardList({
           >
             {item.title || `Novel ${id}`}
           </Link>
-          {item.tags && item.tags.length > 0 && (
+          {Array.isArray(item.tags) && item.tags.length > 0 && (
             <div className="novel-tags">
               {item.tags.map((tag, tagIndex) => (
                 <span key={tagIndex} className="tag-pill">
@@ -132,14 +156,13 @@ export default function LeaderboardList({
           )}
         </div>
 
-        {/* Line 2: views + votes */}
         <div className="lb-cell lb-cell--content-line2">
           <span className="desc-item">
-            <FireFilled className="desc-icon views" /> {item.views?.toLocaleString?.() || 0}
+            <FireFilled className="desc-icon views" /> {views?.toLocaleString?.() || 0}
           </span>
           <span className="separator">•</span>
           <span className="desc-item">
-            <LikeFilled className="desc-icon votes" /> {item.votes?.toLocaleString?.() || 0}
+            <LikeFilled className="desc-icon votes" /> {votes?.toLocaleString?.() || 0}
           </span>
         </div>
       </div>
@@ -148,22 +171,25 @@ export default function LeaderboardList({
 
   const renderUserRow = (item, index) => {
     const rank = index + 1;
-    const level = item.level ?? xpToLevel(item.xp || 0);
+    // backend fields: uuid, username, avatarUrl, level, exp, readTime, readBookNum
+    const avatar = toAbsoluteUrl(or(item.avatarUrl, item.avatar));
+    const username = item.username || 'User';
+    const userKey = item.uuid || or(item.userId, username);
+    const xp = or(item.exp, item.xp) || 0;
+    const level = item.level ?? xpToLevel(xp);
     const meta = levelMeta(level);
-    const xp = item.xp ?? 0;
-    return (
-      <div className="lb-row" key={item.userId || item.username || `user-${index}`}>
-        <RankCell rank={rank} />
 
+    return (
+      <div className="lb-row" key={userKey || `user-${index}`}>
+        <RankCell rank={rank} />
         <div className="lb-cell lb-cell--avatar">
-          <Avatar size={48} src={item.avatar} icon={<UserOutlined />} />
+          <Avatar size={48} src={avatar} icon={<UserOutlined />} onError={() => false} />
         </div>
         <div className="lb-cell lb-cell--content">
           <div className="row-title">
             <Medal rank={rank} />
-            {/* old inline rank removed; rank is now at the far left */}
-            <Link to={`/profile/${item.userId || item.username}`} className="title-link">
-              {item.username}
+            <Link to={`/profile/${userKey}`} className="title-link">
+              {username}
             </Link>
           </div>
           <div className="row-desc">
@@ -182,32 +208,36 @@ export default function LeaderboardList({
 
   const renderWriterRow = (item, index) => {
     const rank = index + 1;
-    return (
-      <div className="lb-row" key={item.writerId || item.name || `writer-${index}`}>
-        <RankCell rank={rank} />
+    // backend fields: uuid, username, avatarUrl, novelNum, totalVoteCnt, totalViewCnt
+    const key = item.uuid || item.username || `writer-${index}`;
+    const avatar = toAbsoluteUrl(or(item.avatarUrl, item.avatar));
 
+    return (
+      <div className="lb-row" key={key}>
+        <RankCell rank={rank} />
         <div className="lb-cell lb-cell--avatar">
-          <Avatar size={48} src={item.avatar} icon={<UserOutlined />} />
+          <Avatar size={48} src={avatar} icon={<UserOutlined />} onError={() => false} />
         </div>
         <div className="lb-cell lb-cell--content">
           <div className="row-title">
             <Medal rank={rank} />
-            {/* old inline rank removed; rank is now at the far left */}
-            <Link to={`/profile/${item.writerId || item.name}`} className="title-link">
-              {item.name}
+            <Link to={`/profile/${key}`} className="title-link">
+              {item.username || 'Writer'}
             </Link>
           </div>
           <div className="row-desc">
             <span className="desc-item">
-              <BookFilled className="desc-icon books" /> {item.books || 0}
+              <BookFilled className="desc-icon books" /> {item.novelNum ?? 0}
             </span>
             <span className="separator">•</span>
             <span className="desc-item">
-              <LikeFilled className="desc-icon votes" /> {item.votes?.toLocaleString?.() || 0}
+              <LikeFilled className="desc-icon votes" />{' '}
+              {item.totalVoteCnt?.toLocaleString?.() ?? 0}
             </span>
             <span className="separator">•</span>
             <span className="desc-item">
-              <FireFilled className="desc-icon views" /> {item.views?.toLocaleString?.() || 0}
+              <FireFilled className="desc-icon views" />{' '}
+              {item.totalViewCnt?.toLocaleString?.() ?? 0}
             </span>
           </div>
         </div>
