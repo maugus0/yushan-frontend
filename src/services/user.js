@@ -14,7 +14,9 @@ const userService = {
     return response.data;
   },
   async upgradeToAuthor(otp) {
-    const response = await axios.post(`${API_URL}/author/upgrade-to-author`, { verificationCode: otp });
+    const response = await axios.post(`${API_URL}/author/upgrade-to-author`, {
+      verificationCode: otp,
+    });
     return response.data;
   },
 };
