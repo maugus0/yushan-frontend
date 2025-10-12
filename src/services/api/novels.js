@@ -41,12 +41,12 @@ const getImageUrl = (coverImgUrl) => {
   if (!coverImgUrl) {
     return fallbackImage;
   }
-  
+
   // If it's already a full URL (starts with http), use it
   if (coverImgUrl.startsWith('http')) {
     return coverImgUrl;
   }
-  
+
   // Otherwise, construct the full URL with our base URL
   return `${IMAGE_BASE_URL}/${coverImgUrl}`;
 };

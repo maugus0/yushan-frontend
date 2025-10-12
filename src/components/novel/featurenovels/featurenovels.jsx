@@ -14,9 +14,9 @@ const FeatureNovels = ({ title = 'Featured Novels', novels = [] }) => {
       <div className="feature-novels-list">
         {novels.map((novel) => (
           <div className="feature-novel-card" key={novel.id}>
-            <img 
-              src={novel.cover} 
-              alt={novel.title} 
+            <img
+              src={novel.cover}
+              alt={novel.title}
               className="feature-novel-cover"
               onError={handleImageError}
             />
