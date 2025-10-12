@@ -10,10 +10,9 @@ const TOKEN_EXPIRY_KEY = 'token_expiry';
 
 // Add gender mapping constants
 const GENDER_CODES = {
-  male: 0,
-  female: 1,
-  other: 2,
-  prefer_not_to_say: 3,
+  male: 1,
+  female: 2,
+  unknown: 0,
 };
 
 const authService = {
@@ -187,10 +186,10 @@ const authService = {
         }
       );
 
-      const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+      const { accessToken, refreshToken: newRefreshToken, expiresIn } = response.data.data;
 
       // Update tokens in storage and axios headers
-      this.setTokens(accessToken, newRefreshToken);
+      this.setTokens(accessToken, newRefreshToken, expiresIn);
 
       console.log('Token refreshed successfully');
       return accessToken;

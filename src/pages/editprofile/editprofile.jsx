@@ -1,10 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Layout, Button, Avatar, Input, Form, Select, message, App } from 'antd';
 import { CameraOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUser } from '../../store/slices/user';
 import './editprofile.css';
 import { useNavigate } from 'react-router-dom';
+import userProfileService from '../../services/userProfile';
+import { processUserAvatar, getGenderBasedAvatar } from '../../utils/imageUtils';
+import authService from '../../services/auth';
 
 const { Content } = Layout;
 const { Option } = Select;
@@ -17,10 +20,24 @@ const EditProfile = () => {
   const [countdown, setCountdown] = useState(0);
   const [isDirty, setIsDirty] = useState(false);
   const [avatarFile, setAvatarFile] = useState(null); // State to store the selected avatar file
+  const [avatarPreview, setAvatarPreview] = useState(''); // Preview of selected avatar
+  const [isSaving, setIsSaving] = useState(false); // Loading state for save button
 
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
+
+  // Set initial avatar preview
+  useEffect(() => {
+    if (user) {
+      const processedAvatar = processUserAvatar(
+        user.avatarUrl,
+        user.gender,
+        process.env.REACT_APP_API_URL?.replace('/api', '/images')
+      );
+      setAvatarPreview(processedAvatar);
+    }
+  }, [user]);
 
   // timeout
   React.useEffect(() => {
@@ -45,7 +62,7 @@ const EditProfile = () => {
   };
 
   // send OTP
-  const handleSendOtp = () => {
+  const handleSendOtp = async () => {
     const email = form.getFieldValue('email');
     const error = validateEmail(email);
     setEmailError(error);
@@ -58,8 +75,15 @@ const EditProfile = () => {
       }
       return;
     }
-    setCountdown(300);
-    message.success('Verification email sent!');
+
+    try {
+      await userProfileService.sendEmailChangeVerification(email);
+      setCountdown(300);
+      message.success('Verification email sent!');
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      message.error(error.response?.data?.message || 'Failed to send verification email');
+    }
   };
 
   // email validation when changing email address
@@ -84,8 +108,10 @@ const EditProfile = () => {
   };
 
   // saving
-  const handleSave = () => {
-    form.validateFields().then((values) => {
+  const handleSave = async () => {
+    try {
+      const values = await form.validateFields();
+
       // test OTP
       const emailChanged = values.email !== user.email;
       const otpEmpty = !values.otp;
@@ -104,33 +130,48 @@ const EditProfile = () => {
       let genderValue = null;
       if (values.gender === 'male') genderValue = 1;
       else if (values.gender === 'female') genderValue = 2;
-      else genderValue = 0;
+      else genderValue = 0; // unknown
 
-      // Prepare updated user data
-      const updatedData = {
+      // Prepare updated user data for API
+      const profileData = {
         username: values.username,
         email: values.email,
         gender: genderValue,
-        profileDetail: values.bio,
+        profileDetail: values.bio || '',
+        avatarFile: avatarFile, // Will be added to FormData in service
+        verificationCode: values.otp || undefined,
       };
 
-      if (avatarFile) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          updatedData.avatarUrl = reader.result;
-          dispatch(updateUser(updatedData));
-          message.success('Profile updated!');
-          setIsDirty(false);
-          navigate('/profile');
-        };
-        reader.readAsDataURL(avatarFile);
-      } else {
-        dispatch(updateUser(updatedData));
-        message.success('Profile updated!');
+      setIsSaving(true);
+
+      // Call the API to update profile
+      const response = await userProfileService.updateProfile(user.uuid, profileData);
+
+      if (response.code === 200 && response.data) {
+        // Update Redux store with new data
+        dispatch(updateUser(response.data));
+
+        // If email was changed and new tokens were issued, update them
+        if (response.emailChanged && response.accessToken && response.refreshToken) {
+          authService.setTokens(response.accessToken, response.refreshToken, response.expiresIn);
+          message.success(
+            'Profile updated successfully! Email changed and you have been re-authenticated.'
+          );
+        } else {
+          message.success('Profile updated successfully!');
+        }
+
         setIsDirty(false);
         navigate('/profile');
+      } else {
+        message.error(response.message || 'Failed to update profile');
       }
-    });
+    } catch (error) {
+      console.error('Save profile error:', error);
+      message.error(error.response?.data?.message || 'Failed to update profile');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // cancel
@@ -148,9 +189,41 @@ const EditProfile = () => {
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        message.error('Please select an image file');
+        return;
+      }
+
+      // Validate file size (e.g., max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        message.error('Image size should not exceed 5MB');
+        return;
+      }
+
       setAvatarFile(file);
       setIsDirty(true);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  // Handle avatar error with gender-based fallback
+  const handleAvatarError = (e) => {
+    if (!e || !e.target) {
+      console.warn('Avatar error handler called without event');
+      return false;
+    }
+    const fallback = getGenderBasedAvatar(user?.gender);
+    if (e.target.src !== fallback) {
+      e.target.src = fallback;
+    }
+    return true;
   };
 
   return (
@@ -168,9 +241,10 @@ const EditProfile = () => {
             <div className="editprofile-bg-stats"></div>
             <div className="editprofile-avatar-wrapper">
               <Avatar
-                src={avatarFile ? URL.createObjectURL(avatarFile) : user.avatarUrl}
+                src={avatarPreview}
                 size={160}
                 className="editprofile-avatar"
+                onError={handleAvatarError}
               />
               <span className="editprofile-avatar-camera" onClick={handleCameraClick}>
                 <CameraOutlined style={{ fontSize: 24, color: '#888' }} />
@@ -191,8 +265,7 @@ const EditProfile = () => {
               initialValues={{
                 username: user.username,
                 email: user.email,
-                gender:
-                  user.gender === 1 ? 'male' : user.gender === 2 ? 'female' : 'prefer_not_to_say', // Convert gender
+                gender: user.gender === 1 ? 'male' : user.gender === 2 ? 'female' : 'unknown',
                 bio: user.profileDetail,
                 otp: '',
               }}
@@ -245,7 +318,7 @@ const EditProfile = () => {
                 <Select placeholder="Select gender" allowClear>
                   <Option value="male">Male</Option>
                   <Option value="female">Female</Option>
-                  <Option value="prefer_not_to_say">Prefer not to say</Option>
+                  <Option value="unknown">Unknown</Option>
                 </Select>
               </Form.Item>
               <Form.Item label="About" name="bio">
@@ -254,13 +327,16 @@ const EditProfile = () => {
               <Form.Item>
                 <Button
                   type="primary"
-                  disabled={!isDirty}
+                  disabled={!isDirty || isSaving}
+                  loading={isSaving}
                   onClick={handleSave}
                   style={{ marginRight: 16 }}
                 >
                   SAVE CHANGES
                 </Button>
-                <Button onClick={handleCancel}>CANCEL</Button>
+                <Button onClick={handleCancel} disabled={isSaving}>
+                  CANCEL
+                </Button>
               </Form.Item>
             </Form>
           </div>

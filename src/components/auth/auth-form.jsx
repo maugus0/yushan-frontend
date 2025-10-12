@@ -267,7 +267,7 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
           <Select placeholder="Select gender" allowClear>
             <Option value="male">Male</Option>
             <Option value="female">Female</Option>
-            <Option value="prefer_not_to_say">Prefer not to say</Option>
+            <Option value="unknown">Unknown</Option>
           </Select>
         </Form.Item>
       )}
