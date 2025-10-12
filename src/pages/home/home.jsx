@@ -4,7 +4,12 @@ import { BookOutlined, EditOutlined, TrophyOutlined } from '@ant-design/icons';
 import './home.css';
 import HeroSection from '../../components/novel/herosection/herosection';
 import FeatureNovels from '../../components/novel/featurenovels/featurenovels';
-import { getWeeklyFeaturedNovels, getOngoingNovels, getCompletedNovels, getNewestNovels } from '../../services/api/novels';
+import {
+  getWeeklyFeaturedNovels,
+  getOngoingNovels,
+  getCompletedNovels,
+  getNewestNovels,
+} from '../../services/api/novels';
 import novelDefault from '../../assets/images/novel_default.png';
 
 const { Title, Paragraph } = Typography;
@@ -136,15 +141,16 @@ const Homepage = () => {
                       <div
                         className="home-hero-blur-bg"
                         style={{
-                          background: 'linear-gradient(135deg, #6B46C1 0%, #9333EA 50%, #7C3AED 100%)',
-                          opacity: 0.9
+                          background:
+                            'linear-gradient(135deg, #6B46C1 0%, #9333EA 50%, #7C3AED 100%)',
+                          opacity: 0.9,
                         }}
                       />
                       <div className="home-hero-slide-content home-hero-slide-content-left">
                         <div className="home-hero-img">
-                          <img 
-                            src={novel.cover} 
-                            alt={novel.title} 
+                          <img
+                            src={novel.cover}
+                            alt={novel.title}
                             className="home-hero-img-el"
                             onError={handleImageError}
                           />
@@ -199,36 +205,33 @@ const Homepage = () => {
         </div>
       </section>
 
-            {/* Weekly Features Section */}
-      <FeatureNovels 
-        title="Weekly Featured" 
-        novels={weeklyFeaturedNovels} 
-      />
+      {/* Weekly Features Section */}
+      <FeatureNovels title="Weekly Featured" novels={weeklyFeaturedNovels} />
 
       {/* Ongoing Novels Section */}
-      <FeatureNovels 
-        title="Ongoing Novels" 
-        novels={ongoingNovels} 
-      />
+      <FeatureNovels title="Ongoing Novels" novels={ongoingNovels} />
 
       {/* Completed Novels Section */}
-      <FeatureNovels 
-        title="Completed Novels" 
-        novels={completedNovels} 
-      />
+      <FeatureNovels title="Completed Novels" novels={completedNovels} />
 
       {/* CTA Section */}
-      <section className="home-cta-section" style={{
-        background: 'linear-gradient(135deg, #6B46C1 0%, #9333EA 50%, #7C3AED 100%)',
-        padding: '80px 0'
-      }}>
+      <section
+        className="home-cta-section"
+        style={{
+          background: 'linear-gradient(135deg, #6B46C1 0%, #9333EA 50%, #7C3AED 100%)',
+          padding: '80px 0',
+        }}
+      >
         <Row justify="center">
           <Col xs={24} sm={20} md={16} lg={12} style={{ textAlign: 'center' }}>
-            <Card className="home-cta-card" style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              border: 'none',
-              backdropFilter: 'blur(10px)'
-            }}>
+            <Card
+              className="home-cta-card"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                border: 'none',
+                backdropFilter: 'blur(10px)',
+              }}
+            >
               <Title level={2} className="home-cta-title" style={{ color: 'white' }}>
                 Ready to Begin Your Journey?
               </Title>
@@ -237,18 +240,28 @@ const Homepage = () => {
                 story is just a click away.
               </Paragraph>
               <Space size="middle" wrap>
-                <Button type="primary" size="large" className="home-cta-btn" style={{
-                  backgroundColor: 'white',
-                  borderColor: 'white',
-                  color: '#6B46C1'
-                }}>
+                <Button
+                  type="primary"
+                  size="large"
+                  className="home-cta-btn"
+                  style={{
+                    backgroundColor: 'white',
+                    borderColor: 'white',
+                    color: '#6B46C1',
+                  }}
+                >
                   Start Reading Now
                 </Button>
-                <Button type="default" size="large" className="home-cta-link" style={{
-                  backgroundColor: 'transparent',
-                  borderColor: 'white',
-                  color: 'white'
-                }}>
+                <Button
+                  type="default"
+                  size="large"
+                  className="home-cta-link"
+                  style={{
+                    backgroundColor: 'transparent',
+                    borderColor: 'white',
+                    color: 'white',
+                  }}
+                >
                   Become an Author
                 </Button>
               </Space>
