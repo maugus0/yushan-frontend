@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Button, Tabs, Modal, Radio, Input, Form, Select } from 'antd';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerinteraction.css';
-// import novelService from '../../services/novel';
-// import userService from '../../services/user';
+import novelService from '../../services/novel';
+import userService from '../../services/user';
 import reviewService from '../../services/review';
+import commentService from '../../services/comments';
+
+const PAGE_SIZE = 10;
 
 const reportReasons = [
   'Pornographic Content',
@@ -23,43 +26,63 @@ const WriterInteraction = () => {
   const [reportTried, setReportTried] = useState(false);
   const [form] = Form.useForm();
   const [selectedNovelId, setSelectedNovelId] = useState(null);
+
   const [reviewsList, setReviewsList] = useState([]);
-  const [commentsList, setCommentsList] = useState([]); // mock comments
+  const [reviewsTotal, setReviewsTotal] = useState(0);
+  const [reviewsPage, setReviewsPage] = useState(1);
+
+  const [commentsList, setCommentsList] = useState([]);
+  const [commentsTotal, setCommentsTotal] = useState(0);
+  const [commentsPage, setCommentsPage] = useState(1);
 
   useEffect(() => {
-    // mock novels
-    const mockNovels = [
-      { id: 1, title: 'Novel One' },
-      { id: 2, title: 'Novel Two' },
-    ];
-    setNovels(mockNovels);
-    setSelectedNovelId(mockNovels[0].id);
-
-    // mock reviews
-    setReviewsList([
-      { id: 101, content: 'Great story!', username: 'Alice' },
-      { id: 102, content: 'Loved the plot.', username: 'Bob' },
-    ]);
-
-    // mock comments
-    setCommentsList([
-      { id: 201, content: 'Thanks for reading!', username: 'Author' },
-      { id: 202, content: 'Appreciate your feedback.', username: 'Author' },
-    ]);
+    const getNovelData = async () => {
+      const author = await userService.getMe();
+      const data = await novelService.getNovel({ authorId: author.uuid });
+      setNovels(data || []);
+      if (data && data.length > 0) {
+        setSelectedNovelId(data[0].id);
+      }
+    };
+    getNovelData();
   }, []);
 
   useEffect(() => {
     const fetchReviews = async () => {
       if (!selectedNovelId) {
         setReviewsList([]);
+        setReviewsTotal(0);
         return;
       }
-      const reviews = await reviewService.getReviews({ novelId: selectedNovelId });
-      setReviewsList(reviews);
-      console.log('reviews: ', reviews);
+      const filters = { page: reviewsPage, size: PAGE_SIZE };
+      const res = await reviewService.getReviewsByNovelId(selectedNovelId, filters);
+      setReviewsList(res.content || []);
+      setReviewsTotal(res.totalElements || 0);
     };
-    fetchReviews();
-  }, [selectedNovelId]);
+    if (reviewsTab === 'reviews') fetchReviews();
+  }, [selectedNovelId, reviewsPage, reviewsTab]);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!selectedNovelId) {
+        setCommentsList([]);
+        setCommentsTotal(0);
+        return;
+      }
+      const filters = { page: commentsPage, size: PAGE_SIZE };
+      // commentService.getCommentsByNovelId 返回 response.data.data
+      // 实际后端返回结构是 { comments: [...], totalCount, ... }
+      const res = await commentService.getCommentsByNovelId(selectedNovelId, filters);
+      setCommentsList(res.comments || []);
+      setCommentsTotal(res.totalCount || 0);
+    };
+    if (reviewsTab === 'comments') fetchComments();
+  }, [selectedNovelId, commentsPage, reviewsTab]);
+
+  useEffect(() => {
+    setReviewsPage(1);
+    setCommentsPage(1);
+  }, [reviewsTab, selectedNovelId]);
 
   const handleReportClick = (id) => {
     setReportModal({ visible: true, id });
@@ -80,6 +103,18 @@ const WriterInteraction = () => {
   };
 
   const currentList = reviewsTab === 'reviews' ? reviewsList : commentsList;
+  const currentPage = reviewsTab === 'reviews' ? reviewsPage : commentsPage;
+  const total = reviewsTab === 'reviews' ? reviewsTotal : commentsTotal;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const handlePrev = () => {
+    if (reviewsTab === 'reviews') setReviewsPage((p) => Math.max(1, p - 1));
+    else setCommentsPage((p) => Math.max(1, p - 1));
+  };
+  const handleNext = () => {
+    if (reviewsTab === 'reviews') setReviewsPage((p) => p + 1);
+    else setCommentsPage((p) => p + 1);
+  };
 
   return (
     <div className="writerinteraction-page">
@@ -120,17 +155,58 @@ const WriterInteraction = () => {
                   No data.
                 </div>
               )}
-              {currentList.map((item) => (
-                <div className="writerinteraction-list-row-2" key={item.id + '_' + reviewsTab}>
-                  <span className="writerinteraction-list-content">{item.content}</span>
-                  <span className="writerinteraction-list-reader">{item.username}</span>
-                  <span className="writerinteraction-list-action">
-                    <Button type="link" danger onClick={() => handleReportClick(item.id)}>
-                      Report
-                    </Button>
-                  </span>
-                </div>
-              ))}
+              {reviewsTab === 'reviews'
+                ? currentList.map((item) => (
+                    <div className="writerinteraction-list-row-2" key={item.id + '_review'}>
+                      <span className="writerinteraction-list-content">
+                        <span style={{ fontWeight: 500 }}>{item.title}</span>
+                        <br />
+                        {item.content}
+                      </span>
+                      <span className="writerinteraction-list-reader">{item.username}</span>
+                      <span className="writerinteraction-list-action">
+                        <Button type="link" danger onClick={() => handleReportClick(item.id)}>
+                          Report
+                        </Button>
+                      </span>
+                    </div>
+                  ))
+                : currentList.map((item) => (
+                    <div className="writerinteraction-list-row-2" key={item.id + '_comment'}>
+                      <span className="writerinteraction-list-content">
+                        <span style={{ fontWeight: 500 }}>{item.chapterTitle}</span>
+                        <br />
+                        {item.content}
+                      </span>
+                      <span className="writerinteraction-list-reader">{item.username}</span>
+                      <span className="writerinteraction-list-action">
+                        <Button type="link" danger onClick={() => handleReportClick(item.id)}>
+                          Report
+                        </Button>
+                      </span>
+                    </div>
+                  ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '16px 0' }}>
+              <Button
+                size="small"
+                disabled={currentPage === 1}
+                onClick={handlePrev}
+                style={{ marginRight: 16 }}
+              >
+                Prev
+              </Button>
+              <span style={{ fontSize: 15, color: '#515fa0' }}>
+                Page {currentPage} / {totalPages}
+              </span>
+              <Button
+                size="small"
+                disabled={currentList.length < PAGE_SIZE}
+                onClick={handleNext}
+                style={{ marginLeft: 16 }}
+              >
+                Next
+              </Button>
             </div>
           </div>
           <Modal

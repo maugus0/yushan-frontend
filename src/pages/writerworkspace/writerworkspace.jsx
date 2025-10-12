@@ -120,82 +120,100 @@ const WriterWorkspace = () => {
             <span className="board-column">WORDS</span>
             <span className="board-column">OPERATIONS</span>
           </div>
-          <div className="writerworkspace-board-body">
-            {stories.map((story) => (
-              <div className="writerworkspace-board-row" key={story.id}>
-                <div className="board-column">
-                  <img src={story.coverImgUrl} alt={story.title} className="story-cover" />
-                  <span className="story-title">
-                    {story.title}
-                    {story.status === 'UNDER_REVIEW' && (
-                      <span
-                        className="story-status-tag story-status-UNDER_REVIEW"
-                        style={{
-                          marginLeft: 8,
-                          padding: '2px 8px',
-                          borderRadius: 8,
-                          fontSize: 12,
-                          color: '#fff',
-                          background: '#0a921fff',
-                        }}
-                      >
-                        UNDER REVIEW
-                      </span>
-                    )}
-                    {story.status === 'DRAFT' && (
-                      <span
-                        className="story-status-tag story-status-draft"
-                        style={{
-                          marginLeft: 8,
-                          padding: '2px 8px',
-                          borderRadius: 8,
-                          fontSize: 12,
-                          color: '#fff',
-                          background: '#ff4d4f',
-                          cursor: 'pointer',
-                        }}
-                        onClick={() => handleUnsuccessClick(story)}
-                      >
-                        UNSUCCESSFUL
-                      </span>
-                    )}
-                    {story.status === 'HIDDEN' && (
-                      <span
-                        className="story-status-tag story-status-hidden"
-                        style={{
-                          marginLeft: 8,
-                          padding: '2px 8px',
-                          borderRadius: 8,
-                          fontSize: 12,
-                          color: '#fff',
-                          background: '#f2a516ff',
-                          cursor: 'pointer',
-                        }}
-                        onClick={() => handleUnsuccessClick(story)}
-                      >
-                        HIDDEN
-                      </span>
-                    )}
-                  </span>
-                </div>
-                <div className="board-column">{story.chapterCnt}</div>
-                <div className="board-column">{story.wordCnt}</div>
-                <div className="board-column">
-                  <Button
-                    type="primary"
-                    className="explore-btn"
-                    onClick={() => {
-                      handleExplore(story.id);
-                    }}
-                  >
-                    EXPLORE
-                  </Button>
-                  <Dropdown overlay={menu(story.id)} trigger={['click']}>
-                    <Button type="text" icon={<EllipsisOutlined />} />
-                  </Dropdown>
-                </div>
+          <div className="writerworkspace-board-body" style={{ position: 'relative', minHeight: 200 }}>
+            {stories.length === 0 ? (
+              <div
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: '50%',
+                  width: '100%',
+                  transform: 'translateY(-50%)',
+                  textAlign: 'center',
+                  fontSize: 22,
+                  color: '#aaa',
+                  zIndex: 2,
+                }}
+              >
+                No data! Create your first book~
               </div>
-            ))}
+            ) : (
+              stories.map((story) => (
+                <div className="writerworkspace-board-row" key={story.id}>
+                  <div className="board-column">
+                    <img src={story.coverImgUrl} alt={story.title} className="story-cover" />
+                    <span className="story-title">
+                      {story.title}
+                      {story.status === 'UNDER_REVIEW' && (
+                        <span
+                          className="story-status-tag story-status-UNDER_REVIEW"
+                          style={{
+                            marginLeft: 8,
+                            padding: '2px 8px',
+                            borderRadius: 8,
+                            fontSize: 12,
+                            color: '#fff',
+                            background: '#0a921fff',
+                          }}
+                        >
+                          UNDER REVIEW
+                        </span>
+                      )}
+                      {story.status === 'DRAFT' && (
+                        <span
+                          className="story-status-tag story-status-draft"
+                          style={{
+                            marginLeft: 8,
+                            padding: '2px 8px',
+                            borderRadius: 8,
+                            fontSize: 12,
+                            color: '#fff',
+                            background: '#ff4d4f',
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => handleUnsuccessClick(story)}
+                        >
+                          UNSUCCESSFUL
+                        </span>
+                      )}
+                      {story.status === 'HIDDEN' && (
+                        <span
+                          className="story-status-tag story-status-hidden"
+                          style={{
+                            marginLeft: 8,
+                            padding: '2px 8px',
+                            borderRadius: 8,
+                            fontSize: 12,
+                            color: '#fff',
+                            background: '#f2a516ff',
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => handleUnsuccessClick(story)}
+                        >
+                          HIDDEN
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="board-column">{story.chapterCnt}</div>
+                  <div className="board-column">{story.wordCnt}</div>
+                  <div className="board-column">
+                    <Button
+                      type="primary"
+                      className="explore-btn"
+                      onClick={() => {
+                        handleExplore(story.id);
+                      }}
+                    >
+                      EXPLORE
+                    </Button>
+                    <Dropdown overlay={menu(story.id)} trigger={['click']}>
+                      <Button type="text" icon={<EllipsisOutlined />} />
+                    </Dropdown>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
         <Modal
