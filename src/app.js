@@ -45,6 +45,11 @@ import WriterStorySetting from './pages/writerstorysetting/writerstorysetting';
 import WriterStoryProfile from './pages/writerstoryprofile/writerstoryprofile';
 import WriterInteraction from './pages/writerinteraction/writerinteraction';
 
+// Legal and info pages
+import TermsOfService from './pages/terms/terms';
+import CookiePolicy from './pages/cookies/cookies';
+import AffiliateProgram from './pages/affliate-programme/affliate-programme';
+
 const themeConfig = {
   token: {
     colorPrimary: '#1890ff',
@@ -127,6 +132,32 @@ function App() {
                     element={
                       <LayoutWrapper>
                         <Home />
+                      </LayoutWrapper>
+                    }
+                  />
+
+                  {/* Legal and info pages */}
+                  <Route
+                    path="/terms"
+                    element={
+                      <LayoutWrapper>
+                        <TermsOfService />
+                      </LayoutWrapper>
+                    }
+                  />
+                  <Route
+                    path="/cookies"
+                    element={
+                      <LayoutWrapper>
+                        <CookiePolicy />
+                      </LayoutWrapper>
+                    }
+                  />
+                  <Route
+                    path="/affliate-programme"
+                    element={
+                      <LayoutWrapper>
+                        <AffiliateProgram />
                       </LayoutWrapper>
                     }
                   />
