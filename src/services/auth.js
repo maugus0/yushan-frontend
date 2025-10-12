@@ -6,6 +6,7 @@ import { login, logout, setAuthenticated } from '../store/slices/user';
 const API_URL = process.env.REACT_APP_API_URL || ''; // remove localhost fallback to avoid GH Pages hitting localhost
 const TOKEN_KEY = 'jwt_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
+const TOKEN_EXPIRY_KEY = 'token_expiry';
 
 // Add gender mapping constants
 const GENDER_CODES = {
@@ -39,11 +40,17 @@ const authService = {
     return localStorage.getItem(REFRESH_TOKEN_KEY);
   },
 
-  setTokens(accessToken, refreshToken) {
+  setTokens(accessToken, refreshToken, expiresIn) {
     if (accessToken) {
       localStorage.setItem(TOKEN_KEY, accessToken);
       axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
       store.dispatch(setAuthenticated(true));
+
+      // Store token expiry time if provided (in milliseconds)
+      if (expiresIn) {
+        const expiryTime = Date.now() + expiresIn;
+        localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
+      }
     }
     if (refreshToken) {
       localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
@@ -53,8 +60,20 @@ const authService = {
   clearTokens() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(TOKEN_EXPIRY_KEY);
     delete axios.defaults.headers.common['Authorization'];
     store.dispatch(logout());
+  },
+
+  getTokenExpiry() {
+    const expiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
+    return expiry ? parseInt(expiry, 10) : null;
+  },
+
+  isTokenExpired() {
+    const expiry = this.getTokenExpiry();
+    if (!expiry) return false;
+    return Date.now() > expiry;
   },
 
   // AC3: Check Token Validity
@@ -68,8 +87,8 @@ const authService = {
       email,
       password,
     });
-    const { accessToken, refreshToken, ...userData } = response.data.data;
-    this.setTokens(accessToken, refreshToken);
+    const { accessToken, refreshToken, expiresIn, ...userData } = response.data.data;
+    this.setTokens(accessToken, refreshToken, expiresIn);
     store.dispatch(login(userData));
     return response.data.data;
   },
@@ -149,10 +168,38 @@ const authService = {
 
   async refreshToken() {
     const refreshToken = this.getRefreshToken();
-    const response = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
-    const { accessToken, refreshToken: newRefreshToken } = response.data.data;
-    this.setTokens(accessToken, newRefreshToken);
-    return accessToken;
+
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    try {
+      // Make refresh request - this should NOT go through the interceptor retry logic
+      const response = await axios.post(
+        `${API_URL}/auth/refresh`,
+        { refreshToken },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          // Skip the retry interceptor for this request
+          _retry: true,
+        }
+      );
+
+      const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+
+      // Update tokens in storage and axios headers
+      this.setTokens(accessToken, newRefreshToken);
+
+      console.log('Token refreshed successfully');
+      return accessToken;
+    } catch (error) {
+      console.error('Token refresh failed:', error.response?.data || error.message);
+      // Clear invalid tokens
+      this.clearTokens();
+      throw error;
+    }
   },
 };
 
