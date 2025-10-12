@@ -112,9 +112,8 @@ export default function LeaderboardPage() {
   const reqSeqRef = useRef(0);
 
   // Single source of truth fetch. Do not clear items before fetch.
-  // Accept only the newest response to avoid "flash then empty".
   const fetchPage = useCallback(
-    async ({ page, pageSize, genre }, replace = false) => {
+    async ({ page, pageSize, genre, timeRange, sortBy }, replace = false) => {
       const reqId = ++reqSeqRef.current;
       setError('');
       if (replace) {
@@ -130,16 +129,17 @@ export default function LeaderboardPage() {
           const slug = genre && genre !== 'all' ? String(genre).toLowerCase() : null;
           const selectedId = slug ? SLUG_TO_ID[slug] : undefined;
 
-          // Call API (pass categoryId if BE supports; ok if BE ignores)
           res = await rankingsApi.getNovels({
             page,
             size: pageSize,
             categoryId: selectedId,
-            categorySlug: slug, // harmless fallback
+            categorySlug: slug,
+            timeRange,
+            sortBy,
           });
 
-          // Local enrichment + filtering by categoryId from response
           let batch = Array.isArray(res?.items) ? res.items : [];
+          // enrich categoryName
           batch = batch.map((it) => ({
             ...it,
             categoryName:
@@ -148,8 +148,15 @@ export default function LeaderboardPage() {
               it.categoryName ||
               '',
           }));
+          // local filter by categoryId (后端不筛时生效)
           if (selectedId)
             batch = batch.filter((it) => Number(it.categoryId) === Number(selectedId));
+          // fallback local sort for novels
+          if (sortBy === 'views') {
+            batch.sort((a, b) => Number(b.viewCnt ?? 0) - Number(a.viewCnt ?? 0));
+          } else if (sortBy === 'votes') {
+            batch.sort((a, b) => Number(b.voteCnt ?? 0) - Number(a.voteCnt ?? 0));
+          }
 
           if (reqId !== reqSeqRef.current) return;
           if (replace) setItems(batch);
@@ -158,7 +165,12 @@ export default function LeaderboardPage() {
           hasMoreRef.current = more;
           setHasMore(more);
         } else if (activeTab === TAB_KEYS.READERS) {
-          res = await rankingsApi.getReaders({ page, size: pageSize });
+          res = await rankingsApi.getReaders({
+            page,
+            size: pageSize,
+            timeRange,
+            sortBy: 'levelxp',
+          });
           const batch = Array.isArray(res?.items) ? res.items : [];
           if (reqId !== reqSeqRef.current) return;
           if (replace) setItems(batch);
@@ -167,8 +179,18 @@ export default function LeaderboardPage() {
           hasMoreRef.current = more;
           setHasMore(more);
         } else {
-          res = await rankingsApi.getWriters({ page, size: pageSize });
-          const batch = Array.isArray(res?.items) ? res.items : [];
+          // WRITERS
+          res = await rankingsApi.getWriters({ page, size: pageSize, timeRange, sortBy });
+          let batch = Array.isArray(res?.items) ? res.items : [];
+          // fallback local sort for writers
+          if (sortBy === 'books') {
+            batch.sort((a, b) => Number(b.novelNum ?? 0) - Number(a.novelNum ?? 0));
+          } else if (sortBy === 'votes') {
+            batch.sort((a, b) => Number(b.totalVoteCnt ?? 0) - Number(a.totalVoteCnt ?? 0));
+          } else if (sortBy === 'views') {
+            batch.sort((a, b) => Number(b.totalViewCnt ?? 0) - Number(a.totalViewCnt ?? 0));
+          }
+
           if (reqId !== reqSeqRef.current) return;
           if (replace) setItems(batch);
           else setItems((prev) => [...prev, ...batch]);
@@ -281,7 +303,7 @@ export default function LeaderboardPage() {
     }
   }, [activeTab, filters.sortBy]);
 
-  // Centralized filter change – triggers exactly one replace fetch
+  // Centralized filter change – now passes timeRange & sortBy
   const onFiltersChange = useCallback(
     (patch) => {
       const base = filtersRef.current;
@@ -296,30 +318,56 @@ export default function LeaderboardPage() {
       hasMoreRef.current = true;
       setHasMore(true);
 
-      // Debounce rapid category clicks; only the last response will be applied
-      fetchPage({ page: 1, pageSize: next.pageSize, genre: next.genre }, true);
+      fetchPage(
+        {
+          page: 1,
+          pageSize: next.pageSize,
+          genre: next.genre,
+          timeRange: next.timeRange,
+          sortBy: next.sortBy,
+        },
+        true
+      );
     },
     [activeTab, fetchPage]
   );
 
-  // Retry handler: re-fetch first page with current filters (keeps old items until replaced)
+  // Retry uses current sort/time
   const retry = useCallback(() => {
     const f = filtersRef.current;
     pageRef.current = 1;
     hasMoreRef.current = true;
     setHasMore(true);
-    fetchPage({ page: 1, pageSize: f.pageSize, genre: f.genre }, true);
-  }, [fetchPage]);
+    fetchPage(
+      {
+        page: 1,
+        pageSize: f.pageSize,
+        genre: f.genre,
+        timeRange: f.timeRange,
+        sortBy: activeTab === TAB_KEYS.READERS ? 'levelxp' : f.sortBy || defaultSortFor(activeTab),
+      },
+      true
+    );
+  }, [activeTab, fetchPage]);
 
-  // Initial load – once per route change
+  // Initial load – pass timeRange & sortBy
   useEffect(() => {
     if (!urlInitializedRef.current || initialLoadDoneRef.current) return;
     initialLoadDoneRef.current = false;
-    const current = { ...filters };
-    fetchPage({ page: 1, pageSize: current.pageSize, genre: current.genre }, true).finally(() => {
+    const f = { ...filters };
+    fetchPage(
+      {
+        page: 1,
+        pageSize: f.pageSize,
+        genre: f.genre,
+        timeRange: f.timeRange,
+        sortBy: activeTab === TAB_KEYS.READERS ? 'levelxp' : f.sortBy || defaultSortFor(activeTab),
+      },
+      true
+    ).finally(() => {
       initialLoadDoneRef.current = true;
     });
-  }, [filters, activeTab, fetchPage]); // include fetchPage in deps; no disable comment
+  }, [filters, activeTab, fetchPage]);
 
   // REMOVE loadMore, uiGenre, onSelectCategory, handleNovelsClick and render...
   const loadMore = useCallback(() => {
