@@ -148,7 +148,7 @@ export default function LeaderboardPage() {
               it.categoryName ||
               '',
           }));
-          // local filter by categoryId (后端不筛时生效)
+          // Local filter by categoryId (applies when backend does not filter)
           if (selectedId)
             batch = batch.filter((it) => Number(it.categoryId) === Number(selectedId));
           // fallback local sort for novels
