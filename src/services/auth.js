@@ -98,7 +98,9 @@ const authService = {
         const status = error.response.status;
         const message = error.response.data?.message || error.response.data?.error;
 
-        if (status === 401) {
+        if (status === 400) {
+          throw new Error(message || 'Invalid email or password');
+        } else if (status === 401) {
           throw new Error(message || 'Invalid email or password');
         } else if (status === 403) {
           throw new Error(message || 'Account is locked or suspended');

@@ -17,6 +17,7 @@ const EditProfile = () => {
   const [form] = Form.useForm();
   const [emailError, setEmailError] = useState('');
   const [otpError, setOtpError] = useState('');
+  const [profileError, setProfileError] = useState(''); // General profile error
   const [countdown, setCountdown] = useState(0);
   const [isDirty, setIsDirty] = useState(false);
   const [avatarFile, setAvatarFile] = useState(null); // State to store the selected avatar file
@@ -126,6 +127,7 @@ const EditProfile = () => {
   // saving
   const handleSave = async () => {
     try {
+      setProfileError(''); // Clear previous errors
       const values = await form.validateFields();
 
       // test OTP
@@ -192,6 +194,8 @@ const EditProfile = () => {
         error.message ||
         error.response?.data?.message ||
         'Failed to update profile. Please try again';
+
+      setProfileError(errorMessage); // Set error for display in form
       message.error(errorMessage, 5);
 
       // Handle specific error types with visual feedback
@@ -388,6 +392,23 @@ const EditProfile = () => {
               <Form.Item label="About" name="bio">
                 <Input.TextArea rows={3} placeholder="Tell us about yourself" />
               </Form.Item>
+
+              {/* Profile Error Display */}
+              {profileError && (
+                <div
+                  style={{
+                    marginBottom: 16,
+                    padding: '12px 16px',
+                    backgroundColor: '#fff2f0',
+                    border: '1px solid #ffccc7',
+                    borderRadius: '4px',
+                    color: '#cf1322',
+                  }}
+                >
+                  <strong>Error:</strong> {profileError}
+                </div>
+              )}
+
               <Form.Item>
                 <Button
                   type="primary"

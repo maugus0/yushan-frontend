@@ -10,13 +10,6 @@ const GENDER_MAP = {
   UNKNOWN: 0,
 };
 
-// Map numeric gender to string for API
-const GENDER_REVERSE_MAP = {
-  0: 'UNKNOWN',
-  1: 'MALE',
-  2: 'FEMALE',
-};
-
 /**
  * Transform API response to match frontend user model
  */
@@ -78,13 +71,13 @@ const userProfileService = {
         if (profileData.username) formData.append('username', profileData.username);
         if (profileData.email) formData.append('email', profileData.email);
 
-        // Convert numeric gender to string for API if needed
+        // Gender should be sent as integer (0, 1, 2), not string
         if (profileData.gender !== undefined) {
           const genderValue =
             typeof profileData.gender === 'number'
-              ? GENDER_REVERSE_MAP[profileData.gender]
-              : profileData.gender;
-          formData.append('gender', genderValue);
+              ? profileData.gender
+              : GENDER_MAP[profileData.gender] || 0;
+          formData.append('gender', genderValue.toString());
         }
 
         if (profileData.profileDetail !== undefined) {
@@ -117,12 +110,12 @@ const userProfileService = {
           profileDetail: profileData.profileDetail || '',
         };
 
-        // Convert numeric gender to string for API if needed
+        // Gender should be sent as integer (0, 1, 2), not string
         if (profileData.gender !== undefined) {
           jsonData.gender =
             typeof profileData.gender === 'number'
-              ? GENDER_REVERSE_MAP[profileData.gender]
-              : profileData.gender;
+              ? profileData.gender
+              : GENDER_MAP[profileData.gender] || 0;
         }
 
         if (profileData.verificationCode) {
@@ -180,7 +173,10 @@ const userProfileService = {
         } else if (status === 415) {
           throw new Error('Unsupported file type. Please upload an image file');
         } else if (status === 500) {
-          throw new Error('Server error. Please try again later');
+          // For 500 errors, show the actual backend message if available (helps with debugging)
+          const errorDetail = message || 'Server error. Please try again later';
+          console.error('Server error details:', error.response.data);
+          throw new Error(errorDetail);
         } else {
           throw new Error(message || 'Failed to update profile');
         }
