@@ -1,16 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Redirecting...</title>
     <script>
       // Store the path and redirect to index.html
-      sessionStorage.setItem('redirectPath', window.location.pathname + window.location.search + window.location.hash);
+      sessionStorage.setItem(
+        'redirectPath',
+        window.location.pathname + window.location.search + window.location.hash
+      );
       window.location.replace('/yushan-frontend/');
     </script>
   </head>
   <body>
-    <div style="text-align: center; margin-top: 50px;">
+    <div style="text-align: center; margin-top: 50px">
       <p>Redirecting...</p>
     </div>
   </body>
