@@ -26,14 +26,16 @@ function normalizePage(resp) {
 
 export default {
   // GET /api/ranking/novel
-  async getNovels({ page = 1, size = 20, categoryName } = {}) {
-    const params = { page: page - 1, size, ...(categoryName ? { categoryName } : {}) };
+  async getNovels({ page = 1, size = 50, categoryId, categorySlug } = {}) {
+    const params = { page: page - 1, size };
+    if (categoryId != null) params.categoryId = categoryId; // primary
+    if (!params.categoryId && categorySlug) params.categoryName = categorySlug; // fallback
     const res = await axios.get(`${BASE}/ranking/novel`, { params, headers: authHeader() });
     return normalizePage(res);
   },
 
   // GET /api/ranking/user (readers)
-  async getReaders({ page = 1, size = 20 } = {}) {
+  async getReaders({ page = 1, size = 50 } = {}) {
     const res = await axios.get(`${BASE}/ranking/user`, {
       params: { page: page - 1, size },
       headers: authHeader(),
@@ -42,7 +44,7 @@ export default {
   },
 
   // GET /api/ranking/author (writers)
-  async getWriters({ page = 1, size = 20 } = {}) {
+  async getWriters({ page = 1, size = 50 } = {}) {
     const res = await axios.get(`${BASE}/ranking/author`, {
       params: { page: page - 1, size },
       headers: authHeader(),

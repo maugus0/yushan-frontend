@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { List, Avatar, Skeleton, Spin } from 'antd';
 import { Link } from 'react-router-dom';
 import {
@@ -12,16 +12,34 @@ import {
 import { xpToLevel, levelMeta } from '../../utils/levels';
 import './leaderboard-list.css';
 
-// Build absolute URL for images from backend.
-const API_URL = process.env.REACT_APP_API_URL || '';
+// Build absolute URL for images from backend (staging or same-origin /api)
+const API_BASE = (process.env.REACT_APP_API_URL || '/api').replace(/\/$/, '');
 function toAbsoluteUrl(u) {
   if (!u) return undefined;
-  const s = String(u);
+  const s = String(u).trim();
   if (/^https?:\/\//i.test(s) || /^data:/i.test(s)) return s;
-  if (!API_URL) return s; // keep as-is in dev when no API_URL
-  const base = API_URL.replace(/\/$/, '');
-  const path = s.replace(/^\/+/, '');
-  return `${base}/${path}`;
+  const path = s
+    .replace(/^\.\//, '')
+    .replace(/^\/+/, '')
+    .replace(/^api\/+/i, '');
+  return `${API_BASE}/${path}`;
+}
+
+// For now we do NOT request protected images. If URL points to our API, return undefined
+// so Antd Avatar uses its fallback icon. This avoids 401 image requests.
+function resolveImageSrc(u) {
+  const abs = toAbsoluteUrl(u);
+  if (!abs) return undefined;
+  return abs.startsWith(`${API_BASE}/`) ? undefined : abs;
+}
+
+function AvatarMaybeAuth({ src, ...rest }) {
+  const [url, setUrl] = useState(resolveImageSrc(src));
+  useEffect(() => {
+    setUrl(resolveImageSrc(src));
+  }, [src]);
+  // onError: keep icon fallback
+  return <Avatar {...rest} src={url} onError={() => false} />;
 }
 
 const Medal = ({ rank }) => {
@@ -48,7 +66,7 @@ export default function LeaderboardList({
   hasMore,
   onLoadMore,
 }) {
-  const pageSizeGuess = 20;
+  const pageSizeGuess = 50;
 
   // IO anchor and guards
   const anchorRef = useRef(null);
@@ -115,24 +133,19 @@ export default function LeaderboardList({
 
   const renderNovelRow = (item, index) => {
     const rank = index + 1;
-    // id can be id or uuid
-    const id = or(item.id, item.uuid);
-    // Ensure cover is an absolute URL; fallback to icon on error
-    const cover = toAbsoluteUrl(or(item.cover, item.coverImgUrl));
+    const id = item.id ?? item.uuid; // prefer numeric id for /api/novels/{id}
     const views = or(item.views, item.viewCnt);
     const votes = or(item.votes, item.voteCnt);
 
     return (
       <div className="lb-row lb-row--novel" key={id || `novel-${index}`}>
         <RankCell rank={rank} />
-
         <div className="lb-cell lb-cell--avatar">
-          <Avatar
+          <AvatarMaybeAuth
             shape="square"
             size={48}
-            src={cover}
+            src={item.coverImgUrl || item.cover}
             icon={<ReadOutlined />}
-            onError={() => false} // fallback to icon if image 401/404
           />
         </div>
 
@@ -145,6 +158,7 @@ export default function LeaderboardList({
           >
             {item.title || `Novel ${id}`}
           </Link>
+          {item.categoryName && <span className="category-pill">{item.categoryName}</span>}
           {Array.isArray(item.tags) && item.tags.length > 0 && (
             <div className="novel-tags">
               {item.tags.map((tag, tagIndex) => (
@@ -171,8 +185,6 @@ export default function LeaderboardList({
 
   const renderUserRow = (item, index) => {
     const rank = index + 1;
-    // backend fields: uuid, username, avatarUrl, level, exp, readTime, readBookNum
-    const avatar = toAbsoluteUrl(or(item.avatarUrl, item.avatar));
     const username = item.username || 'User';
     const userKey = item.uuid || or(item.userId, username);
     const xp = or(item.exp, item.xp) || 0;
@@ -183,7 +195,7 @@ export default function LeaderboardList({
       <div className="lb-row" key={userKey || `user-${index}`}>
         <RankCell rank={rank} />
         <div className="lb-cell lb-cell--avatar">
-          <Avatar size={48} src={avatar} icon={<UserOutlined />} onError={() => false} />
+          <AvatarMaybeAuth size={48} src={item.avatarUrl || item.avatar} icon={<UserOutlined />} />
         </div>
         <div className="lb-cell lb-cell--content">
           <div className="row-title">
@@ -208,15 +220,13 @@ export default function LeaderboardList({
 
   const renderWriterRow = (item, index) => {
     const rank = index + 1;
-    // backend fields: uuid, username, avatarUrl, novelNum, totalVoteCnt, totalViewCnt
     const key = item.uuid || item.username || `writer-${index}`;
-    const avatar = toAbsoluteUrl(or(item.avatarUrl, item.avatar));
 
     return (
       <div className="lb-row" key={key}>
         <RankCell rank={rank} />
         <div className="lb-cell lb-cell--avatar">
-          <Avatar size={48} src={avatar} icon={<UserOutlined />} onError={() => false} />
+          <AvatarMaybeAuth size={48} src={item.avatarUrl || item.avatar} icon={<UserOutlined />} />
         </div>
         <div className="lb-cell lb-cell--content">
           <div className="row-title">
