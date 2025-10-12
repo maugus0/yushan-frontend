@@ -65,49 +65,83 @@ const userProfileService = {
 
   async updateProfile(userId, profileData) {
     try {
-      const formData = new FormData();
+      // Check if we're uploading a file
+      const hasFile = profileData.avatarFile instanceof File;
 
-      // Add fields to FormData if they exist
-      if (profileData.username) formData.append('username', profileData.username);
-      if (profileData.email) formData.append('email', profileData.email);
+      let requestData;
+      let headers = {};
 
-      // Convert numeric gender to string for API if needed
-      if (profileData.gender !== undefined) {
-        const genderValue =
-          typeof profileData.gender === 'number'
-            ? GENDER_REVERSE_MAP[profileData.gender]
-            : profileData.gender;
-        formData.append('gender', genderValue);
-      }
+      if (hasFile) {
+        // Use FormData for file uploads
+        const formData = new FormData();
 
-      if (profileData.profileDetail !== undefined) {
-        formData.append('profileDetail', profileData.profileDetail || '');
-      }
+        if (profileData.username) formData.append('username', profileData.username);
+        if (profileData.email) formData.append('email', profileData.email);
 
-      if (profileData.avatarFile) {
-        formData.append('avatar', profileData.avatarFile);
-      }
-
-      if (profileData.verificationCode) {
-        formData.append('verificationCode', profileData.verificationCode);
-      }
-
-      // Debug: Log FormData contents
-      console.log('=== UPDATE PROFILE DEBUG ===');
-      console.log('User ID:', userId);
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(`${key}:`, `File(${value.name}, ${value.type}, ${value.size} bytes)`);
-        } else {
-          console.log(`${key}:`, value);
+        // Convert numeric gender to string for API if needed
+        if (profileData.gender !== undefined) {
+          const genderValue =
+            typeof profileData.gender === 'number'
+              ? GENDER_REVERSE_MAP[profileData.gender]
+              : profileData.gender;
+          formData.append('gender', genderValue);
         }
+
+        if (profileData.profileDetail !== undefined) {
+          formData.append('profileDetail', profileData.profileDetail || '');
+        }
+
+        formData.append('avatar', profileData.avatarFile);
+
+        if (profileData.verificationCode) {
+          formData.append('verificationCode', profileData.verificationCode);
+        }
+
+        requestData = formData;
+        headers['Content-Type'] = 'multipart/form-data';
+
+        console.log('=== UPDATE PROFILE (WITH FILE) ===');
+        console.log('User ID:', userId);
+        for (let [key, value] of formData.entries()) {
+          if (value instanceof File) {
+            console.log(`${key}:`, `File(${value.name}, ${value.type}, ${value.size} bytes)`);
+          } else {
+            console.log(`${key}:`, value);
+          }
+        }
+      } else {
+        // Use JSON for text-only updates
+        const jsonData = {
+          username: profileData.username,
+          email: profileData.email,
+          profileDetail: profileData.profileDetail || '',
+        };
+
+        // Convert numeric gender to string for API if needed
+        if (profileData.gender !== undefined) {
+          jsonData.gender =
+            typeof profileData.gender === 'number'
+              ? GENDER_REVERSE_MAP[profileData.gender]
+              : profileData.gender;
+        }
+
+        if (profileData.verificationCode) {
+          jsonData.verificationCode = profileData.verificationCode;
+        }
+
+        requestData = jsonData;
+        headers['Content-Type'] = 'application/json';
+
+        console.log('=== UPDATE PROFILE (JSON) ===');
+        console.log('User ID:', userId);
+        console.log('Request Data:', jsonData);
       }
+
+      console.log('Content-Type:', headers['Content-Type']);
       console.log('===========================');
 
-      const response = await axios.put(`${API_URL}/users/${userId}/profile`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const response = await axios.put(`${API_URL}/users/${userId}/profile`, requestData, {
+        headers,
       });
 
       if (response.data.code === 200 && response.data.data) {

@@ -5,7 +5,7 @@ import './index.css';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './store';
 import authService from './services/auth';
-import App from './app';
+import App from './App';
 import axios from 'axios';
 import './utils/axios-interceptor';
 
