@@ -4,8 +4,17 @@ import { StarFilled } from '@ant-design/icons';
 import './novelcard.css';
 import fallbackImage from '../../../assets/images/novel_default.png';
 
-const NovelCard = ({ cover, title, category, rating }) => (
-  <Card className="novel-card" styles={{ body: { padding: 0 } }}>
+const NovelCard = ({ cover, title, category, rating, onClick }) => (
+  <Card 
+    className="novel-card" 
+    styles={{ body: { padding: 0 } }}
+    onClick={onClick}
+    style={{ 
+      cursor: onClick ? 'pointer' : 'default',
+      transition: 'transform 0.2s ease-in-out'
+    }}
+    hoverable={!!onClick}
+  >
     <div className="novel-card-flex">
       <div className="novel-card-img">
         <Image

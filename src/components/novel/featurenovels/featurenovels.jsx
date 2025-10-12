@@ -2,7 +2,7 @@ import React from 'react';
 import './featurenovels.css';
 import fallbackImage from '../../../assets/images/novel_default.png';
 
-const FeatureNovels = ({ title = 'Featured Novels', novels = [] }) => {
+const FeatureNovels = ({ title = 'Featured Novels', novels = [], onNovelClick }) => {
   const handleImageError = (e) => {
     e.target.src = fallbackImage;
   };
@@ -13,7 +13,25 @@ const FeatureNovels = ({ title = 'Featured Novels', novels = [] }) => {
       <div className="feature-novels-divider" />
       <div className="feature-novels-list">
         {novels.map((novel) => (
-          <div className="feature-novel-card" key={novel.id}>
+          <div 
+            className="feature-novel-card" 
+            key={novel.id}
+            onClick={() => onNovelClick && onNovelClick(novel)}
+            style={{ 
+              cursor: onNovelClick ? 'pointer' : 'default',
+              transition: 'transform 0.2s ease-in-out'
+            }}
+            onMouseEnter={(e) => {
+              if (onNovelClick) {
+                e.target.style.transform = 'translateY(-4px)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (onNovelClick) {
+                e.target.style.transform = 'translateY(0)';
+              }
+            }}
+          >
             <img
               src={novel.cover}
               alt={novel.title}

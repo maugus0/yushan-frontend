@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Typography, Button, Card, Space, Carousel, Row, Col } from 'antd';
 import { BookOutlined, EditOutlined, TrophyOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import './home.css';
 import HeroSection from '../../components/novel/herosection/herosection';
 import FeatureNovels from '../../components/novel/featurenovels/featurenovels';
@@ -60,6 +61,8 @@ const features = [
 ];
 
 const Homepage = () => {
+  const navigate = useNavigate();
+  
   // State for different novel sections
   const [weeklyFeaturedNovels, setWeeklyFeaturedNovels] = useState([]);
   const [ongoingNovels, setOngoingNovels] = useState([]);
@@ -120,6 +123,17 @@ const Homepage = () => {
     loadOngoingNovels();
     loadCompletedNovels();
   }, []);
+
+  // Handle hero section item clicks
+  const handleHeroSectionClick = () => {
+    navigate('/login');
+  };
+
+  // Handle novel clicks
+  const handleNovelClick = (novel) => {
+    navigate(`/novel/${novel.id}`);
+  };
+
   return (
     <div className="home-bg">
       {/* Hero Section */}
@@ -137,7 +151,12 @@ const Homepage = () => {
                   <div key={novel.id || idx}>
                     <div
                       className="home-hero-slide"
-                      style={{ position: 'relative', justifyContent: 'flex-start' }}
+                      style={{ 
+                        position: 'relative', 
+                        justifyContent: 'flex-start',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => handleNovelClick(novel)}
                     >
                       <div
                         className="home-hero-blur-bg"
@@ -171,7 +190,7 @@ const Homepage = () => {
             </div>
           </div>
           <div className="home-hero-flex-right">
-            <HeroSection data={heroItems} title="Meet Yushan" />
+            <HeroSection data={heroItems} title="About Yushan" onItemClick={handleHeroSectionClick} />
           </div>
         </div>
       </section>
@@ -195,7 +214,21 @@ const Homepage = () => {
                     {feature.title}
                   </Title>
                   <Paragraph className="home-feature-desc">{feature.description}</Paragraph>
-                  <Button type="primary" size="large" className="home-feature-btn">
+                  <Button 
+                    type="primary" 
+                    size="large" 
+                    className="home-feature-btn"
+                    onClick={() => {
+                      console.log('Button clicked, index:', index);
+                      if (index === 0) {
+                        navigate('/browse');
+                      } else if (index === 1) {
+                        navigate('/writerdashboard');
+                      } else {
+                        navigate('/register', { replace: false });
+                      }
+                    }}
+                  >
                     Get Started
                   </Button>
                 </Space>
@@ -206,13 +239,13 @@ const Homepage = () => {
       </section>
 
       {/* Weekly Features Section */}
-      <FeatureNovels title="Weekly Featured" novels={weeklyFeaturedNovels} />
+      <FeatureNovels title="Weekly Featured" novels={weeklyFeaturedNovels} onNovelClick={handleNovelClick} />
 
       {/* Ongoing Novels Section */}
-      <FeatureNovels title="Ongoing Novels" novels={ongoingNovels} />
+      <FeatureNovels title="Ongoing Novels" novels={ongoingNovels} onNovelClick={handleNovelClick} />
 
       {/* Completed Novels Section */}
-      <FeatureNovels title="Completed Novels" novels={completedNovels} />
+      <FeatureNovels title="Completed Novels" novels={completedNovels} onNovelClick={handleNovelClick} />
 
       {/* CTA Section */}
       <section
@@ -244,6 +277,7 @@ const Homepage = () => {
                   type="primary"
                   size="large"
                   className="home-cta-btn"
+                  onClick={() => navigate('/browse')}
                   style={{
                     backgroundColor: 'white',
                     borderColor: 'white',
@@ -256,6 +290,7 @@ const Homepage = () => {
                   type="default"
                   size="large"
                   className="home-cta-link"
+                  onClick={() => navigate('/writerdashboard')}
                   style={{
                     backgroundColor: 'transparent',
                     borderColor: 'white',
