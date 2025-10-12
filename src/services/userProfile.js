@@ -159,7 +159,36 @@ const userProfileService = {
       return response.data;
     } catch (error) {
       console.error('Update profile error:', error);
-      throw error;
+
+      // Enhanced error handling
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || error.response.data?.error;
+
+        if (status === 400) {
+          throw new Error(message || 'Invalid profile data. Please check all fields');
+        } else if (status === 401) {
+          throw new Error('Session expired. Please login again');
+        } else if (status === 403) {
+          throw new Error('You do not have permission to update this profile');
+        } else if (status === 409) {
+          throw new Error(message || 'Email already in use');
+        } else if (status === 422) {
+          throw new Error(message || 'Invalid verification code or code expired');
+        } else if (status === 413) {
+          throw new Error('Avatar file is too large. Maximum size is 5MB');
+        } else if (status === 415) {
+          throw new Error('Unsupported file type. Please upload an image file');
+        } else if (status === 500) {
+          throw new Error('Server error. Please try again later');
+        } else {
+          throw new Error(message || 'Failed to update profile');
+        }
+      } else if (error.request) {
+        throw new Error('Network error. Please check your internet connection');
+      } else {
+        throw new Error(error.message || 'Failed to update profile');
+      }
     }
   },
 
@@ -171,7 +200,30 @@ const userProfileService = {
       return response.data;
     } catch (error) {
       console.error('Send email verification error:', error);
-      throw error;
+
+      // Enhanced error handling
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || error.response.data?.error;
+
+        if (status === 400) {
+          throw new Error(message || 'Invalid email address');
+        } else if (status === 401) {
+          throw new Error('Session expired. Please login again');
+        } else if (status === 409) {
+          throw new Error(message || 'Email already in use');
+        } else if (status === 429) {
+          throw new Error('Too many requests. Please wait before trying again');
+        } else if (status === 500) {
+          throw new Error('Server error. Please try again later');
+        } else {
+          throw new Error(message || 'Failed to send verification email');
+        }
+      } else if (error.request) {
+        throw new Error('Network error. Please check your internet connection');
+      } else {
+        throw new Error(error.message || 'Failed to send verification email');
+      }
     }
   },
 };

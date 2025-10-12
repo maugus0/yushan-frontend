@@ -67,7 +67,7 @@ const EditProfile = () => {
     const error = validateEmail(email);
     setEmailError(error);
     if (error) {
-      message.error(error);
+      message.error(error, 3);
       const el = document.querySelector('.editprofile-email-input');
       if (el) {
         el.classList.add('shake');
@@ -79,10 +79,26 @@ const EditProfile = () => {
     try {
       await userProfileService.sendEmailChangeVerification(email);
       setCountdown(300);
-      message.success('Verification email sent!');
+      message.success('Verification email sent! Please check your inbox.', 4);
     } catch (error) {
       console.error('Send OTP error:', error);
-      message.error(error.response?.data?.message || 'Failed to send verification email');
+
+      // Display user-friendly error message
+      const errorMessage =
+        error.message || error.response?.data?.message || 'Failed to send verification email';
+      message.error(errorMessage, 5);
+
+      // Add visual feedback for email field
+      const emailInput = document.querySelector('.editprofile-email-input');
+      if (emailInput) {
+        emailInput.classList.add('shake');
+        setTimeout(() => emailInput.classList.remove('shake'), 500);
+      }
+
+      // Set email error if it's an email-specific issue
+      if (error.message?.includes('Email already') || error.message?.includes('Invalid email')) {
+        setEmailError(error.message);
+      }
     }
   };
 
@@ -117,7 +133,7 @@ const EditProfile = () => {
       const otpEmpty = !values.otp;
       if (emailChanged && otpEmpty) {
         setOtpError('Please enter the OTP sent to your email.');
-        message.error('Please enter the OTP sent to your email.');
+        message.error('Please enter the OTP sent to your email.', 5);
         // error OTP
         const el = document.querySelector('input[placeholder="Enter OTP"]');
         if (el) {
@@ -155,20 +171,68 @@ const EditProfile = () => {
         if (response.emailChanged && response.accessToken && response.refreshToken) {
           authService.setTokens(response.accessToken, response.refreshToken, response.expiresIn);
           message.success(
-            'Profile updated successfully! Email changed and you have been re-authenticated.'
+            'Profile updated successfully! Email changed and you have been re-authenticated.',
+            5
           );
         } else {
-          message.success('Profile updated successfully!');
+          message.success('Profile updated successfully!', 3);
         }
 
         setIsDirty(false);
         navigate('/profile');
       } else {
-        message.error(response.message || 'Failed to update profile');
+        const errorMsg = response.message || 'Failed to update profile';
+        message.error(errorMsg, 5);
       }
     } catch (error) {
       console.error('Save profile error:', error);
-      message.error(error.response?.data?.message || 'Failed to update profile');
+
+      // Display user-friendly error message
+      const errorMessage =
+        error.message ||
+        error.response?.data?.message ||
+        'Failed to update profile. Please try again';
+      message.error(errorMessage, 5);
+
+      // Handle specific error types with visual feedback
+      if (error.message?.includes('verification code') || error.message?.includes('code expired')) {
+        // Highlight OTP field
+        const otpInput = document.querySelector('input[placeholder="Enter OTP"]');
+        if (otpInput) {
+          otpInput.focus();
+          otpInput.classList.add('shake');
+          setTimeout(() => otpInput.classList.remove('shake'), 500);
+        }
+        setOtpError('Invalid or expired verification code');
+      } else if (error.message?.includes('Email already')) {
+        // Highlight email field
+        const emailInput = document.querySelector('.editprofile-email-input');
+        if (emailInput) {
+          emailInput.focus();
+          emailInput.classList.add('shake');
+          setTimeout(() => emailInput.classList.remove('shake'), 500);
+        }
+        setEmailError('Email already in use by another account');
+      } else if (error.message?.includes('too large') || error.message?.includes('file')) {
+        // Clear the avatar file if there's a file-related error
+        setAvatarFile(null);
+        if (user?.avatarUrl) {
+          const processedAvatar = processUserAvatar(
+            user.avatarUrl,
+            user.gender,
+            process.env.REACT_APP_API_URL?.replace('/api', '/images')
+          );
+          setAvatarPreview(processedAvatar);
+        }
+      } else if (
+        error.message?.includes('Session expired') ||
+        error.message?.includes('login again')
+      ) {
+        // Redirect to login after a brief delay
+        setTimeout(() => {
+          navigate('/login?expired=true');
+        }, 2000);
+      }
     } finally {
       setIsSaving(false);
     }

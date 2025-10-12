@@ -82,45 +82,96 @@ const authService = {
   },
 
   async login(email, password) {
-    const response = await axios.post(`${API_URL}/auth/login`, {
-      email,
-      password,
-    });
-    const { accessToken, refreshToken, expiresIn, ...userData } = response.data.data;
-    this.setTokens(accessToken, refreshToken, expiresIn);
-    store.dispatch(login(userData));
-    return response.data.data;
+    try {
+      const response = await axios.post(`${API_URL}/auth/login`, {
+        email,
+        password,
+      });
+      const { accessToken, refreshToken, expiresIn, ...userData } = response.data.data;
+      this.setTokens(accessToken, refreshToken, expiresIn);
+      store.dispatch(login(userData));
+      return response.data.data;
+    } catch (error) {
+      // Enhanced error handling for login
+      if (error.response) {
+        // Server responded with error status
+        const status = error.response.status;
+        const message = error.response.data?.message || error.response.data?.error;
+
+        if (status === 401) {
+          throw new Error(message || 'Invalid email or password');
+        } else if (status === 403) {
+          throw new Error(message || 'Account is locked or suspended');
+        } else if (status === 404) {
+          throw new Error('Account not found');
+        } else if (status === 500) {
+          throw new Error('Server error. Please try again later');
+        } else {
+          throw new Error(message || 'Login failed. Please try again');
+        }
+      } else if (error.request) {
+        // Request made but no response received
+        throw new Error('Network error. Please check your internet connection');
+      } else {
+        // Error in request setup
+        throw new Error(error.message || 'Login failed');
+      }
+    }
   },
 
   async register(values) {
-    // Add validation for required gender
-    if (!values.gender) {
-      throw new Error('Gender is required');
+    try {
+      // Add validation for required gender
+      if (!values.gender) {
+        throw new Error('Gender is required');
+      }
+
+      // Format the data according to API expectations
+      const formattedData = {
+        username: values.username,
+        email: values.email,
+        password: values.password,
+        gender: GENDER_CODES[values.gender],
+        birthday: dayjs(values.birthday).format('YYYY-MM-DD'),
+        code: values.otp, // Changed from otp to code
+      };
+
+      console.log('Sending registration data:', formattedData);
+
+      const response = await axios.post(`${API_URL}/auth/register`, formattedData, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
+
+      const { accessToken, refreshToken, ...userData } = response.data.data;
+      this.setTokens(accessToken, refreshToken);
+      store.dispatch(login(userData));
+      return response.data.data;
+    } catch (error) {
+      // Enhanced error handling for registration
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || error.response.data?.error;
+
+        if (status === 400) {
+          throw new Error(message || 'Invalid registration data. Please check all fields');
+        } else if (status === 409) {
+          throw new Error(message || 'Email already registered');
+        } else if (status === 422) {
+          throw new Error(message || 'Invalid verification code or code expired');
+        } else if (status === 500) {
+          throw new Error('Server error. Please try again later');
+        } else {
+          throw new Error(message || 'Registration failed. Please try again');
+        }
+      } else if (error.request) {
+        throw new Error('Network error. Please check your internet connection');
+      } else {
+        throw new Error(error.message || 'Registration failed');
+      }
     }
-
-    // Format the data according to API expectations
-    const formattedData = {
-      username: values.username,
-      email: values.email,
-      password: values.password,
-      gender: GENDER_CODES[values.gender],
-      birthday: dayjs(values.birthday).format('YYYY-MM-DD'),
-      code: values.otp, // Changed from otp to code
-    };
-
-    console.log('Sending registration data:', formattedData);
-
-    const response = await axios.post(`${API_URL}/auth/register`, formattedData, {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    });
-
-    const { accessToken, refreshToken, ...userData } = response.data.data;
-    this.setTokens(accessToken, refreshToken);
-    store.dispatch(login(userData));
-    return response.data.data;
   },
 
   async logout() {
@@ -141,7 +192,6 @@ const authService = {
 
   async sendVerificationEmail(email) {
     try {
-      //console.log('Sending email verification request:', { email });
       const response = await axios.post(
         `${API_URL}/auth/send-email`,
         { email },
@@ -151,17 +201,35 @@ const authService = {
           },
         }
       );
-      //console.log('Email verification response:', response.data);
       return response.data;
     } catch (error) {
-      // Log detailed error information
+      // Enhanced error handling for OTP sending
       console.error('Send Email Error Details:', {
         status: error.response?.status,
         data: error.response?.data,
-        config: error.config,
         message: error.message,
       });
-      throw error;
+
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || error.response.data?.error;
+
+        if (status === 400) {
+          throw new Error(message || 'Invalid email address');
+        } else if (status === 409) {
+          throw new Error(message || 'Email already registered');
+        } else if (status === 429) {
+          throw new Error('Too many requests. Please wait before trying again');
+        } else if (status === 500) {
+          throw new Error('Server error. Please try again later');
+        } else {
+          throw new Error(message || 'Failed to send verification email');
+        }
+      } else if (error.request) {
+        throw new Error('Network error. Please check your internet connection');
+      } else {
+        throw new Error(error.message || 'Failed to send verification email');
+      }
     }
   },
 

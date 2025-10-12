@@ -28,7 +28,20 @@ const Login = () => {
       message.success('Login successful!');
       navigate('/');
     } catch (error) {
-      message.error(error.response?.data?.message || 'Login failed');
+      console.error('Login error:', error);
+
+      // Display user-friendly error message
+      const errorMessage =
+        error.message || error.response?.data?.message || 'Login failed. Please try again';
+      message.error(errorMessage, 5); // Show for 5 seconds
+
+      // If it's an authentication error, add visual feedback
+      if (error.message?.includes('Invalid') || error.message?.includes('not found')) {
+        // Could add shake animation or field highlighting here
+        const emailInput = document.querySelector('input[type="email"]');
+        const passwordInput = document.querySelector('input[type="password"]');
+        if (emailInput) emailInput.focus();
+      }
     }
   };
 
