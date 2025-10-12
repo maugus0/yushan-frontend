@@ -1,0 +1,209 @@
+.affiliate-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40px 20px;
+  display: flex;
+  align-items: center;
+}
+
+.affiliate-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.affiliate-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  margin: 20px 0;
+}
+
+.affiliate-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.affiliate-title {
+  color: #2c3e50;
+  margin-bottom: 8px !important;
+  font-weight: 700;
+}
+
+.affiliate-subtitle {
+  color: #7f8c8d;
+  font-size: 16px;
+  margin-bottom: 0;
+}
+
+.affiliate-content {
+  margin-top: 20px;
+}
+
+.affiliate-content h2 {
+  color: #34495e;
+  margin-top: 40px !important;
+  margin-bottom: 16px !important;
+  font-weight: 600;
+}
+
+.affiliate-content p {
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.benefits-section {
+  margin: 32px 0;
+}
+
+.benefit-card {
+  text-align: center;
+  height: 100%;
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+}
+
+.benefit-card:hover {
+  transform: translateY(-4px);
+}
+
+.benefit-icon {
+  margin-bottom: 16px;
+}
+
+.benefit-title {
+  color: #2c3e50;
+  margin-bottom: 12px !important;
+}
+
+.benefit-description {
+  color: #666;
+  margin-bottom: 0;
+}
+
+.commission-info {
+  margin: 32px 0;
+}
+
+.commission-card {
+  text-align: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.commission-rate {
+  font-size: 48px;
+  font-weight: 700;
+  color: #52c41a;
+  margin: 16px 0;
+}
+
+.steps-list {
+  margin: 24px 0;
+}
+
+.step-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1890ff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.requirements-list {
+  margin: 24px 0;
+}
+
+.requirements-list .ant-list-item {
+  border: none;
+  padding: 8px 0;
+}
+
+.materials-list {
+  margin: 16px 0;
+  padding-left: 20px;
+}
+
+.materials-list li {
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+
+.cta-section {
+  margin: 40px 0;
+}
+
+.cta-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  text-align: center;
+  border-radius: 12px;
+}
+
+.cta-card .ant-card-body {
+  padding: 40px;
+}
+
+.cta-card h3 {
+  color: white !important;
+  margin-bottom: 16px !important;
+}
+
+.cta-card p {
+  color: rgba(255, 255, 255, 0.9) !important;
+  margin-bottom: 24px;
+}
+
+.cta-card .ant-btn-primary {
+  background: white;
+  border-color: white;
+  color: #667eea;
+}
+
+.cta-card .ant-btn-primary:hover {
+  background: #f0f0f0;
+  border-color: #f0f0f0;
+}
+
+.cta-card .ant-btn:not(.ant-btn-primary) {
+  background: transparent;
+  border-color: white;
+  color: white;
+}
+
+.cta-card .ant-btn:not(.ant-btn-primary):hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .affiliate-page {
+    padding: 20px 10px;
+  }
+
+  .affiliate-card {
+    padding: 24px;
+    margin: 10px 0;
+  }
+
+  .affiliate-title {
+    font-size: 24px !important;
+  }
+
+  .commission-rate {
+    font-size: 36px;
+  }
+
+  .cta-card .ant-card-body {
+    padding: 24px;
+  }
+}

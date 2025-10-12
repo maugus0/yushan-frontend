@@ -18,24 +18,36 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { icon: <GithubOutlined />, href: '#', label: 'GitHub' },
-    { icon: <TwitterOutlined />, href: '#', label: 'Twitter' },
-    { icon: <LinkedinOutlined />, href: '#', label: 'LinkedIn' },
-    { icon: <FacebookOutlined />, href: '#', label: 'Facebook' },
+    {
+      icon: <GithubOutlined />,
+      href: 'https://github.com/maugus0/yushan-frontend/',
+      label: 'GitHub',
+    },
+    {
+      icon: <TwitterOutlined />,
+      href: 'https://github.com/maugus0/yushan-backend/',
+      label: 'Twitter',
+    },
+    { icon: <LinkedinOutlined />, href: 'https://www.linkedin.com/in/maugus0/', label: 'LinkedIn' },
+    {
+      icon: <FacebookOutlined />,
+      href: 'https://github.com/maugus0/yushan-admin/',
+      label: 'Facebook',
+    },
   ];
 
   const quickLinks = [
     { title: 'Home', href: '/' },
     { title: 'Browse Novels', href: '/browse' },
     { title: 'Rankings & Leaderboards', href: '/rankings' },
-    { title: 'New Releases', href: '/new-releases' },
+    { title: 'New Releases', href: '/browse' },
   ];
 
   const legalLinks = [
-    { title: 'Join as Author', href: '/create' },
+    { title: 'Join as Author', href: '/writerdashboard' },
     { title: 'Terms of Service', href: '/terms' },
     { title: 'Cookie Policy', href: '/cookies' },
-    { title: 'Affliate Programme', href: '/affliate-programme' },
+    { title: 'Affiliate Programme', href: '/affliate-programme' },
   ];
 
   return (
