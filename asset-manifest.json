@@ -1,18 +1,18 @@
 {
   "files": {
-    "main.css": "/yushan-frontend/static/css/main.587863dc.css",
-    "main.js": "/yushan-frontend/static/js/main.1062222f.js",
+    "main.css": "/yushan-frontend/static/css/main.c2e23f0e.css",
+    "main.js": "/yushan-frontend/static/js/main.8e5b0661.js",
     "static/media/testimg4.png": "/yushan-frontend/static/media/testimg4.1ff5e034a7dd49f743d2.png",
     "static/media/testimg3.png": "/yushan-frontend/static/media/testimg3.63f4ead7494ccad32da5.png",
     "static/media/testimg2.png": "/yushan-frontend/static/media/testimg2.f1e54bc59b9698703fb8.png",
     "static/media/testimg.png": "/yushan-frontend/static/media/testimg.1744dbb15bfe7a051445.png",
     "static/media/userprofilecover.png": "/yushan-frontend/static/media/userprofilecover.3a0f75795081371fde1e.png",
     "index.html": "/yushan-frontend/index.html",
-    "main.587863dc.css.map": "/yushan-frontend/static/css/main.587863dc.css.map",
-    "main.1062222f.js.map": "/yushan-frontend/static/js/main.1062222f.js.map"
+    "main.c2e23f0e.css.map": "/yushan-frontend/static/css/main.c2e23f0e.css.map",
+    "main.8e5b0661.js.map": "/yushan-frontend/static/js/main.8e5b0661.js.map"
   },
   "entrypoints": [
-    "static/css/main.587863dc.css",
-    "static/js/main.1062222f.js"
+    "static/css/main.c2e23f0e.css",
+    "static/js/main.8e5b0661.js"
   ]
 }
