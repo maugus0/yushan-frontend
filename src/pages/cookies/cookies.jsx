@@ -11,29 +11,29 @@ const CookiePolicy = () => {
       name: 'Essential Cookies',
       purpose: 'Authentication, security, and basic site functionality',
       duration: 'Session/30 days',
-      example: 'auth_token, session_id'
+      example: 'auth_token, session_id',
     },
     {
       key: '2',
       name: 'Analytics Cookies',
       purpose: 'Understanding how users interact with our platform',
       duration: '2 years',
-      example: 'Google Analytics cookies'
+      example: 'Google Analytics cookies',
     },
     {
       key: '3',
       name: 'Preference Cookies',
       purpose: 'Remembering user settings and preferences',
       duration: '1 year',
-      example: 'theme_preference, language_setting'
+      example: 'theme_preference, language_setting',
     },
     {
       key: '4',
       name: 'Marketing Cookies',
       purpose: 'Delivering relevant advertisements and tracking campaigns',
       duration: '90 days',
-      example: 'ad_tracking, campaign_source'
-    }
+      example: 'ad_tracking, campaign_source',
+    },
   ];
 
   const cookieTableColumns = [
@@ -60,7 +60,7 @@ const CookiePolicy = () => {
       dataIndex: 'example',
       key: 'example',
       width: '25%',
-    }
+    },
   ];
 
   return (
@@ -73,9 +73,7 @@ const CookiePolicy = () => {
                 <Title level={1} className="cookies-title">
                   Cookie Policy
                 </Title>
-                <Text className="cookies-updated">
-                  Last updated: October 12, 2025
-                </Text>
+                <Text className="cookies-updated">Last updated: October 12, 2025</Text>
               </div>
 
               <Divider />
@@ -83,15 +81,13 @@ const CookiePolicy = () => {
               <div className="cookies-content">
                 <Title level={2}>What Are Cookies?</Title>
                 <Paragraph>
-                  Cookies are small text files that are stored on your device when you visit our website. 
-                  They help us provide you with a better experience by remembering your preferences and 
-                  understanding how you use our platform.
+                  Cookies are small text files that are stored on your device when you visit our
+                  website. They help us provide you with a better experience by remembering your
+                  preferences and understanding how you use our platform.
                 </Paragraph>
 
                 <Title level={2}>How We Use Cookies</Title>
-                <Paragraph>
-                  Yushan uses cookies for various purposes, including:
-                </Paragraph>
+                <Paragraph>Yushan uses cookies for various purposes, including:</Paragraph>
                 <ul className="cookies-list">
                   <li>Keeping you logged in to your account</li>
                   <li>Remembering your reading preferences and settings</li>
@@ -102,8 +98,8 @@ const CookiePolicy = () => {
 
                 <Title level={2}>Types of Cookies We Use</Title>
                 <div className="cookies-table-wrapper">
-                  <Table 
-                    dataSource={cookieTableData} 
+                  <Table
+                    dataSource={cookieTableData}
                     columns={cookieTableColumns}
                     pagination={false}
                     bordered
@@ -112,19 +108,26 @@ const CookiePolicy = () => {
                 </div>
 
                 <Title level={2}>Managing Your Cookie Preferences</Title>
-                <Paragraph>
-                  You can control and manage cookies in several ways:
-                </Paragraph>
+                <Paragraph>You can control and manage cookies in several ways:</Paragraph>
                 <ul className="cookies-list">
-                  <li><Text strong>Browser Settings:</Text> Most browsers allow you to view, manage, and delete cookies through their settings.</li>
-                  <li><Text strong>Opt-out Tools:</Text> You can opt out of analytics cookies through Google Analytics' opt-out browser add-on.</li>
-                  <li><Text strong>Do Not Track:</Text> We respect Do Not Track signals where technically feasible.</li>
+                  <li>
+                    <Text strong>Browser Settings:</Text> Most browsers allow you to view, manage,
+                    and delete cookies through their settings.
+                  </li>
+                  <li>
+                    <Text strong>Opt-out Tools:</Text> You can opt out of analytics cookies through
+                    Google Analytics' opt-out browser add-on.
+                  </li>
+                  <li>
+                    <Text strong>Do Not Track:</Text> We respect Do Not Track signals where
+                    technically feasible.
+                  </li>
                 </ul>
 
                 <Title level={2}>Essential Cookies</Title>
                 <Paragraph>
-                  Some cookies are essential for our website to function properly. These cannot be 
-                  disabled without affecting the basic functionality of our platform, such as user 
+                  Some cookies are essential for our website to function properly. These cannot be
+                  disabled without affecting the basic functionality of our platform, such as user
                   authentication and security features.
                 </Paragraph>
 
@@ -133,16 +136,23 @@ const CookiePolicy = () => {
                   We may use third-party services that set cookies on your device. These include:
                 </Paragraph>
                 <ul className="cookies-list">
-                  <li><Text strong>Google Analytics:</Text> For website analytics and performance monitoring</li>
-                  <li><Text strong>Social Media:</Text> For social sharing functionality</li>
-                  <li><Text strong>Content Delivery Networks:</Text> For faster content delivery</li>
+                  <li>
+                    <Text strong>Google Analytics:</Text> For website analytics and performance
+                    monitoring
+                  </li>
+                  <li>
+                    <Text strong>Social Media:</Text> For social sharing functionality
+                  </li>
+                  <li>
+                    <Text strong>Content Delivery Networks:</Text> For faster content delivery
+                  </li>
                 </ul>
 
                 <Title level={2}>Updates to This Policy</Title>
                 <Paragraph>
-                  We may update this Cookie Policy from time to time to reflect changes in our practices 
-                  or for other operational, legal, or regulatory reasons. We will notify you of any 
-                  material changes by posting the updated policy on our website.
+                  We may update this Cookie Policy from time to time to reflect changes in our
+                  practices or for other operational, legal, or regulatory reasons. We will notify
+                  you of any material changes by posting the updated policy on our website.
                 </Paragraph>
 
                 <Title level={2}>Contact Us</Title>

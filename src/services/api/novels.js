@@ -1,4 +1,5 @@
 import { httpClient } from '../httpClient';
+import { processImageUrl } from '../../utils/imageUtils';
 
 // Import fallback image
 import fallbackImage from '../../assets/images/novel_default.png';
@@ -37,18 +38,7 @@ export const getNovels = async (params = {}) => {
 
 // Helper function to handle image URL generation with fallback
 const getImageUrl = (coverImgUrl) => {
-  // If no image URL provided, return fallback
-  if (!coverImgUrl) {
-    return fallbackImage;
-  }
-
-  // If it's already a full URL (starts with http), use it
-  if (coverImgUrl.startsWith('http')) {
-    return coverImgUrl;
-  }
-
-  // Otherwise, construct the full URL with our base URL
-  return `${IMAGE_BASE_URL}/${coverImgUrl}`;
+  return processImageUrl(coverImgUrl, IMAGE_BASE_URL, fallbackImage);
 };
 
 // Helper function to transform API data to match component expectations

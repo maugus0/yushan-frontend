@@ -19,7 +19,7 @@ Best regards,
 [Your Name]
 [Your Platform/Website]
 [Your Contact Information]`;
-    
+
     const mailtoLink = `mailto:affiliates@yushan.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailtoLink;
   };
@@ -32,49 +32,52 @@ Best regards,
     {
       icon: <DollarOutlined style={{ fontSize: '32px', color: '#52c41a' }} />,
       title: 'Competitive Commissions',
-      description: 'Earn up to 30% commission on all successful referrals and premium subscriptions.'
+      description:
+        'Earn up to 30% commission on all successful referrals and premium subscriptions.',
     },
     {
       icon: <TeamOutlined style={{ fontSize: '32px', color: '#1890ff' }} />,
       title: 'Growing Community',
-      description: 'Join a thriving community of content creators and earn from our expanding user base.'
+      description:
+        'Join a thriving community of content creators and earn from our expanding user base.',
     },
     {
       icon: <TrophyOutlined style={{ fontSize: '32px', color: '#faad14' }} />,
       title: 'Performance Bonuses',
-      description: 'Get additional bonuses for reaching monthly and yearly performance milestones.'
-    }
+      description: 'Get additional bonuses for reaching monthly and yearly performance milestones.',
+    },
   ];
 
   const requirements = [
     'Active social media presence or content platform',
-    'Alignment with Yushan\'s values and community guidelines',
+    "Alignment with Yushan's values and community guidelines",
     'Commitment to promoting quality content',
     'Minimum age of 18 years',
-    'Valid bank account for commission payments'
+    'Valid bank account for commission payments',
   ];
 
   const steps = [
     {
       title: 'Apply to Join',
-      description: 'Fill out our affiliate application form with your details and platform information.'
+      description:
+        'Fill out our affiliate application form with your details and platform information.',
     },
     {
       title: 'Get Approved',
-      description: 'Our team will review your application within 3-5 business days.'
+      description: 'Our team will review your application within 3-5 business days.',
     },
     {
       title: 'Receive Your Links',
-      description: 'Get your unique affiliate links and promotional materials.'
+      description: 'Get your unique affiliate links and promotional materials.',
     },
     {
       title: 'Start Promoting',
-      description: 'Share Yushan with your audience using your affiliate links.'
+      description: 'Share Yushan with your audience using your affiliate links.',
     },
     {
       title: 'Earn Commissions',
-      description: 'Get paid monthly for all successful referrals and conversions.'
-    }
+      description: 'Get paid monthly for all successful referrals and conversions.',
+    },
   ];
 
   return (
@@ -97,10 +100,10 @@ Best regards,
               <div className="affiliate-content">
                 <Title level={2}>Why Join Our Affiliate Programme?</Title>
                 <Paragraph>
-                  Yushan's Affiliate Programme offers content creators, bloggers, and social media 
-                  influencers the opportunity to earn competitive commissions by promoting our platform 
-                  to their audience. Help readers discover their next favorite story while building 
-                  a sustainable income stream.
+                  Yushan's Affiliate Programme offers content creators, bloggers, and social media
+                  influencers the opportunity to earn competitive commissions by promoting our
+                  platform to their audience. Help readers discover their next favorite story while
+                  building a sustainable income stream.
                 </Paragraph>
 
                 <div className="benefits-section">
@@ -109,7 +112,9 @@ Best regards,
                       <Col xs={24} md={8} key={index}>
                         <Card className="benefit-card" hoverable>
                           <div className="benefit-icon">{benefit.icon}</div>
-                          <Title level={4} className="benefit-title">{benefit.title}</Title>
+                          <Title level={4} className="benefit-title">
+                            {benefit.title}
+                          </Title>
                           <Paragraph className="benefit-description">
                             {benefit.description}
                           </Paragraph>
@@ -151,9 +156,7 @@ Best regards,
                   renderItem={(item, index) => (
                     <List.Item>
                       <List.Item.Meta
-                        avatar={
-                          <div className="step-number">{index + 1}</div>
-                        }
+                        avatar={<div className="step-number">{index + 1}</div>}
                         title={<Text strong>{item.title}</Text>}
                         description={item.description}
                       />
@@ -184,9 +187,7 @@ Best regards,
                 </Paragraph>
 
                 <Title level={2}>Marketing Materials</Title>
-                <Paragraph>
-                  Once approved, you'll get access to:
-                </Paragraph>
+                <Paragraph>Once approved, you'll get access to:</Paragraph>
                 <ul className="materials-list">
                   <li>Branded banners and graphics in various sizes</li>
                   <li>Product screenshots and promotional images</li>
@@ -199,22 +200,19 @@ Best regards,
                   <Card className="cta-card">
                     <Title level={3}>Ready to Get Started?</Title>
                     <Paragraph>
-                      Join thousands of affiliates already earning with Yushan. Apply today and 
+                      Join thousands of affiliates already earning with Yushan. Apply today and
                       start monetizing your audience while promoting quality content.
                     </Paragraph>
                     <Space size="middle">
-                      <Button 
-                        type="primary" 
-                        size="large" 
+                      <Button
+                        type="primary"
+                        size="large"
                         icon={<MailOutlined />}
                         onClick={handleApplyNow}
                       >
                         Apply Now
                       </Button>
-                      <Button 
-                        size="large"
-                        onClick={handleLearnMore}
-                      >
+                      <Button size="large" onClick={handleLearnMore}>
                         Learn More
                       </Button>
                     </Space>
@@ -223,7 +221,8 @@ Best regards,
 
                 <Title level={2}>Contact Our Affiliate Team</Title>
                 <Paragraph>
-                  Have questions about our affiliate programme? Our dedicated affiliate team is here to help:
+                  Have questions about our affiliate programme? Our dedicated affiliate team is here
+                  to help:
                   <br />
                   <Text strong>Email:</Text> affiliates@yushan.com
                   <br />

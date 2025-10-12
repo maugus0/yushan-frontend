@@ -18,10 +18,22 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { icon: <GithubOutlined />, href: 'https://github.com/maugus0/yushan-frontend/', label: 'GitHub' },
-    { icon: <TwitterOutlined />, href: 'https://github.com/maugus0/yushan-backend/', label: 'Twitter' },
+    {
+      icon: <GithubOutlined />,
+      href: 'https://github.com/maugus0/yushan-frontend/',
+      label: 'GitHub',
+    },
+    {
+      icon: <TwitterOutlined />,
+      href: 'https://github.com/maugus0/yushan-backend/',
+      label: 'Twitter',
+    },
     { icon: <LinkedinOutlined />, href: 'https://www.linkedin.com/in/maugus0/', label: 'LinkedIn' },
-    { icon: <FacebookOutlined />, href: 'https://github.com/maugus0/yushan-admin/', label: 'Facebook' },
+    {
+      icon: <FacebookOutlined />,
+      href: 'https://github.com/maugus0/yushan-admin/',
+      label: 'Facebook',
+    },
   ];
 
   const quickLinks = [

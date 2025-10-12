@@ -1,11 +1,10 @@
 import React from 'react';
 import './featurenovels.css';
+import { handleImageError } from '../../../utils/imageUtils';
 import fallbackImage from '../../../assets/images/novel_default.png';
 
 const FeatureNovels = ({ title = 'Featured Novels', novels = [], onNovelClick }) => {
-  const handleImageError = (e) => {
-    e.target.src = fallbackImage;
-  };
+  const onImageError = (e) => handleImageError(e, fallbackImage);
 
   return (
     <div className="feature-novels-container" style={{ background: '#f6f8fa', width: '100%' }}>
@@ -36,7 +35,7 @@ const FeatureNovels = ({ title = 'Featured Novels', novels = [], onNovelClick })
               src={novel.cover}
               alt={novel.title}
               className="feature-novel-cover"
-              onError={handleImageError}
+              onError={onImageError}
             />
             <div className="feature-novel-title">{novel.title}</div>
             <div className="feature-novel-category">{novel.category}</div>

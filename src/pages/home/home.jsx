@@ -12,6 +12,7 @@ import {
   getNewestNovels,
 } from '../../services/api/novels';
 import { GRADIENT_COLORS } from '../../services/api/novels';
+import { handleImageError } from '../../utils/imageUtils';
 import fallbackImage from '../../assets/images/novel_default.png';
 
 const { Title, Paragraph } = Typography;
@@ -70,9 +71,7 @@ const Homepage = () => {
   const [newestNovels, setNewestNovels] = useState([]);
 
   // Handle image error for hero carousel
-  const handleImageError = (e) => {
-    e.target.src = fallbackImage;
-  };
+  const onImageError = (e) => handleImageError(e, fallbackImage);
 
   // Fetch data on component mount
   useEffect(() => {
@@ -171,7 +170,7 @@ const Homepage = () => {
                             src={novel.cover}
                             alt={novel.title}
                             className="home-hero-img-el"
-                            onError={handleImageError}
+                            onError={onImageError}
                           />
                         </div>
                         <div className="home-hero-content">
