@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Typography, Button, Card, Space, Carousel, Row, Col } from 'antd';
 import { BookOutlined, EditOutlined, TrophyOutlined } from '@ant-design/icons';
 import './home.css';
@@ -10,7 +10,8 @@ import {
   getCompletedNovels,
   getNewestNovels,
 } from '../../services/api/novels';
-import novelDefault from '../../assets/images/novel_default.png';
+import { GRADIENT_COLORS } from '../../services/api/novels';
+import fallbackImage from '../../assets/images/novel_default.png';
 
 const { Title, Paragraph } = Typography;
 
@@ -67,7 +68,7 @@ const Homepage = () => {
 
   // Handle image error for hero carousel
   const handleImageError = (e) => {
-    e.target.src = novelDefault;
+    e.target.src = fallbackImage;
   };
 
   // Fetch data on component mount
@@ -141,8 +142,7 @@ const Homepage = () => {
                       <div
                         className="home-hero-blur-bg"
                         style={{
-                          background:
-                            'linear-gradient(135deg, #6B46C1 0%, #9333EA 50%, #7C3AED 100%)',
+                          background: GRADIENT_COLORS,
                           opacity: 0.9,
                         }}
                       />
@@ -218,7 +218,7 @@ const Homepage = () => {
       <section
         className="home-cta-section"
         style={{
-          background: 'linear-gradient(135deg, #6B46C1 0%, #9333EA 50%, #7C3AED 100%)',
+          background: GRADIENT_COLORS,
           padding: '80px 0',
         }}
       >
