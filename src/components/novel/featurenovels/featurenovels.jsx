@@ -13,13 +13,13 @@ const FeatureNovels = ({ title = 'Featured Novels', novels = [], onNovelClick })
       <div className="feature-novels-divider" />
       <div className="feature-novels-list">
         {novels.map((novel) => (
-          <div 
-            className="feature-novel-card" 
+          <div
+            className="feature-novel-card"
             key={novel.id}
             onClick={() => onNovelClick && onNovelClick(novel)}
-            style={{ 
+            style={{
               cursor: onNovelClick ? 'pointer' : 'default',
-              transition: 'transform 0.2s ease-in-out'
+              transition: 'transform 0.2s ease-in-out',
             }}
             onMouseEnter={(e) => {
               if (onNovelClick) {

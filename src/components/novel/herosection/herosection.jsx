@@ -8,8 +8,8 @@ const HeroSection = ({ data, title = 'Meet Webnovel', onItemClick }) => (
     <div className="hero-section-list">
       {data &&
         data.map((item, idx) => (
-          <div 
-            className="hero-section-item" 
+          <div
+            className="hero-section-item"
             key={idx}
             onClick={() => onItemClick && onItemClick(item, idx)}
             style={{ cursor: onItemClick ? 'pointer' : 'default' }}

@@ -5,13 +5,13 @@ import './novelcard.css';
 import fallbackImage from '../../../assets/images/novel_default.png';
 
 const NovelCard = ({ cover, title, category, rating, onClick }) => (
-  <Card 
-    className="novel-card" 
+  <Card
+    className="novel-card"
     styles={{ body: { padding: 0 } }}
     onClick={onClick}
-    style={{ 
+    style={{
       cursor: onClick ? 'pointer' : 'default',
-      transition: 'transform 0.2s ease-in-out'
+      transition: 'transform 0.2s ease-in-out',
     }}
     hoverable={!!onClick}
   >

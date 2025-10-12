@@ -62,7 +62,7 @@ const features = [
 
 const Homepage = () => {
   const navigate = useNavigate();
-  
+
   // State for different novel sections
   const [weeklyFeaturedNovels, setWeeklyFeaturedNovels] = useState([]);
   const [ongoingNovels, setOngoingNovels] = useState([]);
@@ -151,10 +151,10 @@ const Homepage = () => {
                   <div key={novel.id || idx}>
                     <div
                       className="home-hero-slide"
-                      style={{ 
-                        position: 'relative', 
+                      style={{
+                        position: 'relative',
                         justifyContent: 'flex-start',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
                       }}
                       onClick={() => handleNovelClick(novel)}
                     >
@@ -190,7 +190,11 @@ const Homepage = () => {
             </div>
           </div>
           <div className="home-hero-flex-right">
-            <HeroSection data={heroItems} title="About Yushan" onItemClick={handleHeroSectionClick} />
+            <HeroSection
+              data={heroItems}
+              title="About Yushan"
+              onItemClick={handleHeroSectionClick}
+            />
           </div>
         </div>
       </section>
@@ -214,9 +218,9 @@ const Homepage = () => {
                     {feature.title}
                   </Title>
                   <Paragraph className="home-feature-desc">{feature.description}</Paragraph>
-                  <Button 
-                    type="primary" 
-                    size="large" 
+                  <Button
+                    type="primary"
+                    size="large"
                     className="home-feature-btn"
                     onClick={() => {
                       console.log('Button clicked, index:', index);
@@ -239,13 +243,25 @@ const Homepage = () => {
       </section>
 
       {/* Weekly Features Section */}
-      <FeatureNovels title="Weekly Featured" novels={weeklyFeaturedNovels} onNovelClick={handleNovelClick} />
+      <FeatureNovels
+        title="Weekly Featured"
+        novels={weeklyFeaturedNovels}
+        onNovelClick={handleNovelClick}
+      />
 
       {/* Ongoing Novels Section */}
-      <FeatureNovels title="Ongoing Novels" novels={ongoingNovels} onNovelClick={handleNovelClick} />
+      <FeatureNovels
+        title="Ongoing Novels"
+        novels={ongoingNovels}
+        onNovelClick={handleNovelClick}
+      />
 
       {/* Completed Novels Section */}
-      <FeatureNovels title="Completed Novels" novels={completedNovels} onNovelClick={handleNovelClick} />
+      <FeatureNovels
+        title="Completed Novels"
+        novels={completedNovels}
+        onNovelClick={handleNovelClick}
+      />
 
       {/* CTA Section */}
       <section
