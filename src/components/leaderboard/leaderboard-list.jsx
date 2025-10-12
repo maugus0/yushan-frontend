@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { List, Avatar, Skeleton, Spin } from 'antd';
 import { Link } from 'react-router-dom';
 import {
@@ -11,6 +11,36 @@ import {
 } from '@ant-design/icons';
 import { xpToLevel, levelMeta } from '../../utils/levels';
 import './leaderboard-list.css';
+
+// Build absolute URL for images from backend (staging or same-origin /api)
+const API_BASE = (process.env.REACT_APP_API_URL || '/api').replace(/\/$/, '');
+function toAbsoluteUrl(u) {
+  if (!u) return undefined;
+  const s = String(u).trim();
+  if (/^https?:\/\//i.test(s) || /^data:/i.test(s)) return s;
+  const path = s
+    .replace(/^\.\//, '')
+    .replace(/^\/+/, '')
+    .replace(/^api\/+/i, '');
+  return `${API_BASE}/${path}`;
+}
+
+// For now we do NOT request protected images. If URL points to our API, return undefined
+// so Antd Avatar uses its fallback icon. This avoids 401 image requests.
+function resolveImageSrc(u) {
+  const abs = toAbsoluteUrl(u);
+  if (!abs) return undefined;
+  return abs.startsWith(`${API_BASE}/`) ? undefined : abs;
+}
+
+function AvatarMaybeAuth({ src, ...rest }) {
+  const [url, setUrl] = useState(resolveImageSrc(src));
+  useEffect(() => {
+    setUrl(resolveImageSrc(src));
+  }, [src]);
+  // onError: keep icon fallback
+  return <Avatar {...rest} src={url} onError={() => false} />;
+}
 
 const Medal = ({ rank }) => {
   if (rank > 3) return null;
@@ -25,6 +55,9 @@ const RankCell = ({ rank }) => (
   </div>
 );
 
+// helper: prefer a, else b
+const or = (a, b) => (a !== undefined && a !== null ? a : b);
+
 export default function LeaderboardList({
   tab,
   loadingInitial,
@@ -33,7 +66,7 @@ export default function LeaderboardList({
   hasMore,
   onLoadMore,
 }) {
-  const pageSizeGuess = 20;
+  const pageSizeGuess = 50;
 
   // IO anchor and guards
   const anchorRef = useRef(null);
@@ -100,20 +133,24 @@ export default function LeaderboardList({
 
   const renderNovelRow = (item, index) => {
     const rank = index + 1;
-    const id = item.novelId || item.id;
+    const id = item.id ?? item.uuid; // prefer numeric id for /api/novels/{id}
+    const views = or(item.views, item.viewCnt);
+    const votes = or(item.votes, item.voteCnt);
+
     return (
       <div className="lb-row lb-row--novel" key={id || `novel-${index}`}>
         <RankCell rank={rank} />
-
-        {/* Avatar spans both lines */}
         <div className="lb-cell lb-cell--avatar">
-          <Avatar shape="square" size={48} src={item.cover} icon={<ReadOutlined />} />
+          <AvatarMaybeAuth
+            shape="square"
+            size={48}
+            src={item.coverImgUrl || item.cover}
+            icon={<ReadOutlined />}
+          />
         </div>
 
-        {/* Line 1: medal + title + tags (single line, no wrapping) */}
         <div className="lb-cell lb-cell--content-line1">
           <Medal rank={rank} />
-          {/* old inline rank removed; rank is now at the far left */}
           <Link
             to={`/novel/${id}`}
             className="title-link"
@@ -121,7 +158,8 @@ export default function LeaderboardList({
           >
             {item.title || `Novel ${id}`}
           </Link>
-          {item.tags && item.tags.length > 0 && (
+          {item.categoryName && <span className="category-pill">{item.categoryName}</span>}
+          {Array.isArray(item.tags) && item.tags.length > 0 && (
             <div className="novel-tags">
               {item.tags.map((tag, tagIndex) => (
                 <span key={tagIndex} className="tag-pill">
@@ -132,14 +170,13 @@ export default function LeaderboardList({
           )}
         </div>
 
-        {/* Line 2: views + votes */}
         <div className="lb-cell lb-cell--content-line2">
           <span className="desc-item">
-            <FireFilled className="desc-icon views" /> {item.views?.toLocaleString?.() || 0}
+            <FireFilled className="desc-icon views" /> {views?.toLocaleString?.() || 0}
           </span>
           <span className="separator">•</span>
           <span className="desc-item">
-            <LikeFilled className="desc-icon votes" /> {item.votes?.toLocaleString?.() || 0}
+            <LikeFilled className="desc-icon votes" /> {votes?.toLocaleString?.() || 0}
           </span>
         </div>
       </div>
@@ -148,22 +185,23 @@ export default function LeaderboardList({
 
   const renderUserRow = (item, index) => {
     const rank = index + 1;
-    const level = item.level ?? xpToLevel(item.xp || 0);
+    const username = item.username || 'User';
+    const userKey = item.uuid || or(item.userId, username);
+    const xp = or(item.exp, item.xp) || 0;
+    const level = item.level ?? xpToLevel(xp);
     const meta = levelMeta(level);
-    const xp = item.xp ?? 0;
-    return (
-      <div className="lb-row" key={item.userId || item.username || `user-${index}`}>
-        <RankCell rank={rank} />
 
+    return (
+      <div className="lb-row" key={userKey || `user-${index}`}>
+        <RankCell rank={rank} />
         <div className="lb-cell lb-cell--avatar">
-          <Avatar size={48} src={item.avatar} icon={<UserOutlined />} />
+          <AvatarMaybeAuth size={48} src={item.avatarUrl || item.avatar} icon={<UserOutlined />} />
         </div>
         <div className="lb-cell lb-cell--content">
           <div className="row-title">
             <Medal rank={rank} />
-            {/* old inline rank removed; rank is now at the far left */}
-            <Link to={`/profile/${item.userId || item.username}`} className="title-link">
-              {item.username}
+            <Link to={`/profile/${userKey}`} className="title-link">
+              {username}
             </Link>
           </div>
           <div className="row-desc">
@@ -182,32 +220,34 @@ export default function LeaderboardList({
 
   const renderWriterRow = (item, index) => {
     const rank = index + 1;
-    return (
-      <div className="lb-row" key={item.writerId || item.name || `writer-${index}`}>
-        <RankCell rank={rank} />
+    const key = item.uuid || item.username || `writer-${index}`;
 
+    return (
+      <div className="lb-row" key={key}>
+        <RankCell rank={rank} />
         <div className="lb-cell lb-cell--avatar">
-          <Avatar size={48} src={item.avatar} icon={<UserOutlined />} />
+          <AvatarMaybeAuth size={48} src={item.avatarUrl || item.avatar} icon={<UserOutlined />} />
         </div>
         <div className="lb-cell lb-cell--content">
           <div className="row-title">
             <Medal rank={rank} />
-            {/* old inline rank removed; rank is now at the far left */}
-            <Link to={`/profile/${item.writerId || item.name}`} className="title-link">
-              {item.name}
+            <Link to={`/profile/${key}`} className="title-link">
+              {item.username || 'Writer'}
             </Link>
           </div>
           <div className="row-desc">
             <span className="desc-item">
-              <BookFilled className="desc-icon books" /> {item.books || 0}
+              <BookFilled className="desc-icon books" /> {item.novelNum ?? 0}
             </span>
             <span className="separator">•</span>
             <span className="desc-item">
-              <LikeFilled className="desc-icon votes" /> {item.votes?.toLocaleString?.() || 0}
+              <LikeFilled className="desc-icon votes" />{' '}
+              {item.totalVoteCnt?.toLocaleString?.() ?? 0}
             </span>
             <span className="separator">•</span>
             <span className="desc-item">
-              <FireFilled className="desc-icon views" /> {item.views?.toLocaleString?.() || 0}
+              <FireFilled className="desc-icon views" />{' '}
+              {item.totalViewCnt?.toLocaleString?.() ?? 0}
             </span>
           </div>
         </div>
