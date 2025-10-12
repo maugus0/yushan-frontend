@@ -112,14 +112,13 @@ const authService = {
       });
     } finally {
       this.clearTokens();
-      window.location.href = '/login';
     }
   },
 
   // AC5: Handle Token Expiration
   handleUnauthorized() {
     this.clearToken();
-    window.location.href = '/login?expired=true';
+    // Note: Navigation should be handled by the caller/component
   },
 
   async sendVerificationEmail(email) {

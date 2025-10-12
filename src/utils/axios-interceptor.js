@@ -2,6 +2,12 @@ import axios from 'axios';
 import authService from '../services/auth';
 import { message } from 'antd';
 
+// Get the correct path with basename for GitHub Pages
+const getRedirectPath = (path) => {
+  const basename = process.env.NODE_ENV === 'production' ? '/yushan-frontend' : '';
+  return `${basename}${path}`;
+};
+
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -72,7 +78,7 @@ axios.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         authService.clearTokens();
-        window.location.href = '/login?expired=true';
+        window.location.href = getRedirectPath('/login?expired=true');
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
