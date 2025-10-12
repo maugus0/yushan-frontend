@@ -482,7 +482,7 @@ export default function LeaderboardPage() {
             </nav>
           </div>
 
-          {/* Right: filters +  list */}
+          {/* Right: filters + list */}
           <div className="rankings-right">
             <div className="rankings-filters">
               <LeaderboardFilters
