@@ -261,7 +261,8 @@ const Navbar = ({ isAuthenticated, user }) => {
           await authService.logout();
         } catch {
           await authService.clearTokens?.();
-          window.location.href = '/login';
+        } finally {
+          navigate('/login');
         }
       },
     },
