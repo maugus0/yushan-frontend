@@ -82,10 +82,36 @@ function App() {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.user);
 
-  // Initialize auth state on mount (re-uses existing authService)
+  // Initialize auth state on mount and validate token
   useEffect(() => {
-    const authed = authService.isAuthenticated();
-    dispatch(setAuthenticated(authed));
+    const initAuth = async () => {
+      const authed = authService.isAuthenticated();
+
+      if (authed) {
+        // Check if token is expired
+        const isExpired = authService.isTokenExpired();
+
+        if (isExpired) {
+          console.log('Token expired on app load, attempting refresh...');
+          try {
+            // Try to refresh the token
+            await authService.refreshToken();
+            dispatch(setAuthenticated(true));
+          } catch (error) {
+            console.error('Failed to refresh token on app load:', error);
+            // Clear invalid tokens
+            authService.clearTokens();
+            dispatch(setAuthenticated(false));
+          }
+        } else {
+          dispatch(setAuthenticated(true));
+        }
+      } else {
+        dispatch(setAuthenticated(false));
+      }
+    };
+
+    initAuth();
   }, [dispatch]);
 
   return (

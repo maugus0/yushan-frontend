@@ -29,7 +29,7 @@ const disabledBirthdayDate = (current) => {
 /* --------------------------------------------------
  * Component
  * -------------------------------------------------- */
-const AuthForm = ({ mode = 'login', onSuccess }) => {
+const AuthForm = ({ mode = 'login', onSuccess, loginError, registerError }) => {
   const isRegister = mode === 'register';
   const [form] = Form.useForm();
 
@@ -199,6 +199,24 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
         </Form.Item>
       )}
 
+      {/* Login Error Display - Above Email */}
+      {!isRegister && loginError && (
+        <div
+          style={{
+            marginBottom: 16,
+            padding: '8px 12px',
+            backgroundColor: '#fff2f0',
+            border: '1px solid #ffccc7',
+            borderRadius: '4px',
+            color: '#cf1322',
+          }}
+        >
+          <Text type="danger" style={{ fontSize: '14px' }}>
+            {loginError}
+          </Text>
+        </div>
+      )}
+
       {/* Email (login only) */}
       {!isRegister && (
         <Form.Item
@@ -267,7 +285,7 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
           <Select placeholder="Select gender" allowClear>
             <Option value="male">Male</Option>
             <Option value="female">Female</Option>
-            <Option value="prefer_not_to_say">Prefer not to say</Option>
+            <Option value="unknown">Unknown</Option>
           </Select>
         </Form.Item>
       )}
@@ -338,6 +356,24 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
             <Input placeholder="Enter OTP" inputMode="numeric" />
           </Form.Item>
         </>
+      )}
+
+      {/* Register Error Display */}
+      {isRegister && registerError && (
+        <div
+          style={{
+            marginBottom: 16,
+            padding: '8px 12px',
+            backgroundColor: '#fff2f0',
+            border: '1px solid #ffccc7',
+            borderRadius: '4px',
+            color: '#cf1322',
+          }}
+        >
+          <Text type="danger" style={{ fontSize: '14px' }}>
+            {registerError}
+          </Text>
+        </div>
       )}
 
       {/* Submit */}

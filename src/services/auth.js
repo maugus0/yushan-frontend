@@ -6,13 +6,13 @@ import { login, logout, setAuthenticated } from '../store/slices/user';
 const API_URL = process.env.REACT_APP_API_URL || ''; // remove localhost fallback to avoid GH Pages hitting localhost
 const TOKEN_KEY = 'jwt_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
+const TOKEN_EXPIRY_KEY = 'token_expiry';
 
 // Add gender mapping constants
 const GENDER_CODES = {
-  male: 0,
-  female: 1,
-  other: 2,
-  prefer_not_to_say: 3,
+  male: 1,
+  female: 2,
+  unknown: 0,
 };
 
 const authService = {
@@ -39,11 +39,17 @@ const authService = {
     return localStorage.getItem(REFRESH_TOKEN_KEY);
   },
 
-  setTokens(accessToken, refreshToken) {
+  setTokens(accessToken, refreshToken, expiresIn) {
     if (accessToken) {
       localStorage.setItem(TOKEN_KEY, accessToken);
       axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
       store.dispatch(setAuthenticated(true));
+
+      // Store token expiry time if provided (in milliseconds)
+      if (expiresIn) {
+        const expiryTime = Date.now() + expiresIn;
+        localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
+      }
     }
     if (refreshToken) {
       localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
@@ -53,8 +59,20 @@ const authService = {
   clearTokens() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(TOKEN_EXPIRY_KEY);
     delete axios.defaults.headers.common['Authorization'];
     store.dispatch(logout());
+  },
+
+  getTokenExpiry() {
+    const expiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
+    return expiry ? parseInt(expiry, 10) : null;
+  },
+
+  isTokenExpired() {
+    const expiry = this.getTokenExpiry();
+    if (!expiry) return false;
+    return Date.now() > expiry;
   },
 
   // AC3: Check Token Validity
@@ -64,45 +82,98 @@ const authService = {
   },
 
   async login(email, password) {
-    const response = await axios.post(`${API_URL}/auth/login`, {
-      email,
-      password,
-    });
-    const { accessToken, refreshToken, ...userData } = response.data.data;
-    this.setTokens(accessToken, refreshToken);
-    store.dispatch(login(userData));
-    return response.data.data;
+    try {
+      const response = await axios.post(`${API_URL}/auth/login`, {
+        email,
+        password,
+      });
+      const { accessToken, refreshToken, expiresIn, ...userData } = response.data.data;
+      this.setTokens(accessToken, refreshToken, expiresIn);
+      store.dispatch(login(userData));
+      return response.data.data;
+    } catch (error) {
+      // Enhanced error handling for login
+      if (error.response) {
+        // Server responded with error status
+        const status = error.response.status;
+        const message = error.response.data?.message || error.response.data?.error;
+
+        if (status === 400) {
+          throw new Error(message || 'Invalid email or password');
+        } else if (status === 401) {
+          throw new Error(message || 'Invalid email or password');
+        } else if (status === 403) {
+          throw new Error(message || 'Account is locked or suspended');
+        } else if (status === 404) {
+          throw new Error('Account not found');
+        } else if (status === 500) {
+          throw new Error('Server error. Please try again later');
+        } else {
+          throw new Error(message || 'Login failed. Please try again');
+        }
+      } else if (error.request) {
+        // Request made but no response received
+        throw new Error('Network error. Please check your internet connection');
+      } else {
+        // Error in request setup
+        throw new Error(error.message || 'Login failed');
+      }
+    }
   },
 
   async register(values) {
-    // Add validation for required gender
-    if (!values.gender) {
-      throw new Error('Gender is required');
+    try {
+      // Add validation for required gender
+      if (!values.gender) {
+        throw new Error('Gender is required');
+      }
+
+      // Format the data according to API expectations
+      const formattedData = {
+        username: values.username,
+        email: values.email,
+        password: values.password,
+        gender: GENDER_CODES[values.gender],
+        birthday: dayjs(values.birthday).format('YYYY-MM-DD'),
+        code: values.otp, // Changed from otp to code
+      };
+
+      console.log('Sending registration data:', formattedData);
+
+      const response = await axios.post(`${API_URL}/auth/register`, formattedData, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
+
+      const { accessToken, refreshToken, ...userData } = response.data.data;
+      this.setTokens(accessToken, refreshToken);
+      store.dispatch(login(userData));
+      return response.data.data;
+    } catch (error) {
+      // Enhanced error handling for registration
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || error.response.data?.error;
+
+        if (status === 400) {
+          throw new Error(message || 'Invalid registration data. Please check all fields');
+        } else if (status === 409) {
+          throw new Error(message || 'Email already registered');
+        } else if (status === 422) {
+          throw new Error(message || 'Invalid verification code or code expired');
+        } else if (status === 500) {
+          throw new Error('Server error. Please try again later');
+        } else {
+          throw new Error(message || 'Registration failed. Please try again');
+        }
+      } else if (error.request) {
+        throw new Error('Network error. Please check your internet connection');
+      } else {
+        throw new Error(error.message || 'Registration failed');
+      }
     }
-
-    // Format the data according to API expectations
-    const formattedData = {
-      username: values.username,
-      email: values.email,
-      password: values.password,
-      gender: GENDER_CODES[values.gender],
-      birthday: dayjs(values.birthday).format('YYYY-MM-DD'),
-      code: values.otp, // Changed from otp to code
-    };
-
-    console.log('Sending registration data:', formattedData);
-
-    const response = await axios.post(`${API_URL}/auth/register`, formattedData, {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    });
-
-    const { accessToken, refreshToken, ...userData } = response.data.data;
-    this.setTokens(accessToken, refreshToken);
-    store.dispatch(login(userData));
-    return response.data.data;
   },
 
   async logout() {
@@ -123,7 +194,6 @@ const authService = {
 
   async sendVerificationEmail(email) {
     try {
-      //console.log('Sending email verification request:', { email });
       const response = await axios.post(
         `${API_URL}/auth/send-email`,
         { email },
@@ -133,26 +203,72 @@ const authService = {
           },
         }
       );
-      //console.log('Email verification response:', response.data);
       return response.data;
     } catch (error) {
-      // Log detailed error information
+      // Enhanced error handling for OTP sending
       console.error('Send Email Error Details:', {
         status: error.response?.status,
         data: error.response?.data,
-        config: error.config,
         message: error.message,
       });
-      throw error;
+
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || error.response.data?.error;
+
+        if (status === 400) {
+          throw new Error(message || 'Invalid email address');
+        } else if (status === 409) {
+          throw new Error(message || 'Email already registered');
+        } else if (status === 429) {
+          throw new Error('Too many requests. Please wait before trying again');
+        } else if (status === 500) {
+          throw new Error('Server error. Please try again later');
+        } else {
+          throw new Error(message || 'Failed to send verification email');
+        }
+      } else if (error.request) {
+        throw new Error('Network error. Please check your internet connection');
+      } else {
+        throw new Error(error.message || 'Failed to send verification email');
+      }
     }
   },
 
   async refreshToken() {
     const refreshToken = this.getRefreshToken();
-    const response = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
-    const { accessToken, refreshToken: newRefreshToken } = response.data.data;
-    this.setTokens(accessToken, newRefreshToken);
-    return accessToken;
+
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    try {
+      // Make refresh request - this should NOT go through the interceptor retry logic
+      const response = await axios.post(
+        `${API_URL}/auth/refresh`,
+        { refreshToken },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          // Skip the retry interceptor for this request
+          _retry: true,
+        }
+      );
+
+      const { accessToken, refreshToken: newRefreshToken, expiresIn } = response.data.data;
+
+      // Update tokens in storage and axios headers
+      this.setTokens(accessToken, newRefreshToken, expiresIn);
+
+      console.log('Token refreshed successfully');
+      return accessToken;
+    } catch (error) {
+      console.error('Token refresh failed:', error.response?.data || error.message);
+      // Clear invalid tokens
+      this.clearTokens();
+      throw error;
+    }
   },
 };
 
