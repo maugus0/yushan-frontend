@@ -113,7 +113,7 @@ export const getOngoingNovels = async () => {
 export const getCompletedNovels = async () => {
   try {
     const response = await getNovels({
-      size: 100, // Fetch 50 to ensure we get 8 completed after filtering
+      size: 100, // Fetch 100 to ensure we get 8 completed after filtering
       sort: 'createTime', // Sort by creation time instead of rating
       order: 'desc', // Newest first (changed from asc)
       status: 'PUBLISHED', // Only get published novels
