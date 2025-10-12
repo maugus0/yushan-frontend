@@ -18,8 +18,10 @@
         var redirectPath = sessionStorage.getItem('redirectPath');
         if (redirectPath) {
           sessionStorage.removeItem('redirectPath');
-          history.replaceState(null, null, redirectPath);
-        }
+          // Only allow relative paths that start with "/" and do not contain ":" or "//"
+          if (/^\/(?!\/)[^:]*$/.test(redirectPath)) {
+            history.replaceState(null, null, redirectPath);
+          }
       })();
     </script>
 
