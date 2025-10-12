@@ -26,27 +26,35 @@ function normalizePage(resp) {
 
 export default {
   // GET /api/ranking/novel
-  async getNovels({ page = 1, size = 50, categoryId, categorySlug } = {}) {
+  async getNovels({ page = 1, size = 50, categoryId, categorySlug, timeRange, sortBy } = {}) {
     const params = { page: page - 1, size };
     if (categoryId != null) params.categoryId = categoryId; // primary
     if (!params.categoryId && categorySlug) params.categoryName = categorySlug; // fallback
+    if (timeRange) params.timeRange = timeRange; // weekly | monthly | overall
+    if (sortBy) params.sortBy = sortBy; // views | votes
     const res = await axios.get(`${BASE}/ranking/novel`, { params, headers: authHeader() });
     return normalizePage(res);
   },
 
   // GET /api/ranking/user (readers)
-  async getReaders({ page = 1, size = 50 } = {}) {
+  async getReaders({ page = 1, size = 50, timeRange, sortBy } = {}) {
+    const params = { page: page - 1, size };
+    if (timeRange) params.timeRange = timeRange;
+    if (sortBy) params.sortBy = sortBy;
     const res = await axios.get(`${BASE}/ranking/user`, {
-      params: { page: page - 1, size },
+      params,
       headers: authHeader(),
     });
     return normalizePage(res);
   },
 
   // GET /api/ranking/author (writers)
-  async getWriters({ page = 1, size = 50 } = {}) {
+  async getWriters({ page = 1, size = 50, timeRange, sortBy } = {}) {
+    const params = { page: page - 1, size };
+    if (timeRange) params.timeRange = timeRange;
+    if (sortBy) params.sortBy = sortBy; // books | votes | views
     const res = await axios.get(`${BASE}/ranking/author`, {
-      params: { page: page - 1, size },
+      params,
       headers: authHeader(),
     });
     return normalizePage(res);
