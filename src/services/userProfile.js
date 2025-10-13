@@ -227,6 +227,11 @@ const userProfileService = {
       }
     }
   },
+
+  async getUserById(userId) {
+    const response = await axios.get(`${API_URL}/users/${userId}`);
+    return response.data?.data;
+  },
 };
 
 export default userProfileService;

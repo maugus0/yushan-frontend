@@ -3,26 +3,9 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useReadingSettings } from '../../store/readingSettings';
 import { saveProgress, getProgress } from '../../utils/reader';
 import './reader.css';
-import ChapterComments from '../../components/novel/chapter-comments/ChapterComments';
-
-// Mock fetch (replace with real API)
-async function fetchChapter(novelId, chapterId) {
-  await new Promise((r) => setTimeout(r, 250));
-  const num = Number(chapterId);
-  return {
-    novelId,
-    chapterId: num,
-    title: `Chapter ${num}`,
-    previousChapterId: num > 1 ? num - 1 : null,
-    nextChapterId: num < 9999 ? num + 1 : null,
-    // Simple mock paragraphs
-    content: Array.from(
-      { length: 30 },
-      (_, i) =>
-        `<p>Paragraph ${i + 1} of chapter ${num}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>`
-    ).join(''),
-  };
-}
+import novelsApi from '../../services/novels';
+import commentsApi from '../../services/comments';
+import { Button, Input, Pagination } from 'antd';
 
 const SAVE_MS = 2500;
 
@@ -34,20 +17,28 @@ export default function ReaderPage() {
   const [loading, setLoading] = useState(true);
   const [panelOpen, setPanelOpen] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [comments, setComments] = useState([]);
+  const [commentTotal, setCommentTotal] = useState(0);
+  const [commentPage, setCommentPage] = useState(1);
+  const [commentText, setCommentText] = useState('');
+  const [commentError, setCommentError] = useState('');
+  const [commenting, setCommenting] = useState(false);
+  const [globalTip, setGlobalTip] = useState({ message: '', type: 'success', visible: false });
 
   const saveTimerRef = useRef(null);
   const lastSavedRef = useRef(0);
   const pageRef = useRef(null); // reader-page container
   const toolbarRef = useRef(null); // top toolbar (contains Aa button)
 
-  // Load chapter and restore scroll
+  // Fetch chapter content
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-    fetchChapter(novelId, chapterId)
-      .then((data) => {
+    async function fetchChapter() {
+      try {
+        const res = await novelsApi.getChapterContent(novelId, chapterId);
         if (!mounted) return;
-        setChapter(data);
+        setChapter(res);
         setLoading(false);
         const stored = getProgress(novelId);
         if (stored && Number(stored.chapterId) === Number(chapterId)) {
@@ -59,8 +50,14 @@ export default function ReaderPage() {
           window.scrollTo(0, 0);
           setProgress(0);
         }
-      })
-      .catch(() => mounted && setLoading(false));
+      } catch {
+        if (mounted) {
+          setLoading(false);
+          setChapter(null);
+        }
+      }
+    }
+    fetchChapter();
     return () => {
       mounted = false;
     };
@@ -165,6 +162,77 @@ export default function ReaderPage() {
     };
   }, []);
 
+  // Fetch comments for current chapter
+  useEffect(() => {
+    async function fetchComments() {
+      if (!chapter?.id) return; // Use chapter.id
+      try {
+        const res = await commentsApi.listByChapter(chapter.id, {
+          page: commentPage - 1,
+          size: 20,
+        });
+        setComments(Array.isArray(res?.comments) ? res.comments : []);
+        setCommentTotal(res?.totalCount || 0);
+      } catch {
+        setComments([]);
+        setCommentTotal(0);
+      }
+    }
+    fetchComments();
+  }, [chapter?.id, commentPage]);
+
+  // Add comment
+  const handleSubmitComment = async () => {
+    if (!commentText.trim()) {
+      setCommentError('Please enter your comment.');
+      return;
+    }
+    if (!chapter?.id) {
+      showTip('Chapter information is loading, please try again later.', 'error');
+      return;
+    }
+    setCommenting(true);
+    setCommentError('');
+    try {
+      await commentsApi.create({ chapterId: chapter.id, content: commentText }); // Use chapter.id
+      setCommentText('');
+      showTip('Comment submitted successfully', 'success');
+      // Refresh comments
+      const res = await commentsApi.listByChapter(chapter.id, { page: 0, size: 20 });
+      setComments(Array.isArray(res?.comments) ? res.comments : []);
+      setCommentTotal(res?.totalCount || 0);
+      setCommentPage(1);
+    } catch (e) {
+      showTip(e?.response?.data?.message || e?.message || 'Failed to submit comment', 'error');
+    } finally {
+      setCommenting(false);
+    }
+  };
+
+  const showTip = (message, type = 'success', duration = 2000) => {
+    setGlobalTip({ message, type, visible: true });
+    setTimeout(() => {
+      setGlobalTip({ message: '', type, visible: false });
+    }, duration);
+  };
+
+  const handlePrev = async () => {
+    if (!chapter?.previousChapterUuid) return;
+    // 通过 uuid 查 chapterNumber
+    const prev = await novelsApi.getChapterByUuid(chapter.previousChapterUuid);
+    if (prev?.chapterNumber) {
+      navigate(`/read/${novelId}/${prev.chapterNumber}`);
+    }
+  };
+
+  const handleNext = async () => {
+    if (!chapter?.nextChapterUuid) return;
+    const next = await novelsApi.getChapterByUuid(chapter.nextChapterUuid);
+    if (next?.chapterNumber) {
+      navigate(`/read/${novelId}/${next.chapterNumber}`);
+    }
+  };
+
   return (
     <div
       ref={pageRef}
@@ -251,15 +319,15 @@ export default function ReaderPage() {
         <div className="reader-footer-nav">
           <button
             className="reader-nav-btn"
-            disabled={!chapter?.previousChapterId}
-            onClick={() => navigate(`/read/${novelId}/${chapter.previousChapterId}`)}
+            disabled={!chapter?.previousChapterUuid}
+            onClick={handlePrev}
           >
             ← Previous
           </button>
           <button
             className="reader-nav-btn"
-            disabled={!chapter?.nextChapterId}
-            onClick={() => navigate(`/read/${novelId}/${chapter.nextChapterId}`)}
+            disabled={!chapter?.nextChapterUuid}
+            onClick={handleNext}
           >
             Next →
           </button>
@@ -275,8 +343,80 @@ export default function ReaderPage() {
         role="complementary"
         aria-label="Chapter comments sidebar"
       >
-        <ChapterComments novelId={novelId} chapterId={chapterId} />
+        <div>
+          <h3>Chapter Comments ({commentTotal})</h3>
+          <div style={{ marginBottom: 12 }}>
+            <Input.TextArea
+              rows={3}
+              placeholder="Write a comment"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              disabled={commenting}
+            />
+            {commentError && <div style={{ color: 'red', marginTop: 4 }}>{commentError}</div>}
+            <Button
+              type="primary"
+              onClick={handleSubmitComment}
+              loading={commenting}
+              style={{ marginTop: 8 }}
+            >
+              Add Comment
+            </Button>
+          </div>
+          {comments.map((c) => (
+            <div
+              key={c.id}
+              style={{ background: '#f7f8fa', borderRadius: 8, padding: 10, marginBottom: 8 }}
+            >
+              {c.userId ? (
+                <Link
+                  to={`/profile?userId=${encodeURIComponent(c.userId)}`}
+                  style={{ color: '#1677ff', fontWeight: 600 }}
+                >
+                  {c.username}
+                </Link>
+              ) : (
+                <span style={{ color: '#1677ff', fontWeight: 600 }}>{c.username}</span>
+              )}
+              <span style={{ marginLeft: 12, color: '#888', fontSize: 12 }}>
+                {c.createTime ? new Date(c.createTime).toLocaleString() : ''}
+              </span>
+              <div style={{ marginTop: 4 }}>{c.content}</div>
+            </div>
+          ))}
+          <Pagination
+            current={commentPage}
+            pageSize={20}
+            total={commentTotal}
+            showSizeChanger={false}
+            onChange={setCommentPage}
+            style={{ marginTop: 12 }}
+          />
+        </div>
       </div>
+      {globalTip.visible && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '30vh',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            minWidth: 240,
+            background: globalTip.type === 'success' ? '#52c41a' : '#ff4d4f',
+            color: '#fff',
+            padding: '18px 32px',
+            borderRadius: 8,
+            fontSize: '1.1rem',
+            zIndex: 9999,
+            textAlign: 'center',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
+            opacity: 0.97,
+            pointerEvents: 'none',
+          }}
+        >
+          {globalTip.message}
+        </div>
+      )}
     </div>
   );
 }
