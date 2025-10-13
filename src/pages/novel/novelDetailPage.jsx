@@ -36,6 +36,7 @@ import { toAbsoluteUrl } from '../../services/_http';
 import testImg from '../../assets/images/testimg2.png'; // keep fallback
 import PowerStatusVote from '../../components/novel/novelcard/powerStatusVote';
 import ReviewSection from '../../components/novel/novelcard/reviewSection';
+import axios from 'axios';
 
 const REPORT_TYPE_OPTIONS = [
   { label: 'Pornographic Content', value: 'PORNOGRAPHIC' },
@@ -83,6 +84,27 @@ export default function NovelDetailPage() {
 
   // chapter list state
   const [chapterList, setChapterList] = useState([]);
+
+
+  const [voteRanking, setVoteRanking] = useState(null);
+  const [voteRankType, setVoteRankType] = useState('Vote Ranking');
+
+  useEffect(() => {
+    async function fetchVoteRanking() {
+      if (!novelId) return;
+      try {
+        const apiBase = process.env.REACT_APP_API_URL || '/api';
+        const url = `${apiBase.replace(/\/$/, '')}/ranking/novel/${novelId}/rank`;
+        const res = await axios.get(url);
+        setVoteRanking(res?.data?.data?.rank ?? null);
+        setVoteRankType(res?.data?.data?.rankType ?? 'Vote Ranking');
+      } catch {
+        setVoteRanking(null);
+        setVoteRankType('Vote Ranking');
+      }
+    }
+    fetchVoteRanking();
+  }, [novelId]);
 
   // Show tip for a short duration
   const showTip = (message, type = 'success', duration = 2000) => {
@@ -202,31 +224,41 @@ export default function NovelDetailPage() {
 
   // Read: try to jump to last read chapter from /history; fallback to 1
   const handleReadNovel = async () => {
+    console.log('handleReadNovel called', novelId);
     try {
-      // 1. Get user's reading history for this novel
       const historyRes = await historyApi.list({ page: 0, size: 20 });
-      let chapterNumber = null;
-      if (Array.isArray(historyRes?.data?.content)) {
-        const found = historyRes.data.content.find((h) => String(h.novelId) === String(novelId));
-        if (found && found.chapterNumber) chapterNumber = found.chapterNumber;
+      console.log('historyRes:', historyRes);
+      console.log('historyRes.content:', historyRes && historyRes.content);
+      let chapterNumber;
+      if (Array.isArray(historyRes?.content)) {
+        console.log('history content:', historyRes.content, 'novelId:', novelId);
+        const found = historyRes.content.find(
+          (h) => String(h.novelId) === String(novelId)
+        );
+        console.log('found:', found);
+        if (found && !isNaN(Number(found.chapterNumber))) {
+          chapterNumber = Number(found.chapterNumber);
+          console.log('qqqqqq');
+        }
       }
-      // 2. If not found, get the first chapter's chapterNumber of this novel
-      if (!chapterNumber) {
-        const chaptersRes = await novelsApi.getChapters(novelId);
-        const firstChapter = chaptersRes?.chapters?.[0];
-        if (firstChapter && firstChapter.chapterNumber) chapterNumber = firstChapter.chapterNumber;
+      if (typeof chapterNumber === 'number') {
+        navigate(`/read/${novelId}/${chapterNumber}`);
+      } else {
+        navigate(`/read/${novelId}/1`);
+        console.log('ssssss');
       }
-      // 3. If still not found, fallback to 1
-      if (!chapterNumber) chapterNumber = 1;
-
-      // 4. Navigate to the chapterNumber
-      navigate(`/read/${novelId}/${chapterNumber}`);
     } catch {
       navigate(`/read/${novelId}/1`);
     }
   };
 
-  const handleJumpToChapter = (chapterId, chapterNumber) => {
+  const handleJumpToChapter = async (chapterId, chapterNumber) => {
+    try {
+      // Always record reading history when jumping to a chapter
+      await historyApi.recordRead(novelId, chapterId);
+    } catch (e) {
+      // Optionally handle error, or ignore
+    }
     setRecentRead({ id: chapterId, title: `Chapter ${chapterNumber}` });
     navigate(`/read/${novelId}/${chapterNumber}`);
   };
@@ -490,18 +522,7 @@ export default function NovelDetailPage() {
             <span className="rating-count">({novel.ratingsCount} ratings)</span>
           </div>
 
-          {/* --- mock ranking tags start --- */}
-          <div className="novel-rankings-section" style={{ margin: '8px 0 8px 0', gap: 18 }}>
-            <span className="novel-ranking-tag" style={{ color: '#4088e1', fontWeight: 600 }}>
-              <span style={{ marginRight: 4 }}>🏆</span>Popularity Ranking:{' '}
-              <span style={{ color: '#1677ff', marginLeft: 2 }}>#1</span>
-            </span>
-            <span className="novel-ranking-tag" style={{ color: '#4088e1', fontWeight: 600 }}>
-              <span style={{ marginRight: 4 }}>👍</span>Vote Ranking:{' '}
-              <span style={{ color: '#1677ff', marginLeft: 2 }}>#3</span>
-            </span>
-          </div>
-          {/* --- mock ranking tags end --- */}
+
 
           <div className="novel-rankings-buttons-container">
             <div className="novel-buttons-section">
@@ -582,15 +603,16 @@ export default function NovelDetailPage() {
           <h2 className="section-title">Synopsis</h2>
           <div className="novel-synopsis">{novel.synopsis}</div>
 
-          <h2 className="section-title">Power Status</h2>
+          <h2 className="section-title">Ranking Status</h2>
           {/* PowerStatusVote display，votesLeft convert voteCnt */}
           <PowerStatusVote
-            ranking={1}
+            ranking={voteRanking}
             voteCount={novel.votes}
             votesLeft={votesLeft}
             onVote={handleVote}
             loading={voting}
             disableVote={votesLeft <= 0}
+            rankType={voteRankType} 
           />
 
           <h2 className="section-title" style={{ marginTop: 16 }}>
