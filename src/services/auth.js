@@ -152,11 +152,7 @@ const authService = {
       return response.data.data;
     } catch (error) {
       // Enhanced error handling for registration
-      console.error('Registration error details:', {
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.message,
-      });
+      // Removed console.error for production safety
 
       if (error.response) {
         const status = error.response.status;
