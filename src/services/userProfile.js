@@ -151,7 +151,7 @@ const userProfileService = {
         const status = error.response.status;
         const message = error.response.data?.message || error.response.data?.error;
 
-        console.log('Error response:', { status, message, data: error.response.data });
+        console.error('Error response:', { status, message, data: error.response.data });
 
         // Check for specific email exists error
         if (message && message.toLowerCase().includes('email already')) {
