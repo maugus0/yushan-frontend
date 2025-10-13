@@ -200,7 +200,7 @@ export default function LeaderboardList({
         <div className="lb-cell lb-cell--content">
           <div className="row-title">
             <Medal rank={rank} />
-            <Link to={`/profile/${userKey}`} className="title-link">
+            <Link to={`/profile?userId=${encodeURIComponent(userKey)}`} className="title-link">
               {username}
             </Link>
           </div>
@@ -231,7 +231,8 @@ export default function LeaderboardList({
         <div className="lb-cell lb-cell--content">
           <div className="row-title">
             <Medal rank={rank} />
-            <Link to={`/profile/${key}`} className="title-link">
+            {/* 修改为跳转到 /profile?userId=xxx */}
+            <Link to={`/profile?userId=${encodeURIComponent(key)}`} className="title-link">
               {item.username || 'Writer'}
             </Link>
           </div>
@@ -258,7 +259,8 @@ export default function LeaderboardList({
   const renderRow = (item, idx) => {
     if (tab === 'novels') return renderNovelRow(item, idx);
     if (tab === 'users') return renderUserRow(item, idx);
-    return renderWriterRow(item, idx);
+    if (tab === 'writer' || tab === 'writers') return renderWriterRow(item, idx);
+    return null;
   };
 
   const listData =
