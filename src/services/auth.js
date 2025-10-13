@@ -192,7 +192,6 @@ const authService = {
     }
   },
 
-  // AC5: Handle Token Expiration
   handleUnauthorized() {
     this.clearToken();
     // Note: Navigation should be handled by the caller/component

@@ -7,9 +7,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ConfigProvider, App as AntApp, message } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-
-import 'antd/dist/reset.css'; // Import Ant Design styles
 import { persistor } from './store';
+import 'antd/dist/reset.css';
+
 import { setAuthenticated } from './store/slices/user';
 import authService from './services/auth';
 
@@ -34,17 +34,16 @@ import Profile from './pages/profile/profile';
 import EditProfile from './pages/editprofile/editprofile';
 import Leaderboard from './pages/leaderboard/leaderboard';
 import Library from './pages/library/library';
+import WriterDashboard from './pages/writerdashboard/writerdashboard';
+import WriterWorkspace from './pages/writerworkspace/writerworkspace';
+import WriterInteraction from './pages/writerinteraction/writerinteraction';
+import WriterCreate from './pages/writercreate/writercreate';
+import WriterStoryProfile from './pages/writerstoryprofile/writerstoryprofile';
+import WriterCreateChapters from './pages/writercreatechapters/writercreatechapters';
+import WriterAuth from './pages/writerauth/writerauth';
 import NovelDetailPage from './pages/novel/novelDetailPage';
 
-// Writer-related pages
-import WriterDashboard from './pages/writerdashboard/writerdashboard';
-import WriterCreate from './pages/writercreate/writercreate';
-import WriterCreateChapters from './pages/writercreatechapters/writercreatechapters';
-import WriterWorkspace from './pages/writerworkspace/writerworkspace';
-import WriterStorySetting from './pages/writerstorysetting/writerstorysetting';
-import WriterStoryProfile from './pages/writerstoryprofile/writerstoryprofile';
-import WriterInteraction from './pages/writerinteraction/writerinteraction';
-
+import { UserProvider } from './store/UserContext';
 // Legal and info pages
 import TermsOfService from './pages/terms/terms';
 import CookiePolicy from './pages/cookies/cookies';
@@ -75,8 +74,12 @@ message.config({
   maxCount: 3,
 });
 
-const ProtectedRouteWrapper = ({ isAuthenticated, children }) =>
-  isAuthenticated ? children : <Navigate to="/login" replace />;
+const ProtectedRouteWrapper = ({ isAuthenticated, children }) => {
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
 
 function App() {
   const dispatch = useDispatch();
@@ -152,7 +155,6 @@ function App() {
                     }
                   />
 
-                  {/* Public home */}
                   <Route
                     path="/"
                     element={
@@ -188,14 +190,113 @@ function App() {
                     }
                   />
 
-                  {/* Writer (kept exactly as original) */}
-                  <Route path="/writerdashboard" element={<WriterDashboard />} />
-                  <Route path="/writerworkspace" element={<WriterWorkspace />} />
-                  <Route path="/writerinteraction" element={<WriterInteraction />} />
-                  <Route path="/writercreate" element={<WriterCreate />} />
-                  <Route path="/writerstorysetting" element={<WriterStorySetting />} />
-                  <Route path="/writerstoryprofile" element={<WriterStoryProfile />} />
-                  <Route path="/writercreatechapters" element={<WriterCreateChapters />} />
+                  {/* Legal and info pages */}
+                  <Route
+                    path="/terms"
+                    element={
+                      <LayoutWrapper>
+                        <TermsOfService />
+                      </LayoutWrapper>
+                    }
+                  />
+                  <Route
+                    path="/cookies"
+                    element={
+                      <LayoutWrapper>
+                        <CookiePolicy />
+                      </LayoutWrapper>
+                    }
+                  />
+                  <Route
+                    path="/affliate-programme"
+                    element={
+                      <LayoutWrapper>
+                        <AffiliateProgram />
+                      </LayoutWrapper>
+                    }
+                  />
+
+                  {/* Writer routes with ProtectedRouteWrapper and UserProvider */}
+                  <Route
+                    path="/writerdashboard"
+                    element={
+                      <ProtectedRouteWrapper isAuthenticated={isAuthenticated}>
+                        <UserProvider>
+                          <WriterDashboard />
+                        </UserProvider>
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
+                    path="/writerworkspace"
+                    element={
+                      <ProtectedRouteWrapper isAuthenticated={isAuthenticated}>
+                        <UserProvider>
+                          <WriterWorkspace />
+                        </UserProvider>
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
+                    path="/writerinteraction"
+                    element={
+                      <ProtectedRouteWrapper isAuthenticated={isAuthenticated}>
+                        <UserProvider>
+                          <WriterInteraction />
+                        </UserProvider>
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
+                    path="/writercreate"
+                    element={
+                      <ProtectedRouteWrapper isAuthenticated={isAuthenticated}>
+                        <UserProvider>
+                          <WriterCreate />
+                        </UserProvider>
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
+                    path="/writerstoryprofile"
+                    element={
+                      <ProtectedRouteWrapper isAuthenticated={isAuthenticated}>
+                        <UserProvider>
+                          <WriterStoryProfile />
+                        </UserProvider>
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
+                    path="/writercreatechapters"
+                    element={
+                      <ProtectedRouteWrapper isAuthenticated={isAuthenticated}>
+                        <UserProvider>
+                          <WriterCreateChapters />
+                        </UserProvider>
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+                  <Route
+                    path="/writerauth"
+                    element={
+                      <ProtectedRouteWrapper isAuthenticated={isAuthenticated}>
+                        <UserProvider>
+                          <WriterAuth />
+                        </UserProvider>
+                      </ProtectedRouteWrapper>
+                    }
+                  />
+
+                  {/* Library route */}
+                  <Route
+                    path="/library"
+                    element={
+                      <LayoutWrapper>
+                        <Library />
+                      </LayoutWrapper>
+                    }
+                  />
 
                   {/* Library */}
                   <Route

@@ -1,0 +1,123 @@
+.writerdashboard-page {
+  min-height: 100vh;
+  background: #fff;
+  padding: 0;
+}
+
+.writerdashboard-content {
+  margin-left: 220px;
+  padding: 32px 32px 0 32px;
+  min-height: 100vh;
+  background: #f7f8fa;
+}
+
+.writerdashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  position: fixed;
+  top: 0;
+  left: 220px;
+  width: calc(100% - 220px);
+  height: 60px;
+  background: #fff;
+  border-bottom: 1px solid #e1e6f5;
+  z-index: 101;
+  padding: 0 32px;
+}
+
+.writerdashboard-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #283157;
+  display: flex;
+  align-items: center;
+  height: 60px;
+  margin-left: 0;
+  margin-top: 6px;
+}
+
+.writerdashboard-novel-card {
+  width: 100%;
+  margin-top: 80px;
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  min-height: 420px;
+}
+
+.writerdashboard-novel-info {
+  display: flex;
+  align-items: flex-start;
+  min-height: 220px;
+}
+
+.writerdashboard-novel-cover {
+  width: 140px;
+  height: 190px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-right: 32px;
+  margin-left: 20px;
+  box-shadow: 0 4px 24px rgba(81, 95, 160, 0.08);
+}
+
+.writerdashboard-novel-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.writerdashboard-novel-title {
+  margin-bottom: 8px !important;
+  text-align: left;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  color: #283157;
+}
+
+.writerdashboard-novel-desc {
+  margin-bottom: 16px !important;
+  display: block;
+  text-align: left;
+  font-size: 16px;
+  color: #515fa0;
+}
+
+.writerdashboard-novel-stat-item {
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.writerdashboard-novel-stat-value {
+  font-size: 20px;
+  color: #283157;
+}
+
+.writerdashboard-novel-stat-label {
+  font-size: 14px;
+  color: #888;
+}
+
+.writerdashboard-charts-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 2%;
+  margin-bottom: 24px;
+}
+
+.writerdashboard-chart-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.writerdashboard-chart-echarts {
+  width: 100%;
+  height: 280px;
+}
+
+.writerdashboard-gender-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}

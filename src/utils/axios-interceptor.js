@@ -1,3 +1,4 @@
+// src/utils/axios-interceptor.js
 import axios from 'axios';
 import authService from '../services/auth';
 import { message } from 'antd';
@@ -94,7 +95,6 @@ export const setupAxiosInterceptors = (axiosInstance) => {
 
       // Mark this request as retried to prevent infinite loops
       originalRequest._retry = true;
-      isRefreshing = true;
 
       try {
         console.log('Access token expired, refreshing...');
@@ -123,8 +123,6 @@ export const setupAxiosInterceptors = (axiosInstance) => {
         }, 500);
 
         return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
       }
     }
   );
@@ -132,8 +130,5 @@ export const setupAxiosInterceptors = (axiosInstance) => {
 
 // Setup interceptors for the default axios instance
 setupAxiosInterceptors(axios);
-
-// Add default headers
-axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 export default axios;
