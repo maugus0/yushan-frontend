@@ -15,10 +15,7 @@ const Library = () => {
   const [novels, setNovels] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [tab, setTab] = useState('library');
-  const [libraryPage, setLibraryPage] = useState(1);
-  const [libraryTotal, setLibraryTotal] = useState(0);
   const [historyList, setHistoryList] = useState([]);
-  const [historyPage, setHistoryPage] = useState(1);
   const navigate = useNavigate();
 
   const fetchLibraryData = useCallback(async () => {
@@ -28,7 +25,6 @@ const Library = () => {
     };
     const novels = await libraryService.getLibraryNovels(filters);
     setNovels(novels.data.content);
-    setLibraryTotal(novels.data.totalElements || 0);
   }, []);
 
   const fetchHistoryData = useCallback(async () => {
@@ -51,11 +47,6 @@ const Library = () => {
       fetchHistoryData();
     }
   }, [tab, fetchHistoryData]);
-
-  useEffect(() => {
-    if (tab === 'library') setLibraryPage(1);
-    if (tab === 'history') setHistoryPage(1);
-  }, [tab]);
 
   const handleEdit = () => {
     setEditMode(true);

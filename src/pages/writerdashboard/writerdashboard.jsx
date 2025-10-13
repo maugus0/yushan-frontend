@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
-import { Select, Card, List, Typography, Tag, Row, Col, Divider } from 'antd';
+import { Select, Card, Typography, Tag, Row, Col, Divider } from 'antd';
 import './writerdashboard.css';
 import novelService from '../../services/novel';
 import userService from '../../services/user';

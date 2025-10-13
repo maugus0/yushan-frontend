@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Tabs, Modal, Radio, Input, Form, Select } from 'antd';
+import { Tabs, Select } from 'antd';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerinteraction.css';
 import novelService from '../../services/novel';
@@ -12,10 +12,6 @@ const PAGE_SIZE = 1000;
 const WriterInteraction = () => {
   const [novels, setNovels] = useState([]);
   const [reviewsTab, setReviewsTab] = useState('reviews');
-  const [reportModal, setReportModal] = useState({ visible: false, id: null });
-  const [abuseContent, setAbuseContent] = useState('');
-  const [reportTried, setReportTried] = useState(false);
-  const [form] = Form.useForm();
   const [selectedNovelId, setSelectedNovelId] = useState(null);
 
   const [reviewsList, setReviewsList] = useState([]);
@@ -74,18 +70,6 @@ const WriterInteraction = () => {
   }, [reviewsTab, selectedNovelId]);
 
   const currentList = reviewsTab === 'reviews' ? reviewsList : commentsList;
-  const currentPage = reviewsTab === 'reviews' ? reviewsPage : commentsPage;
-  const total = reviewsTab === 'reviews' ? reviewsTotal : commentsTotal;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-
-  const handlePrev = () => {
-    if (reviewsTab === 'reviews') setReviewsPage((p) => Math.max(1, p - 1));
-    else setCommentsPage((p) => Math.max(1, p - 1));
-  };
-  const handleNext = () => {
-    if (reviewsTab === 'reviews') setReviewsPage((p) => p + 1);
-    else setCommentsPage((p) => p + 1);
-  };
 
   return (
     <div className="writerinteraction-page">
