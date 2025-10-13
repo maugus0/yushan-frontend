@@ -26,12 +26,11 @@ function normalizePage(resp) {
 
 export default {
   // GET /api/ranking/novel
-  async getNovels({ page = 1, size = 50, categoryId, categorySlug, timeRange, sortBy } = {}) {
+  async getNovels({ page = 1, size = 50, categoryId, sortType, timeRange } = {}) {
     const params = { page: page - 1, size };
-    if (categoryId != null) params.categoryId = categoryId; // primary
-    if (!params.categoryId && categorySlug) params.categoryName = categorySlug; // fallback
+    if (categoryId != null) params.category = categoryId; 
     if (timeRange) params.timeRange = timeRange; // weekly | monthly | overall
-    if (sortBy) params.sortBy = sortBy; // views | votes
+    if (sortType) params.sortType = sortType; // view | vote
     const res = await axios.get(`${BASE}/ranking/novel`, { params, headers: authHeader() });
     return normalizePage(res);
   },
