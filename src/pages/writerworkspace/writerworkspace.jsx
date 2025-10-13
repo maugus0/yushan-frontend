@@ -89,7 +89,10 @@ const WriterWorkspace = () => {
       return (
         <Menu
           onClick={({ key }) => handleMenuClick(key, id)}
-          items={[{ key: 'delete', label: 'DELETE' }]}
+          items={[
+            { key: 'setting', label: 'SETTING' },
+            { key: 'delete', label: 'DELETE' },
+          ]}
         />
       );
     }
@@ -98,7 +101,9 @@ const WriterWorkspace = () => {
         <Menu
           onClick={({ key }) => handleMenuClick(key, id)}
           items={[
+            { key: 'setting', label: 'SETTING' },
             { key: 'show', label: 'SHOW' },
+            { key: 'delete', label: 'DELETE' },
             story.isCompleted
               ? { key: 'ongoing', label: 'ONGOING' }
               : { key: 'completed', label: 'COMPLETED' },
