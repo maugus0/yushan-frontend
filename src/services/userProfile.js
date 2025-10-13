@@ -71,13 +71,9 @@ const userProfileService = {
         if (profileData.username) formData.append('username', profileData.username);
         if (profileData.email) formData.append('email', profileData.email);
 
-        // Gender should be sent as integer (0, 1, 2), not string
+        // Gender should be sent as uppercase string (MALE, FEMALE, UNKNOWN)
         if (profileData.gender !== undefined) {
-          const genderValue =
-            typeof profileData.gender === 'number'
-              ? profileData.gender
-              : GENDER_MAP[profileData.gender] || 0;
-          formData.append('gender', genderValue.toString());
+          formData.append('gender', profileData.gender);
         }
 
         if (profileData.profileDetail !== undefined) {
@@ -110,12 +106,9 @@ const userProfileService = {
           profileDetail: profileData.profileDetail || '',
         };
 
-        // Gender should be sent as integer (0, 1, 2), not string
+        // Gender should be sent as uppercase string (MALE, FEMALE, UNKNOWN)
         if (profileData.gender !== undefined) {
-          jsonData.gender =
-            typeof profileData.gender === 'number'
-              ? profileData.gender
-              : GENDER_MAP[profileData.gender] || 0;
+          jsonData.gender = profileData.gender;
         }
 
         if (profileData.verificationCode) {
@@ -158,6 +151,13 @@ const userProfileService = {
         const status = error.response.status;
         const message = error.response.data?.message || error.response.data?.error;
 
+        console.log('Error response:', { status, message, data: error.response.data });
+
+        // Check for specific email exists error
+        if (message && message.toLowerCase().includes('email already')) {
+          throw new Error('Email already exists. Please use a different email.');
+        }
+
         if (status === 400) {
           throw new Error(message || 'Invalid profile data. Please check all fields');
         } else if (status === 401) {
@@ -196,11 +196,20 @@ const userProfileService = {
       return response.data;
     } catch (error) {
       console.error('Send email verification error:', error);
+      console.log('Error response:', {
+        status: error.response?.status,
+        data: error.response?.data,
+      });
 
       // Enhanced error handling
       if (error.response) {
         const status = error.response.status;
         const message = error.response.data?.message || error.response.data?.error;
+
+        // Check for specific email exists error
+        if (message && message.toLowerCase().includes('email already')) {
+          throw new Error('Email already exists. Please use a different email.');
+        }
 
         if (status === 400) {
           throw new Error(message || 'Invalid email address');

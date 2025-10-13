@@ -22,12 +22,18 @@ const Register = () => {
       message.success('Registration successful! Welcome to Yushan!', 5);
       navigate('/');
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Registration error caught in component:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        stack: error.stack,
+      });
 
       // Display user-friendly error message
       const errorMessage =
         error.message || error.response?.data?.message || 'Registration failed. Please try again';
 
+      console.log('Setting error message:', errorMessage);
       setRegisterError(errorMessage); // Set error for display in form
       message.error(errorMessage, 5); // Show for 5 seconds
 
@@ -40,7 +46,10 @@ const Register = () => {
           otpInput.classList.add('shake');
           setTimeout(() => otpInput.classList.remove('shake'), 500);
         }
-      } else if (error.message?.includes('Email already')) {
+      } else if (
+        error.message?.includes('Email already') ||
+        error.message?.includes('email already')
+      ) {
         // Highlight email field
         const emailInput = document.querySelector('input[type="email"]');
         if (emailInput) {
@@ -55,7 +64,6 @@ const Register = () => {
   return (
     <div style={{ maxWidth: 480, margin: '48px auto', padding: '0 16px' }}>
       <Breadcrumb
-        // Use React Router <Link> to respect basename on GitHub Pages
         items={[{ title: <Link to="/">Home</Link> }, { title: 'Register' }]}
         style={{ marginBottom: 16 }}
       />
