@@ -40,7 +40,6 @@ const novelService = {
     return response.data;
   },
   async changeNovelDetailById(novelId, novelData) {
-    console.log('Changing novel detail for id:', novelId, 'with data:', novelData);
     const response = await axios.put(`${BASE}/novels/${novelId}`, novelData, {
       headers: authHeader(),
     });

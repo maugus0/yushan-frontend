@@ -24,7 +24,6 @@ const Library = () => {
       page: 0,
     };
     const novels = await libraryService.getLibraryNovels(filters);
-    console.log(novels.data.content);
     setNovels(novels.data.content);
   }, []);
 
@@ -34,7 +33,6 @@ const Library = () => {
       page: 0,
     };
     const historynovels = await historyService.getHistoryNovels(filters);
-    console.log(historynovels.content);
     setHistoryList(historynovels.content);
   }, []);
 
