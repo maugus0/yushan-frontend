@@ -33,7 +33,6 @@ const Register = () => {
       const errorMessage =
         error.message || error.response?.data?.message || 'Registration failed. Please try again';
 
-      console.log('Setting error message:', errorMessage);
       setRegisterError(errorMessage); // Set error for display in form
       message.error(errorMessage, 5); // Show for 5 seconds
 
