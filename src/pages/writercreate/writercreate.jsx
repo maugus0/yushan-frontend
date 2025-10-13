@@ -120,7 +120,6 @@ const WriterCreate = () => {
       res = await novelService.changeNovelDetailById(incomingId, novelData);
     } else {
       res = await novelService.createNovel(novelData);
-      console.log('create res: ', res);
     }
     await novelService.submitNovelForReview(res.id);
     setSuccessModal(true);
