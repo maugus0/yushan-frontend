@@ -1,93 +1,93 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Card, Empty, Breadcrumb, Button } from 'antd';
+import { Card, Breadcrumb, Button } from 'antd';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import './leaderboard.css'; // Ensure this file contains responsive styles
+import './leaderboard.css';
 import LeaderboardFilters from '../../components/leaderboard/leaderboard-filters';
 import LeaderboardList from '../../components/leaderboard/leaderboard-list';
-import {
-  getNovelsLeaderboard,
-  getUsersLeaderboard,
-  getWritersLeaderboard,
-} from '../../services/leaderboard';
+import rankingsApi from '../../services/rankings';
 
 const TAB_KEYS = { NOVELS: 'novels', READERS: 'users', WRITERS: 'writers' };
+const DEFAULT_FILTERS = { timeRange: 'overall', genre: 'all', sortBy: 'views', pageSize: 50 };
 
-const DEFAULT_FILTERS = { timeRange: 'overall', genre: 'all', sortBy: 'views', pageSize: 20 };
-
-const NOVEL_CATEGORIES = [
-  'Action',
-  'Adventure',
-  'Martial Arts',
-  'Fantasy',
-  'Sci-Fi',
-  'Urban',
-  'Historical',
-  'Eastern Fantasy',
-  'Wuxia',
-  'Xianxia',
-  'Military',
-  'Sports',
-  'Romance',
-  'Drama',
-  'Slice of Life',
-  'School Life',
-  'Comedy',
+// Hardcoded categories with ids (used for left nav + local filtering)
+const CATEGORY_LIST = [
+  { id: 1, slug: 'action', name: 'Action' },
+  { id: 2, slug: 'adventure', name: 'Adventure' },
+  { id: 3, slug: 'martial-arts', name: 'Martial Arts' },
+  { id: 4, slug: 'fantasy', name: 'Fantasy' },
+  { id: 5, slug: 'sci-fi', name: 'Sci-Fi' },
+  { id: 6, slug: 'urban', name: 'Urban' },
+  { id: 7, slug: 'historical', name: 'Historical' },
+  { id: 8, slug: 'eastern-fantasy', name: 'Eastern Fantasy' },
+  { id: 9, slug: 'wuxia', name: 'Wuxia' },
+  { id: 10, slug: 'xianxia', name: 'Xianxia' },
+  { id: 11, slug: 'military', name: 'Military' },
+  { id: 12, slug: 'sports', name: 'Sports' },
+  { id: 13, slug: 'romance', name: 'Romance' },
+  { id: 14, slug: 'drama', name: 'Drama' },
+  { id: 15, slug: 'slice-of-life', name: 'Slice of Life' },
+  { id: 16, slug: 'school-life', name: 'School Life' },
+  { id: 17, slug: 'comedy', name: 'Comedy' },
 ];
 
-// Persisted filtering
-const TIME_STORAGE_KEY = 'lb_time_global';
+const SLUG_TO_ID = CATEGORY_LIST.reduce((m, c) => ((m[c.slug] = c.id), m), {});
+const ID_TO_CAT = CATEGORY_LIST.reduce((m, c) => ((m[c.id] = c), m), {});
+
+// Add storage keys + helpers (fix undefined helpers)
+const TIME_STORAGE_KEY = 'rankings.timeRange';
 const SORT_STORAGE_KEYS = {
-  [TAB_KEYS.NOVELS]: 'lb_sort_novels',
-  [TAB_KEYS.WRITERS]: 'lb_sort_writers',
+  [TAB_KEYS.NOVELS]: 'rankings.sort.novels',
+  [TAB_KEYS.WRITERS]: 'rankings.sort.writers',
+  [TAB_KEYS.READERS]: 'rankings.sort.readers',
 };
 
+// Storage helpers – make catch blocks non-empty to satisfy eslint(no-empty)
 function loadGlobalTimeRange() {
   try {
     return localStorage.getItem(TIME_STORAGE_KEY) || null;
-  } catch {
+  } catch (e) {
     return null;
   }
 }
+
 function saveGlobalTimeRange(timeRange) {
   try {
     if (timeRange) localStorage.setItem(TIME_STORAGE_KEY, timeRange);
-  } catch {
-    // ignore
+  } catch (e) {
+    // noop
+    void 0;
   }
 }
+
 function loadSortForTab(tab) {
   try {
-    const key = SORT_STORAGE_KEYS[tab];
-    if (!key) return null;
-    return localStorage.getItem(key) || null;
-  } catch {
+    const k = SORT_STORAGE_KEYS[tab];
+    return k ? localStorage.getItem(k) || null : null;
+  } catch (e) {
     return null;
   }
 }
+
 function saveSortForTab(tab, sortBy) {
   try {
-    const key = SORT_STORAGE_KEYS[tab];
-    if (!key || !sortBy) return;
-    localStorage.setItem(key, sortBy);
-  } catch {
-    // ignore
+    const k = SORT_STORAGE_KEYS[tab];
+    if (k && sortBy) localStorage.setItem(k, sortBy);
+  } catch (e) {
+    // noop
+    void 0;
   }
-}
-
-function extractUrlCategory(pathname) {
-  const m = pathname.match(/(?:leaderboard|rankings)\/Novel\/([^/?#]+)/i);
-  return m ? decodeURIComponent(m[1]) : null;
-}
-
-function normalizeGenre(g) {
-  if (!g) return undefined;
-  return String(g).toLowerCase() === 'all' ? undefined : g;
 }
 
 function defaultSortFor(tab) {
   if (tab === TAB_KEYS.READERS) return 'levelxp';
   if (tab === TAB_KEYS.WRITERS) return 'books';
   return 'views';
+}
+
+// Extract slug from /rankings/Novel/:slug
+function extractUrlCategory(pathname) {
+  const m = pathname.match(/(?:leaderboard|rankings)\/Novel\/([^/?#]+)/i);
+  return m ? decodeURIComponent(m[1]) : null;
 }
 
 export default function LeaderboardPage() {
@@ -99,10 +99,137 @@ export default function LeaderboardPage() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [catsOpen, setCatsOpen] = useState(true);
 
+  // Use backend categories if available, otherwise fallback to static list
+  const navCats = CATEGORY_LIST;
+
   const [items, setItems] = useState([]);
   const [loadingInitial, setLoadingInitial] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState('');
+  const [isReplacing, setIsReplacing] = useState(false); // keep old list visible with a light overlay
+
+  // Latest request sequence – only accept the newest response
+  const reqSeqRef = useRef(0);
+
+  // Single source of truth fetch. Do not clear items before fetch.
+  const fetchPage = useCallback(
+    async ({ page, pageSize, genre, timeRange, sortBy }, replace = false) => {
+      const reqId = ++reqSeqRef.current;
+      setError('');
+      if (replace) {
+        setLoadingInitial(true);
+        setIsReplacing(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      try {
+        let res;
+        if (activeTab === TAB_KEYS.NOVELS) {
+          const slug = genre && genre !== 'all' ? String(genre).toLowerCase() : null;
+          const selectedId = slug ? SLUG_TO_ID[slug] : undefined;
+
+          res = await rankingsApi.getNovels({
+            page,
+            size: pageSize,
+            categoryId: selectedId,
+            categorySlug: slug,
+            timeRange,
+            sortBy,
+          });
+
+          let batch = Array.isArray(res?.items) ? res.items : [];
+          // enrich categoryName
+          batch = batch.map((it) => ({
+            ...it,
+            categoryName:
+              ID_TO_CAT[it.categoryId]?.slug ||
+              ID_TO_CAT[it.categoryId]?.name ||
+              it.categoryName ||
+              '',
+          }));
+          // Local filter by categoryId (applies when backend does not filter)
+          if (selectedId)
+            batch = batch.filter((it) => Number(it.categoryId) === Number(selectedId));
+          // fallback local sort for novels
+          if (sortBy === 'views') {
+            batch.sort((a, b) => Number(b.viewCnt ?? 0) - Number(a.viewCnt ?? 0));
+          } else if (sortBy === 'votes') {
+            batch.sort((a, b) => Number(b.voteCnt ?? 0) - Number(a.voteCnt ?? 0));
+          }
+
+          if (reqId !== reqSeqRef.current) return;
+          if (replace) setItems(batch);
+          else setItems((prev) => [...prev, ...batch]);
+          const more = batch.length === (res?.size ?? pageSize);
+          hasMoreRef.current = more;
+          setHasMore(more);
+        } else if (activeTab === TAB_KEYS.READERS) {
+          res = await rankingsApi.getReaders({
+            page,
+            size: pageSize,
+            timeRange,
+            sortBy: 'levelxp',
+          });
+          const batch = Array.isArray(res?.items) ? res.items : [];
+          if (reqId !== reqSeqRef.current) return;
+          if (replace) setItems(batch);
+          else setItems((prev) => [...prev, ...batch]);
+          const more = batch.length === (res?.size ?? pageSize);
+          hasMoreRef.current = more;
+          setHasMore(more);
+        } else {
+          // WRITERS
+          res = await rankingsApi.getWriters({ page, size: pageSize, timeRange, sortBy });
+          let batch = Array.isArray(res?.items) ? res.items : [];
+          // fallback local sort for writers
+          if (sortBy === 'books') {
+            batch.sort((a, b) => Number(b.novelNum ?? 0) - Number(a.novelNum ?? 0));
+          } else if (sortBy === 'votes') {
+            batch.sort((a, b) => Number(b.totalVoteCnt ?? 0) - Number(a.totalVoteCnt ?? 0));
+          } else if (sortBy === 'views') {
+            batch.sort((a, b) => Number(b.totalViewCnt ?? 0) - Number(a.totalViewCnt ?? 0));
+          }
+
+          if (reqId !== reqSeqRef.current) return;
+          if (replace) setItems(batch);
+          else setItems((prev) => [...prev, ...batch]);
+          const more = batch.length === (res?.size ?? pageSize);
+          hasMoreRef.current = more;
+          setHasMore(more);
+        }
+      } catch (e) {
+        if (reqId !== reqSeqRef.current) return;
+        console.error(e);
+        setError(e?.response?.data?.message || e?.message || 'Failed to load leaderboard.');
+        if (replace) {
+          setItems([]);
+          setHasMore(false);
+          hasMoreRef.current = false;
+        }
+      } finally {
+        if (reqId === reqSeqRef.current) {
+          if (replace) {
+            setLoadingInitial(false);
+            setIsReplacing(false);
+          } else {
+            setLoadingMore(false);
+          }
+        }
+      }
+    },
+    [activeTab]
+  );
+
+  // Keep a ref of current items so we can preserve them during replace loads
+  const itemsRef = useRef(items);
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
+  // REMOVE unused refs (they triggered ESLint warnings)
+  // const prevSortRef = useRef(filters.sortBy);
+  // const prevTimeRef = useRef(filters.timeRange);
 
   const pageRef = useRef(1);
   const hasMoreRef = useRef(true);
@@ -115,8 +242,10 @@ export default function LeaderboardPage() {
 
   const urlInitializedRef = useRef(false);
   const initialLoadDoneRef = useRef(false);
+  const initialLoadingRef = useRef(false); // NEW: guard to prevent double initial fetch
 
   useEffect(() => {
+    // Detect tab + category from URL and prime filters
     const p = location.pathname;
     let nextTab = TAB_KEYS.NOVELS;
     let nextGenre = 'all';
@@ -130,19 +259,8 @@ export default function LeaderboardPage() {
       shouldOpenCats = false;
     } else if (/(leaderboard|rankings)\/Novel/i.test(p)) {
       nextTab = TAB_KEYS.NOVELS;
-      const rawCategory = params.category || extractUrlCategory(p);
-      if (rawCategory) {
-        const matched =
-          NOVEL_CATEGORIES.find(
-            (cat) => cat === rawCategory || cat.toLowerCase() === rawCategory.toLowerCase()
-          ) ||
-          NOVEL_CATEGORIES.find(
-            (cat) => cat.toLowerCase() === rawCategory.replace(/-/g, ' ').toLowerCase()
-          );
-        nextGenre = matched || 'all';
-      } else {
-        nextGenre = 'all';
-      }
+      const slug = (params.category || extractUrlCategory(p) || '').trim();
+      nextGenre = slug ? slug.toLowerCase() : 'all';
       shouldOpenCats = true;
     } else if (/(leaderboard|rankings)\/?$/i.test(p)) {
       nextTab = TAB_KEYS.NOVELS;
@@ -158,19 +276,19 @@ export default function LeaderboardPage() {
       savedSort = loadSortForTab(nextTab) || defaultSortFor(nextTab);
     }
 
-    const merged = {
-      ...DEFAULT_FILTERS,
-      timeRange: savedTime,
-      genre: nextGenre,
-      sortBy: savedSort,
-    };
-
     setActiveTab(nextTab);
     setCatsOpen(shouldOpenCats);
-    setFilters(merged);
+    setFilters({
+      ...DEFAULT_FILTERS,
+      timeRange: savedTime,
+      genre: nextGenre, // slug
+      sortBy: savedSort,
+    });
 
+    // Mark URL initialization; reset initial-load state
     urlInitializedRef.current = true;
     initialLoadDoneRef.current = false;
+    initialLoadingRef.current = false; // NEW: clear pending flag on route change
   }, [location.pathname, params.category, navigate]);
 
   useEffect(() => {
@@ -185,58 +303,17 @@ export default function LeaderboardPage() {
     }
   }, [activeTab, filters.sortBy]);
 
-  const fetchPage = useCallback(
-    async ({ page, pageSize, timeRange, genre, sortBy }, replace = false) => {
-      setError('');
-      if (replace) setLoadingInitial(true);
-      else setLoadingMore(true);
-
-      try {
-        const payload = { page, pageSize, timeRange };
-        const g = normalizeGenre(genre);
-        if (g !== undefined) payload.genre = g;
-
-        let res;
-        if (activeTab === TAB_KEYS.NOVELS) {
-          res = await getNovelsLeaderboard({ ...payload, sortBy });
-        } else if (activeTab === TAB_KEYS.READERS) {
-          res = await getUsersLeaderboard({ ...payload, sortBy: 'levelxp' });
-        } else {
-          res = await getWritersLeaderboard({ ...payload, sortBy: sortBy || 'books' });
-        }
-
-        const batch = Array.isArray(res?.items) ? res.items : [];
-        const more = batch.length === pageSize;
-
-        if (replace) setItems(batch);
-        else setItems((prev) => [...prev, ...batch]);
-
-        hasMoreRef.current = more;
-        setHasMore(more);
-      } catch (e) {
-        console.error(e);
-        setError('Failed to load leaderboard. Please try again.');
-      } finally {
-        if (replace) setLoadingInitial(false);
-        else setLoadingMore(false);
-      }
-    },
-    [activeTab]
-  );
-
-  const resetAndFetch = useCallback(
-    (patch = {}, baseFilters) => {
-      const base = baseFilters ?? filtersRef.current;
+  // Centralized filter change – now passes timeRange & sortBy
+  const onFiltersChange = useCallback(
+    (patch) => {
+      const base = filtersRef.current;
       const next = { ...base, ...patch };
 
-      if (activeTab === TAB_KEYS.READERS) {
-        next.sortBy = 'levelxp';
-      } else if (!next.sortBy) {
-        next.sortBy = defaultSortFor(activeTab);
-      }
+      if (activeTab === TAB_KEYS.READERS) next.sortBy = 'levelxp';
+      if (activeTab === TAB_KEYS.NOVELS && !next.sortBy) next.sortBy = 'views';
+      if (activeTab === TAB_KEYS.WRITERS && !next.sortBy) next.sortBy = 'books';
 
       setFilters(next);
-      setItems([]);
       pageRef.current = 1;
       hasMoreRef.current = true;
       setHasMore(true);
@@ -245,8 +322,8 @@ export default function LeaderboardPage() {
         {
           page: 1,
           pageSize: next.pageSize,
-          timeRange: next.timeRange,
           genre: next.genre,
+          timeRange: next.timeRange,
           sortBy: next.sortBy,
         },
         true
@@ -255,47 +332,44 @@ export default function LeaderboardPage() {
     [activeTab, fetchPage]
   );
 
-  const refetchData = useCallback(() => {
-    const currentFilters = filtersRef.current;
-    setItems([]);
+  // Retry uses current sort/time
+  const retry = useCallback(() => {
+    const f = filtersRef.current;
     pageRef.current = 1;
     hasMoreRef.current = true;
     setHasMore(true);
-
     fetchPage(
       {
         page: 1,
-        pageSize: currentFilters.pageSize,
-        timeRange: currentFilters.timeRange,
-        genre: currentFilters.genre,
-        sortBy: currentFilters.sortBy,
+        pageSize: f.pageSize,
+        genre: f.genre,
+        timeRange: f.timeRange,
+        sortBy: activeTab === TAB_KEYS.READERS ? 'levelxp' : f.sortBy || defaultSortFor(activeTab),
       },
       true
     );
-  }, [fetchPage]);
+  }, [activeTab, fetchPage]);
 
+  // Initial load – pass timeRange & sortBy
   useEffect(() => {
     if (!urlInitializedRef.current || initialLoadDoneRef.current) return;
-    initialLoadDoneRef.current = true;
-    resetAndFetch({}, { ...filters });
-  }, [filters, activeTab, resetAndFetch]);
+    initialLoadDoneRef.current = false;
+    const f = { ...filters };
+    fetchPage(
+      {
+        page: 1,
+        pageSize: f.pageSize,
+        genre: f.genre,
+        timeRange: f.timeRange,
+        sortBy: activeTab === TAB_KEYS.READERS ? 'levelxp' : f.sortBy || defaultSortFor(activeTab),
+      },
+      true
+    ).finally(() => {
+      initialLoadDoneRef.current = true;
+    });
+  }, [filters, activeTab, fetchPage]);
 
-  useEffect(() => {
-    if (!urlInitializedRef.current) return;
-    if (!initialLoadDoneRef.current) return;
-    resetAndFetch({}, { ...filters });
-  }, [filters.genre, activeTab, resetAndFetch]);
-
-  useEffect(() => {
-    if (!urlInitializedRef.current || !initialLoadDoneRef.current) return;
-    if (filters.timeRange) refetchData();
-  }, [filters.timeRange, refetchData]);
-
-  useEffect(() => {
-    if (!urlInitializedRef.current || !initialLoadDoneRef.current) return;
-    if (filters.sortBy) refetchData();
-  }, [filters.sortBy, refetchData]);
-
+  // REMOVE loadMore, uiGenre, onSelectCategory, handleNovelsClick and render...
   const loadMore = useCallback(() => {
     if (loadingInitial || loadingMore || !hasMoreRef.current) return;
     const nextPage = pageRef.current + 1;
@@ -311,48 +385,21 @@ export default function LeaderboardPage() {
     });
   }, [activeTab, fetchPage, loadingInitial, loadingMore]);
 
+  // Current slug from URL for highlighting
   const uiGenre = useMemo(() => {
     if (!/(leaderboard|rankings)\/Novel/i.test(location.pathname)) return 'all';
-    const raw = extractUrlCategory(location.pathname);
-    if (!raw) return 'all';
-    const match =
-      NOVEL_CATEGORIES.find((c) => c.toLowerCase() === raw.toLowerCase()) ||
-      NOVEL_CATEGORIES.find((c) => c.toLowerCase() === raw.replace(/-/g, ' ').toLowerCase());
-    return match || 'all';
+    const slug = extractUrlCategory(location.pathname);
+    return slug ? slug.toLowerCase() : 'all';
   }, [location.pathname]);
 
+  // Navigate using slug
   const onSelectCategory = useCallback(
-    (label) => {
-      if (String(label).toLowerCase() === 'all') {
-        navigate('/rankings/Novel');
-      } else {
-        const exactCategory = NOVEL_CATEGORIES.find(
-          (cat) => cat.toLowerCase() === String(label).toLowerCase()
-        );
-        if (exactCategory) {
-          const categoryPath = exactCategory.replace(/\s+/g, '-');
-          navigate(`/rankings/Novel/${categoryPath}`);
-        } else {
-          navigate('/rankings/Novel');
-        }
-      }
+    (slug) => {
+      if (String(slug).toLowerCase() === 'all') navigate('/rankings/Novel');
+      else navigate(`/rankings/Novel/${slug}`);
     },
     [navigate]
   );
-
-  const handleNovelsClick = useCallback(() => {
-    const currentPath = location.pathname;
-    const currentGenre = filters.genre || 'all';
-    const isOnCategoryPage = params.category && currentGenre !== 'all';
-
-    if (isOnCategoryPage) {
-      navigate('/rankings/Novel');
-    } else if (activeTab === TAB_KEYS.NOVELS && currentPath === '/rankings/Novel') {
-      setCatsOpen((prev) => !prev);
-    } else {
-      navigate('/rankings/Novel');
-    }
-  }, [activeTab, location.pathname, filters.genre, params.category, navigate]);
 
   return (
     <div className="rankings-layout">
@@ -368,7 +415,15 @@ export default function LeaderboardPage() {
               <button
                 type="button"
                 className={`side-nav-item${activeTab === TAB_KEYS.NOVELS ? ' active' : ''}`}
-                onClick={handleNovelsClick}
+                onClick={() => {
+                  if (activeTab !== TAB_KEYS.NOVELS) {
+                    setActiveTab(TAB_KEYS.NOVELS);
+                    navigate('/rankings/Novel');
+                    setCatsOpen(true);
+                  } else {
+                    setCatsOpen((v) => !v);
+                  }
+                }}
                 aria-selected={activeTab === TAB_KEYS.NOVELS}
                 aria-expanded={activeTab === TAB_KEYS.NOVELS ? catsOpen : undefined}
               >
@@ -388,16 +443,19 @@ export default function LeaderboardPage() {
                   >
                     All Novels
                   </button>
-                  {NOVEL_CATEGORIES.map((category, i) => {
-                    const isActive = uiGenre === category;
+
+                  {navCats.map((c) => {
+                    const slug = c.slug;
+                    const isActive = uiGenre === slug;
                     return (
                       <button
-                        key={`${category}-${i}`}
+                        key={c.id}
                         type="button"
                         className={`cat-pill${isActive ? ' active' : ''}`}
-                        onClick={() => onSelectCategory(category)}
+                        onClick={() => onSelectCategory(slug)}
+                        title={c.description || c.name}
                       >
-                        {category}
+                        {c.name}
                       </button>
                     );
                   })}
@@ -430,7 +488,7 @@ export default function LeaderboardPage() {
               <LeaderboardFilters
                 tab={activeTab === TAB_KEYS.READERS ? 'users' : activeTab}
                 query={{ ...filters, page: pageRef.current }}
-                onChange={(patch) => setFilters((prev) => ({ ...prev, ...patch }))}
+                onChange={onFiltersChange}
                 hideSort={activeTab === TAB_KEYS.READERS}
               />
             </div>
@@ -438,10 +496,10 @@ export default function LeaderboardPage() {
             {error ? (
               <div className="rankings-error">
                 <div className="rankings-error-text">{error}</div>
-                <Button onClick={() => resetAndFetch()}>Retry</Button>
+                <Button onClick={retry}>Retry</Button>
               </div>
             ) : (
-              <>
+              <div className={`rankings-list-wrap${isReplacing ? ' replacing' : ''}`}>
                 <LeaderboardList
                   tab={activeTab === TAB_KEYS.READERS ? 'users' : activeTab}
                   loadingInitial={loadingInitial}
@@ -450,12 +508,7 @@ export default function LeaderboardPage() {
                   hasMore={hasMore}
                   onLoadMore={loadMore}
                 />
-                {!loadingInitial && items.length === 0 && (
-                  <div style={{ padding: 16 }}>
-                    <Empty description="No data" />
-                  </div>
-                )}
-              </>
+              </div>
             )}
           </div>
         </div>

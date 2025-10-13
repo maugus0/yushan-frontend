@@ -44,6 +44,10 @@ import WriterAuth from './pages/writerauth/writerauth';
 import NovelDetailPage from './pages/novel/novelDetailPage';
 
 import { UserProvider } from './store/UserContext';
+// Legal and info pages
+import TermsOfService from './pages/terms/terms';
+import CookiePolicy from './pages/cookies/cookies';
+import AffiliateProgram from './pages/affliate-programme/affliate-programme';
 
 const themeConfig = {
   token: {
@@ -81,12 +85,33 @@ function App() {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.user);
 
-  // Initialize auth state on mount (re-uses existing authService)
+  // Initialize auth state on mount and validate token
   useEffect(() => {
-    const initAuth = () => {
-      const token = authService.getToken();
-      const isAuthed = !!token;
-      dispatch(setAuthenticated(isAuthed));
+    const initAuth = async () => {
+      const authed = authService.isAuthenticated();
+
+      if (authed) {
+        // Check if token is expired
+        const isExpired = authService.isTokenExpired();
+
+        if (isExpired) {
+          console.log('Token expired on app load, attempting refresh...');
+          try {
+            // Try to refresh the token
+            await authService.refreshToken();
+            dispatch(setAuthenticated(true));
+          } catch (error) {
+            console.error('Failed to refresh token on app load:', error);
+            // Clear invalid tokens
+            authService.clearTokens();
+            dispatch(setAuthenticated(false));
+          }
+        } else {
+          dispatch(setAuthenticated(true));
+        }
+      } else {
+        dispatch(setAuthenticated(false));
+      }
     };
 
     initAuth();
@@ -135,6 +160,58 @@ function App() {
                     element={
                       <LayoutWrapper>
                         <Home />
+                      </LayoutWrapper>
+                    }
+                  />
+
+                  {/* Legal and info pages */}
+                  <Route
+                    path="/terms"
+                    element={
+                      <LayoutWrapper>
+                        <TermsOfService />
+                      </LayoutWrapper>
+                    }
+                  />
+                  <Route
+                    path="/cookies"
+                    element={
+                      <LayoutWrapper>
+                        <CookiePolicy />
+                      </LayoutWrapper>
+                    }
+                  />
+                  <Route
+                    path="/affliate-programme"
+                    element={
+                      <LayoutWrapper>
+                        <AffiliateProgram />
+                      </LayoutWrapper>
+                    }
+                  />
+
+                  {/* Legal and info pages */}
+                  <Route
+                    path="/terms"
+                    element={
+                      <LayoutWrapper>
+                        <TermsOfService />
+                      </LayoutWrapper>
+                    }
+                  />
+                  <Route
+                    path="/cookies"
+                    element={
+                      <LayoutWrapper>
+                        <CookiePolicy />
+                      </LayoutWrapper>
+                    }
+                  />
+                  <Route
+                    path="/affliate-programme"
+                    element={
+                      <LayoutWrapper>
+                        <AffiliateProgram />
                       </LayoutWrapper>
                     }
                   />

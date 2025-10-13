@@ -1,0 +1,104 @@
+.cookies-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40px 20px;
+  display: flex;
+  align-items: center;
+}
+
+.cookies-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.cookies-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  margin: 20px 0;
+}
+
+.cookies-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.cookies-title {
+  color: #2c3e50;
+  margin-bottom: 8px !important;
+  font-weight: 700;
+}
+
+.cookies-updated {
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+.cookies-content {
+  margin-top: 20px;
+}
+
+.cookies-content h2 {
+  color: #34495e;
+  margin-top: 32px !important;
+  margin-bottom: 16px !important;
+  font-weight: 600;
+}
+
+.cookies-content p {
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.cookies-list {
+  margin: 16px 0;
+  padding-left: 20px;
+}
+
+.cookies-list li {
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+
+.cookies-table-wrapper {
+  margin: 24px 0;
+  overflow-x: auto;
+}
+
+.cookies-table-wrapper .ant-table {
+  border-radius: 8px;
+}
+
+.cookies-table-wrapper .ant-table-thead > tr > th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.cookies-table-wrapper .ant-table-tbody > tr > td {
+  color: #555;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .cookies-page {
+    padding: 20px 10px;
+  }
+
+  .cookies-card {
+    padding: 24px;
+    margin: 10px 0;
+  }
+
+  .cookies-title {
+    font-size: 24px !important;
+  }
+
+  .cookies-table-wrapper {
+    font-size: 12px;
+  }
+}

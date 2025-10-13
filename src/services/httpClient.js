@@ -1,25 +1,29 @@
 // src/utils/httpClient.js
 import axios from 'axios';
 import rateLimit from 'axios-rate-limit';
+import { setupAxiosInterceptors } from '../utils/axios-interceptor';
 
 // Base configuration for axios
 const baseConfig = {
   timeout: 10000, // 10 second timeout
   maxContentLength: 10000000, // 10MB max response size
   maxBodyLength: 10000000, // 10MB max request size
-  // Add your base URL if you have one
-  // baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001',
 };
 
 // Create different clients for different use cases
 const createRateLimitedClient = (maxRequests, perMilliseconds) => {
   const baseClient = axios.create(baseConfig);
 
-  return rateLimit(baseClient, {
+  const rateLimitedClient = rateLimit(baseClient, {
     maxRequests,
     perMilliseconds,
     maxRPS: Math.floor(maxRequests / (perMilliseconds / 1000)), // Calculate RPS
   });
+
+  // Setup auth interceptors for automatic token refresh
+  setupAxiosInterceptors(rateLimitedClient);
+
+  return rateLimitedClient;
 };
 
 // Default client - moderate rate limiting
@@ -31,22 +35,9 @@ export const heavyClient = createRateLimitedClient(10, 60000); // 10 requests pe
 // Light client for frequent operations (search, autocomplete, etc.)
 export const lightClient = createRateLimitedClient(120, 60000); // 120 requests per minute
 
-// Add common interceptors to all clients
-const addInterceptors = (client, clientName = 'httpClient') => {
-  // Request interceptor
-  client.interceptors.request.use(
-    (config) => {
-      return config;
-    },
-    (error) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.error(`${clientName} request error:`, error);
-      }
-      return Promise.reject(error);
-    }
-  );
-
-  // Response interceptor
+// Add rate limit interceptors to all clients
+const addRateLimitInterceptors = (client, clientName = 'httpClient') => {
+  // Response interceptor for rate limit specific handling
   client.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -63,10 +54,10 @@ const addInterceptors = (client, clientName = 'httpClient') => {
   );
 };
 
-// Apply interceptors to all clients
-addInterceptors(httpClient, 'httpClient');
-addInterceptors(heavyClient, 'heavyClient');
-addInterceptors(lightClient, 'lightClient');
+// Apply rate limit interceptors to all clients
+addRateLimitInterceptors(httpClient, 'httpClient');
+addRateLimitInterceptors(heavyClient, 'heavyClient');
+addRateLimitInterceptors(lightClient, 'lightClient');
 
 // Default export for backward compatibility
 export default httpClient;

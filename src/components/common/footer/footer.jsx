@@ -1,5 +1,6 @@
 import React from 'react';
 import { Layout, Row, Col, Typography, Space, Divider } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import {
   MailOutlined,
   PhoneOutlined,
@@ -16,26 +17,39 @@ const { Title, Text, Link } = Typography;
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const navigate = useNavigate();
 
   const socialLinks = [
-    { icon: <GithubOutlined />, href: '#', label: 'GitHub' },
-    { icon: <TwitterOutlined />, href: '#', label: 'Twitter' },
-    { icon: <LinkedinOutlined />, href: '#', label: 'LinkedIn' },
-    { icon: <FacebookOutlined />, href: '#', label: 'Facebook' },
+    {
+      icon: <GithubOutlined />,
+      href: 'https://github.com/maugus0/yushan-frontend/',
+      label: 'GitHub',
+    },
+    {
+      icon: <TwitterOutlined />,
+      href: 'https://github.com/maugus0/yushan-backend/',
+      label: 'Twitter',
+    },
+    { icon: <LinkedinOutlined />, href: 'https://www.linkedin.com/in/maugus0/', label: 'LinkedIn' },
+    {
+      icon: <FacebookOutlined />,
+      href: 'https://github.com/maugus0/yushan-admin/',
+      label: 'Facebook',
+    },
   ];
 
   const quickLinks = [
-    { title: 'Home', href: '/' },
-    { title: 'Browse Novels', href: '/browse' },
-    { title: 'Rankings & Leaderboards', href: '/rankings' },
-    { title: 'New Releases', href: '/new-releases' },
+    { title: 'Home', href: '/', isInternal: true },
+    { title: 'Browse Novels', href: '/browse', isInternal: true },
+    { title: 'Rankings & Leaderboards', href: '/rankings', isInternal: true },
+    { title: 'New Releases', href: '/browse', isInternal: true },
   ];
 
   const legalLinks = [
-    { title: 'Join as Author', href: '/create' },
-    { title: 'Terms of Service', href: '/terms' },
-    { title: 'Cookie Policy', href: '/cookies' },
-    { title: 'Affliate Programme', href: '/affliate-programme' },
+    { title: 'Join as Author', href: '/writerdashboard', isInternal: true },
+    { title: 'Terms of Service', href: '/terms', isInternal: true },
+    { title: 'Cookie Policy', href: '/cookies', isInternal: true },
+    { title: 'Affiliate Programme', href: '/affliate-programme', isInternal: true },
   ];
 
   return (
@@ -78,9 +92,19 @@ const Footer = () => {
               <ul className="footer-links">
                 {quickLinks.map((link, index) => (
                   <li key={index}>
-                    <Link href={link.href} className="footer-link">
-                      {link.title}
-                    </Link>
+                    {link.isInternal ? (
+                      <span
+                        className="footer-link"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => navigate(link.href)}
+                      >
+                        {link.title}
+                      </span>
+                    ) : (
+                      <Link href={link.href} className="footer-link">
+                        {link.title}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -96,9 +120,19 @@ const Footer = () => {
               <ul className="footer-links">
                 {legalLinks.map((link, index) => (
                   <li key={index}>
-                    <Link href={link.href} className="footer-link">
-                      {link.title}
-                    </Link>
+                    {link.isInternal ? (
+                      <span
+                        className="footer-link"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => navigate(link.href)}
+                      >
+                        {link.title}
+                      </span>
+                    ) : (
+                      <Link href={link.href} className="footer-link">
+                        {link.title}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

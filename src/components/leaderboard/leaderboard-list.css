@@ -156,6 +156,17 @@
   flex-shrink: 0; /* each pill keeps its size */
 }
 
+.category-pill {
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 12px;
+  line-height: 20px;
+  color: #475569;
+  background: #f1f5f9;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
 /* Second line (views + votes) or generic "row-desc" */
 .row-desc,
 .lb-cell--content-line2 {
