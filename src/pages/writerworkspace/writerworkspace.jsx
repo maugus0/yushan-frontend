@@ -17,6 +17,7 @@ const WriterWorkspace = () => {
     const authorId = await userService.getMe();
     const data = await novelService.getNovel({ authorId: authorId.uuid, size: 1000, page: 0 });
     setStories(data);
+    console.log('fetchStories:', data);
   };
 
   useEffect(() => {
@@ -37,6 +38,15 @@ const WriterWorkspace = () => {
     }
     if (key === 'delete') {
       setDeleteModal({ visible: true, id });
+    }
+    if (key === 'ongoing') {
+      console.log('Set to ongoing for id:', id);
+      await novelService.changeNovelDetailById(id, { isCompleted: false });
+      fetchStories();
+    }
+    if (key === 'completed') {
+      await novelService.changeNovelDetailById(id, { isCompleted: true });
+      fetchStories();
     }
   };
 
@@ -75,19 +85,45 @@ const WriterWorkspace = () => {
 
   const menu = (id) => {
     const story = stories.find((s) => s.id === id);
-    if (story && (story.status === 'DRAFT' || story.status === 'UNDER_REVIEW')) {
-      return <></>;
+    if (story && story.status === 'DRAFT') {
+      return (
+        <Menu
+          onClick={({ key }) => handleMenuClick(key, id)}
+          items={[
+            { key: 'setting', label: 'SETTING' },
+            { key: 'delete', label: 'DELETE' },
+          ]}
+        />
+      );
+    }
+    if (story && story.status === 'HIDDEN') {
+      return (
+        <Menu
+          onClick={({ key }) => handleMenuClick(key, id)}
+          items={[
+            { key: 'setting', label: 'SETTING' },
+            { key: 'show', label: 'SHOW' },
+            { key: 'delete', label: 'DELETE' },
+            story.isCompleted
+              ? { key: 'ongoing', label: 'ONGOING' }
+              : { key: 'completed', label: 'COMPLETED' },
+          ]}
+        />
+      );
+    }
+    if (story && story.status === 'UNDER_REVIEW') {
+      return null;
     }
     return (
       <Menu
         onClick={({ key }) => handleMenuClick(key, id)}
         items={[
           story && story.status === 'PUBLISHED' && { key: 'setting', label: 'SETTING' },
-          story && story.status === 'HIDDEN'
-            ? { key: 'show', label: 'SHOW' }
-            : { key: 'hide', label: 'HIDE' },
-          { key: 'delete', label: 'DELETE' },
-        ]}
+          { key: 'hide', label: 'HIDE' },
+          story && story.isCompleted
+            ? { key: 'ongoing', label: 'ONGOING' }
+            : { key: 'completed', label: 'COMPLETED' },
+        ].filter(Boolean)}
       />
     );
   };
@@ -191,6 +227,21 @@ const WriterWorkspace = () => {
                           HIDDEN
                         </span>
                       )}
+                      {story.isCompleted && (
+                        <span
+                          className="story-status-tag story-status-completed"
+                          style={{
+                            marginLeft: 8,
+                            padding: '2px 8px',
+                            borderRadius: 8,
+                            fontSize: 12,
+                            color: '#fff',
+                            background: '#1a50c4ff',
+                          }}
+                        >
+                          COMPLETED
+                        </span>
+                      )}
                     </span>
                   </div>
                   <div className="board-column">{story.chapterCnt}</div>
@@ -205,9 +256,11 @@ const WriterWorkspace = () => {
                     >
                       EXPLORE
                     </Button>
-                    <Dropdown overlay={menu(story.id)} trigger={['click']}>
-                      <Button type="text" icon={<EllipsisOutlined />} />
-                    </Dropdown>
+                    {story.status !== 'UNDER_REVIEW' && (
+                      <Dropdown overlay={menu(story.id)} trigger={['click']}>
+                        <Button type="text" icon={<EllipsisOutlined />} />
+                      </Dropdown>
+                    )}
                   </div>
                 </div>
               ))

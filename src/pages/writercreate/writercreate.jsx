@@ -66,10 +66,10 @@ const WriterCreate = () => {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setCropImage(e.target.result); // 这里得到 base64 url
+        setCropImage(e.target.result);
         setCropModalVisible(true);
       };
-      reader.readAsDataURL(file); // FileReader 生成 base64 url
+      reader.readAsDataURL(file);
     }
   };
 
@@ -97,7 +97,7 @@ const WriterCreate = () => {
         120,
         160
       );
-      setCoverUrl(canvas.toDataURL('image/jpeg')); // 这里生成最终 base64 url
+      setCoverUrl(canvas.toDataURL('image/jpeg'));
       setCropModalVisible(false);
       setCropImage('');
     }
@@ -120,7 +120,6 @@ const WriterCreate = () => {
       res = await novelService.changeNovelDetailById(incomingId, novelData);
     } else {
       res = await novelService.createNovel(novelData);
-      console.log('create res: ', res);
     }
     await novelService.submitNovelForReview(res.id);
     setSuccessModal(true);

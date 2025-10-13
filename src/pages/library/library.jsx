@@ -170,7 +170,7 @@ const Library = () => {
                     onClick={
                       editMode
                         ? () => handleSelect(novel.novelId)
-                        : () => navigate(`/novel/${novel.novelId}`)
+                        : () => navigate(`/read/${novel.novelId}/${novel.chapterNumber}`)
                     }
                   >
                     <div className="library-novel-img-wrapper" style={{ position: 'relative' }}>
@@ -247,11 +247,11 @@ const Library = () => {
                       cursor: 'pointer',
                       transition: 'box-shadow 0.2s, transform 0.2s',
                     }}
-                    onClick={() => navigate(`/novel/${item.novelId}`)}
+                    onClick={() => navigate(`/read/${item.novelId}/${item.chapterNumber}`)}
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
-                        navigate(`/novel/${item.novelId}`);
+                        navigate(`/read/${item.novelId}/${item.chapterNumber}`);
                       }
                     }}
                   >
