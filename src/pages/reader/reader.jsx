@@ -259,9 +259,7 @@ export default function ReaderPage() {
       // Update comment likeCnt in local state
       setComments((prev) =>
         prev.map((c) =>
-          c.id === commentId
-            ? { ...c, likeCnt: updated.likeCnt, liked: !liked }
-            : c
+          c.id === commentId ? { ...c, likeCnt: updated.likeCnt, liked: !liked } : c
         )
       );
     } catch (e) {
@@ -437,10 +435,7 @@ export default function ReaderPage() {
             </Button>
           </div>
           {comments.map((c) => (
-            <div
-              key={c.id}
-              className="chapter-comment-item"
-            >
+            <div key={c.id} className="chapter-comment-item">
               <div className="chapter-comment-header">
                 {c.userId ? (
                   <Link

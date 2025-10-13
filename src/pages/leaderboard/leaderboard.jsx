@@ -67,6 +67,22 @@ function extractUrlCategory(pathname) {
   return m ? decodeURIComponent(m[1]) : null;
 }
 
+// SORT
+function mapSortType(tab, sortBy) {
+  if (tab === TAB_KEYS.NOVELS) {
+    if (sortBy === 'votes') return 'vote';
+    if (sortBy === 'views') return 'view';
+    return 'view';
+  }
+  if (tab === TAB_KEYS.WRITERS) {
+    if (sortBy === 'books' || sortBy === 'novelNum') return 'novelNum';
+    if (sortBy === 'votes') return 'vote';
+    if (sortBy === 'views') return 'view';
+    return 'novelNum';
+  }
+  return sortBy;
+}
+
 export default function LeaderboardPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -130,8 +146,8 @@ export default function LeaderboardPage() {
         if (activeTab === TAB_KEYS.NOVELS) {
           const slug = genre && genre !== 'all' ? String(genre).toLowerCase() : null;
           const selectedId = slug ? catSlugToId[slug] : undefined;
+          const sortType = mapSortType(TAB_KEYS.NOVELS, sortBy);
 
-          const sortType = filters.sortBy === 'votes' ? 'vote' : 'view';
           res = await rankingsApi.getNovels({
             page,
             size: pageSize,
@@ -173,7 +189,13 @@ export default function LeaderboardPage() {
           setHasMore(more);
         } else {
           // WRITERS
-          res = await rankingsApi.getWriters({ page, size: pageSize, timeRange, sortBy });
+          const sortType = mapSortType(TAB_KEYS.WRITERS, sortBy);
+          res = await rankingsApi.getWriters({
+            page,
+            size: pageSize,
+            timeRange,
+            sortType,
+          });
           let batch = Array.isArray(res?.items) ? res.items : [];
           if (reqId !== reqSeqRef.current) return;
           if (replace) setItems(batch);
@@ -478,7 +500,13 @@ export default function LeaderboardPage() {
             ) : (
               <div className={`rankings-list-wrap${isReplacing ? ' replacing' : ''}`}>
                 <LeaderboardList
-                  tab={activeTab === TAB_KEYS.READERS ? 'users' : activeTab}
+                  tab={
+                    activeTab === TAB_KEYS.READERS
+                      ? 'users'
+                      : activeTab === TAB_KEYS.WRITERS
+                        ? 'writer'
+                        : activeTab
+                  }
                   loadingInitial={loadingInitial}
                   loadingMore={loadingMore}
                   data={{ items }}

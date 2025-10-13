@@ -259,7 +259,8 @@ export default function LeaderboardList({
   const renderRow = (item, idx) => {
     if (tab === 'novels') return renderNovelRow(item, idx);
     if (tab === 'users') return renderUserRow(item, idx);
-    return renderWriterRow(item, idx);
+    if (tab === 'writer' || tab === 'writers') return renderWriterRow(item, idx);
+    return null;
   };
 
   const listData =

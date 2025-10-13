@@ -28,7 +28,7 @@ export default {
   // GET /api/ranking/novel
   async getNovels({ page = 1, size = 50, categoryId, sortType, timeRange } = {}) {
     const params = { page: page - 1, size };
-    if (categoryId != null) params.category = categoryId; 
+    if (categoryId != null) params.category = categoryId;
     if (timeRange) params.timeRange = timeRange; // weekly | monthly | overall
     if (sortType) params.sortType = sortType; // view | vote
     const res = await axios.get(`${BASE}/ranking/novel`, { params, headers: authHeader() });
@@ -48,10 +48,10 @@ export default {
   },
 
   // GET /api/ranking/author (writers)
-  async getWriters({ page = 1, size = 50, timeRange, sortBy } = {}) {
+  async getWriters({ page = 1, size = 50, timeRange, sortType } = {}) {
     const params = { page: page - 1, size };
     if (timeRange) params.timeRange = timeRange;
-    if (sortBy) params.sortBy = sortBy; // books | votes | views
+    if (sortType) params.sortType = sortType; // books | vote | view
     const res = await axios.get(`${BASE}/ranking/author`, {
       params,
       headers: authHeader(),

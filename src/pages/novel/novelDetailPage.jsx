@@ -37,6 +37,7 @@ import testImg from '../../assets/images/testimg2.png'; // keep fallback
 import PowerStatusVote from '../../components/novel/novelcard/powerStatusVote';
 import ReviewSection from '../../components/novel/novelcard/reviewSection';
 import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
 
 const REPORT_TYPE_OPTIONS = [
   { label: 'Pornographic Content', value: 'PORNOGRAPHIC' },
@@ -65,7 +66,6 @@ export default function NovelDetailPage() {
 
   // votes
   const [voting, setVoting] = useState(false);
-  const [votesLeft, setVotesLeft] = useState(0);
 
   // reviews
   const [reviewsState, setReviewsState] = useState({ list: [], total: 0 });
@@ -84,7 +84,6 @@ export default function NovelDetailPage() {
 
   // chapter list state
   const [chapterList, setChapterList] = useState([]);
-
 
   const [voteRanking, setVoteRanking] = useState(null);
   const [voteRankType, setVoteRankType] = useState('Vote Ranking');
@@ -232,9 +231,7 @@ export default function NovelDetailPage() {
       let chapterNumber;
       if (Array.isArray(historyRes?.content)) {
         console.log('history content:', historyRes.content, 'novelId:', novelId);
-        const found = historyRes.content.find(
-          (h) => String(h.novelId) === String(novelId)
-        );
+        const found = historyRes.content.find((h) => String(h.novelId) === String(novelId));
         console.log('found:', found);
         if (found && !isNaN(Number(found.chapterNumber))) {
           chapterNumber = Number(found.chapterNumber);
@@ -305,27 +302,29 @@ export default function NovelDetailPage() {
     }
   };
 
-  // Vote handler
+  // Get current user's yuan from redux store (login sets it)
+  const dispatch = useDispatch();
+  const userYuan = useSelector((state) => state.user?.user?.yuan ?? 0);
+
+  // Vote handler: no longer update votesLeft, just showTip
   const handleVote = async () => {
-    if (votesLeft <= 0) return;
+    if (userYuan <= 0) return;
     setVoting(true);
     try {
       const res = await novelsApi.vote(novelId);
-      setVotesLeft(res?.remainedYuan ?? 0);
       showTip('Voted successfully', 'success');
+      if (res?.remainedYuan !== undefined) {
+        dispatch({
+          type: 'user/updateYuan',
+          payload: res.remainedYuan,
+        });
+      }
     } catch (e) {
       showTip(e?.response?.data?.message || e?.message || 'Vote failed', 'error');
     } finally {
       setVoting(false);
     }
   };
-
-  // Initialize votesLeft
-  useEffect(() => {
-    if (novel && typeof novel.remainedYuan === 'number') {
-      setVotesLeft(novel.remainedYuan);
-    }
-  }, [novel]);
 
   // Report modal handlers
   const showModal = () => {
@@ -522,8 +521,6 @@ export default function NovelDetailPage() {
             <span className="rating-count">({novel.ratingsCount} ratings)</span>
           </div>
 
-
-
           <div className="novel-rankings-buttons-container">
             <div className="novel-buttons-section">
               <Button
@@ -608,11 +605,11 @@ export default function NovelDetailPage() {
           <PowerStatusVote
             ranking={voteRanking}
             voteCount={novel.votes}
-            votesLeft={votesLeft}
+            votesLeft={userYuan}
             onVote={handleVote}
             loading={voting}
-            disableVote={votesLeft <= 0}
-            rankType={voteRankType} 
+            disableVote={userYuan <= 0}
+            rankType={voteRankType}
           />
 
           <h2 className="section-title" style={{ marginTop: 16 }}>
