@@ -8,13 +8,6 @@ const TOKEN_KEY = 'jwt_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const TOKEN_EXPIRY_KEY = 'token_expiry';
 
-// Add gender mapping constants
-const GENDER_CODES = {
-  male: 1,
-  female: 2,
-  unknown: 0,
-};
-
 const authService = {
   // AC1: Secure Token Storage
   setToken(token) {
@@ -128,12 +121,18 @@ const authService = {
         throw new Error('Gender is required');
       }
 
+      // Convert gender to uppercase string format for BE API
+      let genderValue = 'UNKNOWN';
+      if (values.gender === 'male') genderValue = 'MALE';
+      else if (values.gender === 'female') genderValue = 'FEMALE';
+      else if (values.gender === 'unknown') genderValue = 'UNKNOWN';
+
       // Format the data according to API expectations
       const formattedData = {
         username: values.username,
         email: values.email,
         password: values.password,
-        gender: GENDER_CODES[values.gender],
+        gender: genderValue,
         birthday: dayjs(values.birthday).format('YYYY-MM-DD'),
         code: values.otp, // Changed from otp to code
       };
@@ -153,9 +152,16 @@ const authService = {
       return response.data.data;
     } catch (error) {
       // Enhanced error handling for registration
+      // Removed console.error for production safety
+
       if (error.response) {
         const status = error.response.status;
         const message = error.response.data?.message || error.response.data?.error;
+
+        // Check for specific email exists error
+        if (message && message.toLowerCase().includes('email already')) {
+          throw new Error('Email already exists. Please use a different email or login.');
+        }
 
         if (status === 400) {
           throw new Error(message || 'Invalid registration data. Please check all fields');
