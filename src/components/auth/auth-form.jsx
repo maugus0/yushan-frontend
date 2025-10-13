@@ -39,12 +39,12 @@ const AuthForm = ({ mode = 'login', onSuccess, loginError, registerError }) => {
 
   // Debug logging for errors
   useEffect(() => {
-    if (registerError) {
-      console.log('AuthForm received registerError:', registerError);
-    }
-    if (loginError) {
-      console.log('AuthForm received loginError:', loginError);
-    }
+    // Debug logging removed for production
+    // if (registerError) {
+    //   console.log('AuthForm received registerError:', registerError);
+    // }
+    // if (loginError) {
+    //   console.log('AuthForm received loginError:', loginError);
   }, [registerError, loginError]);
 
   /**
