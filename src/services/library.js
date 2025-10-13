@@ -1,13 +1,21 @@
 import axios from 'axios';
-
 const CONFIG_URL = (process.env.REACT_APP_API_URL || '').trim();
 const BASE = CONFIG_URL ? CONFIG_URL.replace(/\/+$/, '') : '/api';
-const authHeader = () => {
-  const token = localStorage.getItem('jwt_token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import { http, authHeader } from './_http';
 
-const libraryService = {
+const libraryApi = {
+  async add(novelId, progress = 1) {
+    const res = await http.post(`/library/${novelId}`, { progress }, { headers: authHeader() });
+    return res?.data?.data;
+  },
+  async remove(novelId) {
+    const res = await http.delete(`/library/${novelId}`, { headers: authHeader() });
+    return res?.data?.data;
+  },
+  async check(novelId) {
+    const res = await http.get(`/library/check/${novelId}`, { headers: authHeader() });
+    return res?.data?.data === true;
+  },
   async getLibraryNovels(filters) {
     const response = await axios.get(`${BASE}/library`, { headers: authHeader(), params: filters });
     return response.data;
@@ -22,4 +30,4 @@ const libraryService = {
   },
 };
 
-export default libraryService;
+export default libraryApi;
