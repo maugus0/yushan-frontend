@@ -76,7 +76,7 @@ const Library = () => {
   const handleRemove = () => {
     const deleteNovelsFromLibrary = async (ids) => {
       await Promise.all(ids.map((id) => libraryService.deleteNovelFromLibrary(id)));
-      await fetchLibraryData(libraryPage - 1);
+      await fetchLibraryData();
       setEditMode(false);
       setSelectedIds([]);
     };
@@ -85,12 +85,12 @@ const Library = () => {
 
   const handleDelete = async (historyId) => {
     await historyService.deleteHistoryById(historyId);
-    fetchHistoryData(historyPage - 1);
+    fetchHistoryData();
   };
 
   const handleClearHistory = async () => {
     await historyService.clearHistory();
-    fetchHistoryData(0);
+    fetchHistoryData();
   };
 
   return (

@@ -11,8 +11,7 @@ const libraryService = {
   async getLibraryNovels(filters) {
     const response = await axios.get(
       `${BASE}/library`,
-      { headers: authHeader() },
-      { params: filters }
+      { headers: authHeader(), params: filters }
     );
     return response.data;
   },

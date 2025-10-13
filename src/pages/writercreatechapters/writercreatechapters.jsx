@@ -140,7 +140,7 @@ const WriterCreateChapters = () => {
           />
         </div>
         <Editor
-          apiKey="i3g9n83wa35bb4y5x074zwjvwcmyeaw8ux5txo89x6xvv35c"
+          apiKey={process.env.REACT_APP_TINYMCE_API_KEY}
           value={content}
           onEditorChange={setContent}
           init={{

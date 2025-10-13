@@ -113,7 +113,7 @@ const WriterCreate = () => {
       coverImgBase64: coverUrl,
       synopsis: values.synopsis,
       categoryId: values.types,
-      isCompeleted: false,
+      isCompleted: false,
     };
     let res = null;
     if (incomingId) {
