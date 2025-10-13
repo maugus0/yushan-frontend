@@ -6,7 +6,7 @@ const BASE = CONFIG_URL ? CONFIG_URL.replace(/\/+$/, '') : '/api';
 const authHeader = () => {
   const token = localStorage.getItem('jwt_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
-}
+};
 
 const userService = {
   async getMe() {

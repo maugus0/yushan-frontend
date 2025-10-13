@@ -66,6 +66,10 @@ const Navbar = ({ isAuthenticated, user }) => {
   }, [searchExpanded]);
 
   const handleCreate = async () => {
+    if (!finalIsAuthenticated) {
+      navigate('/login');
+      return;
+    }
     const res = await userService.getMe();
     if (res.isAuthor === true) {
       navigate('/writerdashboard');

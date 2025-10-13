@@ -7,6 +7,8 @@
 .writerdashboard-content {
   margin-left: 220px;
   padding: 32px 32px 0 32px;
+  min-height: 100vh;
+  background: #f7f8fa;
 }
 
 .writerdashboard-header {
@@ -41,20 +43,23 @@
   margin-bottom: 24px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  min-height: 420px;
 }
 
 .writerdashboard-novel-info {
   display: flex;
   align-items: flex-start;
+  min-height: 220px;
 }
 
 .writerdashboard-novel-cover {
-  width: 96px;
-  height: 128px;
-  border-radius: 8px;
+  width: 140px;
+  height: 190px;
+  border-radius: 12px;
   object-fit: cover;
-  margin-right: 24px;
+  margin-right: 32px;
   margin-left: 20px;
+  box-shadow: 0 4px 24px rgba(81, 95, 160, 0.08);
 }
 
 .writerdashboard-novel-main {
@@ -66,21 +71,33 @@
 
 .writerdashboard-novel-title {
   margin-bottom: 8px !important;
-  text-align: center;
+  text-align: left;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  color: #283157;
 }
 
 .writerdashboard-novel-desc {
   margin-bottom: 16px !important;
   display: block;
-  text-align: center;
+  text-align: left;
+  font-size: 16px;
+  color: #515fa0;
 }
 
 .writerdashboard-novel-stat-item {
-  text-align: center;
+  text-align: left;
+  margin-bottom: 8px;
 }
 
 .writerdashboard-novel-stat-value {
-  font-size: 18px;
+  font-size: 20px;
+  color: #283157;
+}
+
+.writerdashboard-novel-stat-label {
+  font-size: 14px;
+  color: #888;
 }
 
 .writerdashboard-charts-row {

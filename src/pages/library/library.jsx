@@ -1,32 +1,61 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Typography } from 'antd';
-import {
-  EditOutlined,
-  CheckCircleFilled,
-  StarFilled,
-  CheckOutlined,
-  DeleteOutlined,
-} from '@ant-design/icons';
+import { EditOutlined, CheckCircleFilled, RightOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import './library.css';
 import libraryService from '../../services/library';
+import historyService from '../../services/history';
 
 const { Title, Text } = Typography;
+
+const PAGE_SIZE = 1000;
 
 const Library = () => {
   const [editMode, setEditMode] = useState(false);
   const [novels, setNovels] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [tab, setTab] = useState('library');
+  const [libraryPage, setLibraryPage] = useState(1);
+  const [libraryTotal, setLibraryTotal] = useState(0);
   const [historyList, setHistoryList] = useState([]);
+  const [historyPage, setHistoryPage] = useState(1);
+  const navigate = useNavigate();
+
+  const fetchLibraryData = useCallback(async () => {
+    const filters = {
+      size: PAGE_SIZE,
+      page: 0,
+    };
+    const novels = await libraryService.getLibraryNovels(filters);
+    setNovels(novels.data.content);
+    setLibraryTotal(novels.data.totalElements || 0);
+  }, []);
+
+  const fetchHistoryData = useCallback(async () => {
+    const filters = {
+      size: PAGE_SIZE,
+      page: 0,
+    };
+    const historynovels = await historyService.getHistoryNovels(filters);
+    setHistoryList(historynovels.content);
+  }, []);
 
   useEffect(() => {
-    const fetchLibraryData = async () => {
-      const novels = await libraryService.getLibraryNovels();
-      console.log(novels.data.content);
-      setNovels(novels.data.content);
-    };
-    fetchLibraryData();
-  }, []);
+    if (tab === 'library') {
+      fetchLibraryData();
+    }
+  }, [tab, fetchLibraryData]);
+
+  useEffect(() => {
+    if (tab === 'history') {
+      fetchHistoryData();
+    }
+  }, [tab, fetchHistoryData]);
+
+  useEffect(() => {
+    if (tab === 'library') setLibraryPage(1);
+    if (tab === 'history') setHistoryPage(1);
+  }, [tab]);
 
   const handleEdit = () => {
     setEditMode(true);
@@ -47,18 +76,21 @@ const Library = () => {
   const handleRemove = () => {
     const deleteNovelsFromLibrary = async (ids) => {
       await Promise.all(ids.map((id) => libraryService.deleteNovelFromLibrary(id)));
-      const updatedNovels = novels.filter((novel) => !ids.includes(novel.novelId));
-      setNovels(updatedNovels);
+      await fetchLibraryData(libraryPage - 1);
+      setEditMode(false);
+      setSelectedIds([]);
     };
     deleteNovelsFromLibrary(selectedIds);
-    setEditMode(false);
-    setSelectedIds([]);
   };
 
-  const handleToggleLibrary = (id) => {
-    setHistoryList((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, inLibrary: !item.inLibrary } : item))
-    );
+  const handleDelete = async (historyId) => {
+    await historyService.deleteHistoryById(historyId);
+    fetchHistoryData(historyPage - 1);
+  };
+
+  const handleClearHistory = async () => {
+    await historyService.clearHistory();
+    fetchHistoryData(0);
   };
 
   return (
@@ -97,9 +129,9 @@ const Library = () => {
           <Button
             type="text"
             className="library-edit-btn"
-            onClick={() => setHistoryList([])}
+            onClick={() => handleClearHistory()}
             style={{ marginLeft: 12 }}
-            icon={<DeleteOutlined />}
+            icon={<EditOutlined />}
           >
             CLEAR ALL HISTORY
           </Button>
@@ -121,96 +153,248 @@ const Library = () => {
       </div>
       <div className="library-main-container">
         {tab === 'library' ? (
-          <div className="library-novel-list">
-            {novels.map((novel) => (
-              <div className="library-novel-card" key={novel.novelId}>
-                <div className="library-novel-img-wrapper" style={{ position: 'relative' }}>
-                  <img
-                    src={novel.novelCover}
-                    alt={novel.novelTitle}
-                    className="library-novel-img"
-                    width={140}
-                    height={186}
-                  />
-                  {editMode && (
-                    <div
-                      className="library-novel-mask"
-                      onClick={() => handleSelect(novel.novelId)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <span
-                        className={`library-novel-check ${selectedIds.includes(novel.novelId) ? 'checked' : ''}`}
-                      >
-                        <CheckCircleFilled />
-                      </span>
-                    </div>
-                  )}
+          <>
+            <div className="library-novel-list">
+              {novels.length === 0 ? (
+                <div
+                  style={{
+                    width: '100%',
+                    textAlign: 'center',
+                    color: '#aaa',
+                    padding: '32px 0',
+                    fontSize: 16,
+                    background: '#fff',
+                    borderRadius: 8,
+                    border: '1px solid #e1e6f5',
+                  }}
+                >
+                  No data.
                 </div>
-                <div className="library-novel-title">{novel.novelTitle}</div>
-                <div className="library-novel-progress">
-                  <Text type="secondary">Progress {novel.progress}</Text>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="history-list">
-            {historyList.map((novel) => (
-              <div className="history-item" key={novel.id}>
-                <img
-                  src={novel.cover}
-                  alt={novel.title}
-                  className="history-cover"
-                  width={140}
-                  height={186}
-                />
-                <div className="history-info">
-                  <div className="history-title">{novel.title}</div>
-                  <div className="history-stars">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <StarFilled
-                        key={i}
-                        style={{
-                          color: i < novel.stars ? '#faad14' : '#e1e6f5',
-                          fontSize: 18,
-                          marginRight: 2,
-                        }}
+              ) : (
+                novels.map((novel) => (
+                  <div
+                    className="library-novel-card"
+                    key={novel.novelId}
+                    style={{ cursor: editMode ? 'pointer' : 'pointer' }}
+                    onClick={
+                      editMode
+                        ? () => handleSelect(novel.novelId)
+                        : () => navigate(`/novel/${novel.novelId}`)
+                    }
+                  >
+                    <div className="library-novel-img-wrapper" style={{ position: 'relative' }}>
+                      <img
+                        src={novel.novelCover}
+                        alt={novel.novelTitle}
+                        className="library-novel-img"
+                        width={140}
+                        height={186}
                       />
-                    ))}
-                  </div>
-                  <div className="history-desc">{novel.desc}</div>
-                  <div className="history-bottom-row">
-                    <div className="history-progress">
-                      <Text type="secondary">Progress {novel.progress}</Text>
-                    </div>
-                    <div className="history-actions">
-                      <Button type="primary" size="small">
-                        Continue Reading
-                      </Button>
-                      {novel.inLibrary ? (
-                        <Button
-                          type="default"
-                          size="small"
-                          icon={<CheckOutlined />}
-                          className="history-inlibrary-btn"
-                          onClick={() => handleToggleLibrary(novel.id)}
+                      {editMode && (
+                        <div
+                          className="library-novel-mask"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelect(novel.novelId);
+                          }}
+                          style={{
+                            cursor: 'pointer',
+                            background: selectedIds.includes(novel.novelId)
+                              ? 'rgba(81,95,160,0.18)'
+                              : 'rgba(40,49,87,0.18)',
+                          }}
                         >
-                          IN LIBRARY
-                        </Button>
-                      ) : (
-                        <Button
-                          type="default"
-                          size="small"
-                          onClick={() => handleToggleLibrary(novel.id)}
-                        >
-                          + ADD TO LIBRARY
-                        </Button>
+                          <span
+                            className={`library-novel-check${selectedIds.includes(novel.novelId) ? ' checked' : ''}`}
+                          >
+                            <CheckCircleFilled />
+                          </span>
+                        </div>
                       )}
                     </div>
+                    <div className="library-novel-title">{novel.novelTitle}</div>
+                    <div className="library-novel-progress">
+                      <Text type="secondary">
+                        Progress {novel.chapterNumber}/{novel.chapterCnt}
+                      </Text>
+                    </div>
                   </div>
+                ))
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="history-chapters-list-box">
+            <div className="history-chapters-list">
+              {historyList.length === 0 ? (
+                <div
+                  style={{
+                    textAlign: 'center',
+                    color: '#aaa',
+                    padding: '32px 0',
+                    width: '100%',
+                    fontSize: 16,
+                    background: '#fff',
+                    borderRadius: 8,
+                    border: '1px solid #e1e6f5',
+                  }}
+                >
+                  No data.
                 </div>
-              </div>
-            ))}
+              ) : (
+                historyList.map((item) => (
+                  <div
+                    className="history-chapter-row hoverable-history-row"
+                    key={item.historyId || item.id}
+                    style={{
+                      background: '#fff',
+                      borderRadius: 10,
+                      margin: '16px 0',
+                      boxShadow: '0 2px 8px rgba(81,95,160,0.06)',
+                      padding: 0,
+                      position: 'relative',
+                      cursor: 'pointer',
+                      transition: 'box-shadow 0.2s, transform 0.2s',
+                    }}
+                    onClick={() => navigate(`/novel/${item.novelId}`)}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        navigate(`/novel/${item.novelId}`);
+                      }
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 24,
+                        padding: 18,
+                        width: '100%',
+                      }}
+                    >
+                      <img
+                        src={item.novelCover}
+                        alt={item.novelTitle}
+                        style={{
+                          width: 70,
+                          height: 94,
+                          objectFit: 'cover',
+                          borderRadius: 8,
+                          boxShadow: '0 2px 8px rgba(81,95,160,0.10)',
+                          background: '#f5f5f5',
+                          flexShrink: 0,
+                          pointerEvents: 'none',
+                        }}
+                      />
+                      <div
+                        style={{
+                          flex: 1,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          pointerEvents: 'none',
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}
+                        >
+                          <div>
+                            <div
+                              style={{
+                                fontWeight: 700,
+                                fontSize: 18,
+                                color: '#283157',
+                                marginBottom: 4,
+                              }}
+                            >
+                              {item.novelTitle}
+                            </div>
+                            <div style={{ fontSize: 14, color: '#888', marginBottom: 4 }}>
+                              {item.categoryName ? (
+                                <span style={{ color: '#515fa0' }}>[{item.categoryName}]</span>
+                              ) : null}
+                              {item.novelAuthor ? (
+                                <span style={{ marginLeft: 8 }}>by {item.novelAuthor}</span>
+                              ) : null}
+                            </div>
+                            {item.synopsis && (
+                              <div style={{ fontSize: 13, color: '#aaa', marginBottom: 2 }}>
+                                {item.synopsis}
+                              </div>
+                            )}
+                          </div>
+                          <div
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'flex-end',
+                              minWidth: 120,
+                              marginRight: 24,
+                            }}
+                          >
+                            <span
+                              style={{
+                                color: '#515fa0',
+                                fontWeight: 500,
+                                fontSize: 15,
+                                marginRight: 16,
+                              }}
+                            >
+                              Progress: {item.chapterNumber}/{item.chapterCnt}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ width: 32, pointerEvents: 'none' }} />
+                    </div>
+                    <span
+                      className="history-arrow"
+                      style={{
+                        position: 'absolute',
+                        right: 64,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        transition: 'transform 0.2s',
+                        cursor: 'pointer',
+                        pointerEvents: 'none',
+                      }}
+                    >
+                      <RightOutlined />
+                    </span>
+                    <Button
+                      className="history-delete-btn"
+                      size="small"
+                      type="primary"
+                      danger
+                      style={{
+                        position: 'absolute',
+                        right: 12,
+                        bottom: 12,
+                        zIndex: 3,
+                        fontSize: 12,
+                        height: 22,
+                        lineHeight: '20px',
+                        padding: '0 10px',
+                        minWidth: 0,
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(item.historyId || item.id);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         )}
       </div>

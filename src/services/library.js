@@ -8,8 +8,12 @@ const authHeader = () => {
 };
 
 const libraryService = {
-  async getLibraryNovels() {
-    const response = await axios.get(`${BASE}/library`, { headers: authHeader() });
+  async getLibraryNovels(filters) {
+    const response = await axios.get(
+      `${BASE}/library`,
+      { headers: authHeader() },
+      { params: filters }
+    );
     return response.data;
   },
   async getNovelDetails(novelId) {

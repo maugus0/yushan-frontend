@@ -24,23 +24,41 @@ const novelService = {
     return response.data.data;
   },
   async hideNovelById(novelId) {
-    const response = await axios.post(`${BASE}/novels/${novelId}/hide`, {}, { headers: authHeader() });
+    const response = await axios.post(
+      `${BASE}/novels/${novelId}/hide`,
+      {},
+      { headers: authHeader() }
+    );
     return response.data;
   },
   async unHideNovelById(novelId) {
-    const response = await axios.post(`${BASE}/novels/${novelId}/unhide`, {}, { headers: authHeader() });
+    const response = await axios.post(
+      `${BASE}/novels/${novelId}/unhide`,
+      {},
+      { headers: authHeader() }
+    );
     return response.data;
   },
   async changeNovelDetailById(novelId, novelData) {
-    const response = await axios.put(`${BASE}/novels/${novelId}`, novelData, { headers: authHeader() });
+    const response = await axios.put(`${BASE}/novels/${novelId}`, novelData, {
+      headers: authHeader(),
+    });
     return response.data.data;
   },
   async submitNovelForReview(novelId) {
-    const response = await axios.post(`${BASE}/novels/${novelId}/submit-review`, {}, { headers: authHeader() });
+    const response = await axios.post(
+      `${BASE}/novels/${novelId}/submit-review`,
+      {},
+      { headers: authHeader() }
+    );
     return response.data;
   },
   async deleteNovelById(novelId) {
-    const response = await axios.post(`${BASE}/novels/${novelId}/archive`, {}, { headers: authHeader() });
+    const response = await axios.post(
+      `${BASE}/novels/${novelId}/archive`,
+      {},
+      { headers: authHeader() }
+    );
     return response.data;
   },
 };

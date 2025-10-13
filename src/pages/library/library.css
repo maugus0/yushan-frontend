@@ -332,3 +332,114 @@
   color: #0039cb;
   border: 2px solid #0039cb;
 }
+
+.history-chapters-list-box {
+  margin-top: 24px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.history-chapters-title-row {
+  font-size: 18px;
+  font-weight: 600;
+  color: #515fa0;
+  margin-bottom: 12px;
+}
+
+.history-chapters-list {
+  border-radius: 8px;
+  background: #fff;
+}
+
+.history-chapter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  border-bottom: 1px solid #e1e6f5;
+  font-size: 16px;
+  color: #283157;
+}
+
+.history-chapter-row:last-child {
+  border-bottom: none;
+}
+
+.history-chapter-name {
+  font-weight: 500;
+}
+
+.history-chapter-actions {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  font-size: 14px;
+  color: #888;
+}
+
+.history-chapter-progress {
+  color: #515fa0;
+}
+
+.history-chapter-date {
+  color: #aaa;
+}
+
+.history-arrow {
+  font-size: 18px;
+  color: #b1bdf5;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+.history-arrow:hover {
+  transform: scale(1.5);
+  color: #515fa0;
+}
+
+.hoverable-history-row {
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
+}
+.hoverable-history-row:hover {
+  box-shadow: 0 8px 32px rgba(81, 95, 160, 0.18);
+  transform: translateY(-2px) scale(1.02);
+  z-index: 2;
+}
+.hoverable-history-row:hover .history-arrow {
+  transform: translateY(-50%) scale(1.5);
+  color: #515fa0;
+}
+
+.history-trash {
+  font-size: 20px;
+  color: #b1bdf5;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    transform 0.2s;
+  z-index: 3;
+}
+.history-trash:hover {
+  color: #fa4d4f;
+  transform: scale(1.3);
+}
+
+.history-delete-btn {
+  font-size: 12px !important;
+  height: 22px !important;
+  line-height: 20px !important;
+  padding: 0 10px !important;
+  min-width: 0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(81, 95, 160, 0.1);
+  opacity: 0.85;
+  transition:
+    opacity 0.2s,
+    box-shadow 0.2s;
+}
+.history-delete-btn:hover {
+  opacity: 1;
+  box-shadow: 0 4px 16px rgba(250, 77, 79, 0.18);
+}

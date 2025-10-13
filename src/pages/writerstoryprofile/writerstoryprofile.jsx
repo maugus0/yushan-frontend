@@ -3,7 +3,7 @@ import { Button, Modal } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerstoryprofile.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import novelService from '../../services/novel';
 import chapterService from '../../services/chapter';
 import dayjs from 'dayjs';
@@ -12,6 +12,7 @@ const PAGE_SIZE = 10;
 
 const WriterStoryProfile = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [deleteModal, setDeleteModal] = useState({ visible: false, idx: null });
   const [story, setStory] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,6 +42,11 @@ const WriterStoryProfile = () => {
   useEffect(() => {
     getChapterByNovelId();
   }, [storyId, currentPage]);
+
+  useEffect(() => {
+    getChapterByNovelId();
+    getStory();
+  }, [location.key]);
 
   const handleEdit = (chapterId) => {
     navigate(`/writercreatechapters/?novelid=${storyId}&chapterid=${chapterId}`);

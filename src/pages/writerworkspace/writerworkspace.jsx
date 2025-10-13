@@ -15,7 +15,7 @@ const WriterWorkspace = () => {
 
   const fetchStories = async () => {
     const authorId = await userService.getMe();
-    const data = await novelService.getNovel({ authorId: authorId.uuid });
+    const data = await novelService.getNovel({ authorId: authorId.uuid, size: 1000, page: 0 });
     setStories(data);
   };
 
@@ -46,7 +46,7 @@ const WriterWorkspace = () => {
 
   const handleDeleteConfirm = async () => {
     console.log('deleteModal.id: ', deleteModal.id);
-    // await novelService.deleteNovelById(deleteModal.id);
+    await novelService.deleteNovelById(deleteModal.id);
     fetchStories();
     setDeleteModal({ visible: false, id: null });
   };
@@ -76,12 +76,7 @@ const WriterWorkspace = () => {
   const menu = (id) => {
     const story = stories.find((s) => s.id === id);
     if (story && (story.status === 'DRAFT' || story.status === 'UNDER_REVIEW')) {
-      return (
-        <Menu
-          onClick={({ key }) => handleMenuClick(key, id)}
-          items={[{ key: 'delete', label: 'DELETE' }]}
-        />
-      );
+      return <></>;
     }
     return (
       <Menu
@@ -120,7 +115,10 @@ const WriterWorkspace = () => {
             <span className="board-column">WORDS</span>
             <span className="board-column">OPERATIONS</span>
           </div>
-          <div className="writerworkspace-board-body" style={{ position: 'relative', minHeight: 200 }}>
+          <div
+            className="writerworkspace-board-body"
+            style={{ position: 'relative', minHeight: 200 }}
+          >
             {stories.length === 0 ? (
               <div
                 style={{

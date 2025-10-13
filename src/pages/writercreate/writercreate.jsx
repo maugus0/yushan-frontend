@@ -66,10 +66,10 @@ const WriterCreate = () => {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setCropImage(e.target.result);
+        setCropImage(e.target.result); // 这里得到 base64 url
         setCropModalVisible(true);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(file); // FileReader 生成 base64 url
     }
   };
 
@@ -97,7 +97,7 @@ const WriterCreate = () => {
         120,
         160
       );
-      setCoverUrl(canvas.toDataURL('image/jpeg'));
+      setCoverUrl(canvas.toDataURL('image/jpeg')); // 这里生成最终 base64 url
       setCropModalVisible(false);
       setCropImage('');
     }

@@ -8,12 +8,12 @@ const authHeader = () => {
 };
 
 const reviewService = {
-  async getReviewsByNovelId(novelId, filters) {
-    const response = await axios.get(`${BASE}/reviews/novel/${novelId}`, {
+  async getReviewsByNovelId(filters) {
+    const response = await axios.get(`${BASE}/reviews`, {
       params: filters,
       headers: authHeader(),
     });
-    return response.data.data.content;
+    return response.data.data;
   },
 };
 

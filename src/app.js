@@ -139,61 +139,75 @@ function App() {
                     }
                   />
 
-                  {/* Writer routes with UserProvider */}
+                  {/* Writer routes with ProtectedRouteWrapper and UserProvider */}
                   <Route
                     path="/writerdashboard"
                     element={
-                      <UserProvider>
-                        <WriterDashboard />
-                      </UserProvider>
+                      <ProtectedRouteWrapper isAuthenticated={isAuthenticated}>
+                        <UserProvider>
+                          <WriterDashboard />
+                        </UserProvider>
+                      </ProtectedRouteWrapper>
                     }
                   />
                   <Route
                     path="/writerworkspace"
                     element={
-                      <UserProvider>
-                        <WriterWorkspace />
-                      </UserProvider>
+                      <ProtectedRouteWrapper isAuthenticated={isAuthenticated}>
+                        <UserProvider>
+                          <WriterWorkspace />
+                        </UserProvider>
+                      </ProtectedRouteWrapper>
                     }
                   />
                   <Route
                     path="/writerinteraction"
                     element={
-                      <UserProvider>
-                        <WriterInteraction />
-                      </UserProvider>
+                      <ProtectedRouteWrapper isAuthenticated={isAuthenticated}>
+                        <UserProvider>
+                          <WriterInteraction />
+                        </UserProvider>
+                      </ProtectedRouteWrapper>
                     }
                   />
                   <Route
                     path="/writercreate"
                     element={
-                      <UserProvider>
-                        <WriterCreate />
-                      </UserProvider>
+                      <ProtectedRouteWrapper isAuthenticated={isAuthenticated}>
+                        <UserProvider>
+                          <WriterCreate />
+                        </UserProvider>
+                      </ProtectedRouteWrapper>
                     }
                   />
                   <Route
                     path="/writerstoryprofile"
                     element={
-                      <UserProvider>
-                        <WriterStoryProfile />
-                      </UserProvider>
+                      <ProtectedRouteWrapper isAuthenticated={isAuthenticated}>
+                        <UserProvider>
+                          <WriterStoryProfile />
+                        </UserProvider>
+                      </ProtectedRouteWrapper>
                     }
                   />
                   <Route
                     path="/writercreatechapters"
                     element={
-                      <UserProvider>
-                        <WriterCreateChapters />
-                      </UserProvider>
+                      <ProtectedRouteWrapper isAuthenticated={isAuthenticated}>
+                        <UserProvider>
+                          <WriterCreateChapters />
+                        </UserProvider>
+                      </ProtectedRouteWrapper>
                     }
                   />
                   <Route
                     path="/writerauth"
                     element={
-                      <UserProvider>
-                        <WriterAuth />
-                      </UserProvider>
+                      <ProtectedRouteWrapper isAuthenticated={isAuthenticated}>
+                        <UserProvider>
+                          <WriterAuth />
+                        </UserProvider>
+                      </ProtectedRouteWrapper>
                     }
                   />
 
