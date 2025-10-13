@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, Button, Avatar, Typography, Divider, Tooltip } from 'antd';
+import { Layout, Button, Avatar, Typography, Divider, Tooltip, Spin, message } from 'antd';
 import { EditOutlined, CalendarOutlined, StarFilled } from '@ant-design/icons';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './profile.css';
 import * as LevelIcons from '../../components/user/icons/levelicon';
 import { MaleIcon, FemaleIcon } from '../../components/user/icons/gendericon';
 import { WriterIcon } from '../../components/user/icons/userrolesicon';
 import userProfileService from '../../services/userProfile';
+import { updateUser } from '../../store/slices/user';
+import { processUserAvatar, getGenderBasedAvatar } from '../../utils/imageUtils';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
 const Profile = () => {
   const { user: currentUser } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -22,26 +25,77 @@ const Profile = () => {
   const userId = searchParams.get('userId');
 
   const [user, setUser] = useState(currentUser);
-  const [loading, setLoading] = useState(!!userId);
+  const [loading, setLoading] = useState(false);
+  const [avatarSrc, setAvatarSrc] = useState('');
 
+  // Fetch profile data
   useEffect(() => {
-    if (userId && userId !== currentUser?.uuid) {
-      // Fetch target user profile
+    const fetchProfile = async () => {
       setLoading(true);
-      userProfileService
-        .getUserById(userId)
-        .then((data) => {
+      try {
+        if (userId && userId !== currentUser?.uuid) {
+          // Fetch target user profile
+          const data = await userProfileService.getUserById(userId);
           setUser(data);
-        })
-        .finally(() => setLoading(false));
-    } else {
-      setUser(currentUser);
-      setLoading(false);
+        } else {
+          // Fetch current user profile and update Redux
+          const response = await userProfileService.getCurrentUser();
+          if (response.code === 200 && response.data) {
+            setUser(response.data);
+            dispatch(updateUser(response.data));
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+        message.error('Failed to load profile data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+    // eslint-disable-next-line
+  }, [userId, currentUser?.uuid, dispatch]);
+
+  // Update avatar source when user data changes
+  useEffect(() => {
+    if (user) {
+      const processedAvatar = processUserAvatar(
+        user.avatarUrl,
+        user.gender,
+        process.env.REACT_APP_API_URL?.replace('/api', '/images')
+      );
+      setAvatarSrc(processedAvatar);
     }
-  }, [userId, currentUser]);
+  }, [user]);
+
+  // Handle avatar loading error with gender-based fallback
+  const handleAvatarError = (e) => {
+    if (!e || !e.target) {
+      console.warn('Avatar error handler called without event');
+      return false;
+    }
+    const fallback = getGenderBasedAvatar(user?.gender);
+    if (e.target.src !== fallback) {
+      e.target.src = fallback;
+    }
+    return true;
+  };
 
   if (loading || !user) {
-    return <div style={{ padding: 64, textAlign: 'center' }}>Loading...</div>;
+    return (
+      <Layout className="profile-layout-wrapper">
+        <Content
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '400px',
+          }}
+        >
+          <Spin size="large" tip="Loading profile..." />
+        </Content>
+      </Layout>
+    );
   }
 
   const LevelIconComponent = LevelIcons[`LevelIcon${user.level}`] || LevelIcons.LevelIcon1;
@@ -70,7 +124,12 @@ const Profile = () => {
             </div>
           </div>
           <div className="profile-avatar-wrapper">
-            <Avatar src={user.avatarUrl} size={160} className="profile-avatar" />
+            <Avatar
+              src={avatarSrc}
+              size={160}
+              className="profile-avatar"
+              onError={handleAvatarError}
+            />
           </div>
         </div>
         <div className="profile-content-section">
@@ -111,7 +170,7 @@ const Profile = () => {
                 className="profile-bio"
                 style={{ fontSize: 16, marginBottom: 12, display: 'block', color: '#333' }}
               >
-                {user.profileDetail}
+                {user.profileDetail || 'No bio yet.'}
               </Text>
               <div className="profile-id-row" style={{ marginBottom: 6 }}>
                 <Text type="secondary" className="profile-uuid" style={{ fontSize: 13 }}>
@@ -129,7 +188,7 @@ const Profile = () => {
               >
                 <CalendarOutlined style={{ marginRight: 6, fontSize: 17 }} />
                 <Text type="secondary" className="profile-joined" style={{ fontSize: 13 }}>
-                  {user.createDate || user.createTime} joined
+                  {user.createDate || new Date(user.createTime).toLocaleDateString()} joined
                 </Text>
                 <Divider type="vertical" style={{ margin: '0 8px' }} />
                 <span className="profile-exp" style={{ fontSize: 13 }}>
@@ -141,7 +200,7 @@ const Profile = () => {
                       verticalAlign: 'middle',
                     }}
                   />
-                  EXP: {user.exp}
+                  EXP: {user.exp || 0}
                 </span>
               </div>
             </div>
