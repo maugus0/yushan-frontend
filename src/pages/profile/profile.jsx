@@ -1,20 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout, Button, Avatar, Typography, Divider, Tooltip } from 'antd';
 import { EditOutlined, CalendarOutlined, StarFilled } from '@ant-design/icons';
-import { useSelector } from 'react-redux'; // Import useSelector to fetch Redux data
-import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './profile.css';
 import * as LevelIcons from '../../components/user/icons/levelicon';
 import { MaleIcon, FemaleIcon } from '../../components/user/icons/gendericon';
 import { WriterIcon } from '../../components/user/icons/userrolesicon';
+import userProfileService from '../../services/userProfile';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
 const Profile = () => {
-  // Fetch user data from Redux
-  const { user } = useSelector((state) => state.user);
+  const { user: currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get userId from query string
+  const searchParams = new URLSearchParams(location.search);
+  const userId = searchParams.get('userId');
+
+  const [user, setUser] = useState(currentUser);
+  const [loading, setLoading] = useState(!!userId);
+
+  useEffect(() => {
+    if (userId && userId !== currentUser?.uuid) {
+      // Fetch target user profile
+      setLoading(true);
+      userProfileService
+        .getUserById(userId)
+        .then((data) => {
+          setUser(data);
+        })
+        .finally(() => setLoading(false));
+    } else {
+      setUser(currentUser);
+      setLoading(false);
+    }
+  }, [userId, currentUser]);
+
+  if (loading || !user) {
+    return <div style={{ padding: 64, textAlign: 'center' }}>Loading...</div>;
+  }
 
   const LevelIconComponent = LevelIcons[`LevelIcon${user.level}`] || LevelIcons.LevelIcon1;
 
@@ -61,18 +89,21 @@ const Profile = () => {
                 )}
               </Title>
             </div>
-            <div className="profile-header-right">
-              <Button
-                type="primary"
-                icon={<EditOutlined />}
-                className="profile-edit-btn"
-                onClick={() => {
-                  navigate('/editprofile');
-                }}
-              >
-                Edit Profile
-              </Button>
-            </div>
+            {/* Only show Edit Profile button if viewing own profile */}
+            {(!userId || userId === currentUser?.uuid) && (
+              <div className="profile-header-right">
+                <Button
+                  type="primary"
+                  icon={<EditOutlined />}
+                  className="profile-edit-btn"
+                  onClick={() => {
+                    navigate('/editprofile');
+                  }}
+                >
+                  Edit Profile
+                </Button>
+              </div>
+            )}
           </div>
           <div className="profile-info-row">
             <div className="profile-info-left">
@@ -98,7 +129,7 @@ const Profile = () => {
               >
                 <CalendarOutlined style={{ marginRight: 6, fontSize: 17 }} />
                 <Text type="secondary" className="profile-joined" style={{ fontSize: 13 }}>
-                  {user.createDate} joined
+                  {user.createDate || user.createTime} joined
                 </Text>
                 <Divider type="vertical" style={{ margin: '0 8px' }} />
                 <span className="profile-exp" style={{ fontSize: 13 }}>

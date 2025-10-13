@@ -1,21 +1,40 @@
 import React, { useState } from 'react';
 import { Button, Avatar, Pagination, Rate, Modal, Input, Checkbox } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
 
 // Encapsulates the review CTA box, list with rating/spoiler, pagination, and the modal.
-const ReviewSection = ({ novelRating, pagedReviews, total, page, pageSize, onChangePage }) => {
+const ReviewSection = ({
+  novelRating,
+  pagedReviews,
+  total,
+  page,
+  pageSize,
+  onChangePage,
+  onSubmitReview,
+  isReviewModalVisible,
+  setIsReviewModalVisible,
+  handleWriteReview,
+}) => {
   // Local state for the "Write a review" modal
-  const [isReviewModalVisible, setIsReviewModalVisible] = useState(false);
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [reviewIsSpoiler, setReviewIsSpoiler] = useState(false);
+  const [reviewError, setReviewError] = useState('');
 
-  const openReviewModal = () => setIsReviewModalVisible(true);
-  const closeReviewModal = () => setIsReviewModalVisible(false);
-
-  const submitReview = () => {
-    // TODO: wire up to API; for now, just log
-    console.log('Posting review:', {
+  const submitReview = async () => {
+    // Validation: must select rating and enter text
+    if (!reviewRating) {
+      setReviewError('Please select a rating.');
+      return;
+    }
+    if (!reviewText.trim()) {
+      setReviewError('Please enter your review.');
+      return;
+    }
+    setReviewError('');
+    if (!onSubmitReview) return;
+    await onSubmitReview({
       rating: reviewRating,
       text: reviewText,
       isSpoiler: reviewIsSpoiler,
@@ -33,7 +52,7 @@ const ReviewSection = ({ novelRating, pagedReviews, total, page, pageSize, onCha
         style={{
           background: '#f7f8fa',
           borderRadius: 8,
-          padding: 16, // 16px left/right padding as requested
+          padding: 16,
           marginBottom: 16,
         }}
       >
@@ -59,7 +78,7 @@ const ReviewSection = ({ novelRating, pagedReviews, total, page, pageSize, onCha
             </div>
             <Button
               type="primary"
-              onClick={openReviewModal}
+              onClick={handleWriteReview}
               style={{
                 background: '#7a76c3ff',
                 borderColor: '#7975c9ff',
@@ -79,23 +98,29 @@ const ReviewSection = ({ novelRating, pagedReviews, total, page, pageSize, onCha
       {/* Reviews list with per-review rating and spoiler info */}
       <div className="novel-reviews">
         {pagedReviews.map((r) => {
-          // Mock rating and spoiler flags for display only
-          const mockRating = (r.id % 5) + 1; // 1..5
-          const mockIsSpoiler = r.id % 3 === 0; // every 3rd review is spoiler
+          const rating = r.rating != null ? r.rating : (r.id % 5) + 1;
+          const isSpoiler = r.isSpoiler != null ? r.isSpoiler : r.id % 3 === 0;
+          const date = r.createTime || r.date;
 
           return (
-            <div key={r.id} className="review-card">
+            <div key={r.id || r.uuid} className="review-card">
               <Avatar icon={<UserOutlined />} src={r.avatar} />
               <div className="review-content">
                 <div className="review-header">
-                  <span className="review-user">{r.user}</span>
-                  <span className="review-date">{r.date}</span>
+                  <span className="review-user">
+                    <Link
+                      to={`/profile?userId=${encodeURIComponent(r.userId || r.uuid)}`}
+                      style={{ color: '#1677ff' }}
+                    >
+                      {r.username || r.user}
+                    </Link>
+                  </span>
+                  <span className="review-date">{date ? new Date(date).toLocaleString() : ''}</span>
                 </div>
 
-                {/* Per-review rating and spoiler indicator */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '4px 0 6px' }}>
-                  <Rate disabled defaultValue={mockRating} />
-                  {mockIsSpoiler && <span style={{ color: 'red', fontSize: 12 }}>(Spoiler)</span>}
+                  <Rate disabled value={rating} />
+                  {isSpoiler && <span style={{ color: 'red', fontSize: 12 }}>(Spoiler)</span>}
                 </div>
 
                 <div>{r.content}</div>
@@ -119,7 +144,7 @@ const ReviewSection = ({ novelRating, pagedReviews, total, page, pageSize, onCha
       <Modal
         title={<strong>Write a review</strong>}
         open={isReviewModalVisible}
-        onCancel={closeReviewModal}
+        onCancel={() => setIsReviewModalVisible(false)}
         footer={null}
         centered
       >
@@ -154,6 +179,9 @@ const ReviewSection = ({ novelRating, pagedReviews, total, page, pageSize, onCha
             This review contains spoilers
           </Checkbox>
         </div>
+
+        {/* Error message */}
+        {reviewError && <div style={{ color: 'red', marginBottom: 12 }}>{reviewError}</div>}
 
         {/* POST button */}
         <Button

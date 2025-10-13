@@ -30,6 +30,11 @@ const userProfileService = {
     const response = await axios.post(`${API_URL}/users/send-email-change-verification`, { email });
     return response.data;
   },
+
+  async getUserById(userId) {
+    const response = await axios.get(`${API_URL}/users/${userId}`);
+    return response.data?.data;
+  },
 };
 
 export default userProfileService;
