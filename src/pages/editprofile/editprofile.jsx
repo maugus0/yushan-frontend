@@ -145,10 +145,11 @@ const EditProfile = () => {
         return;
       }
 
-      let genderValue = null;
-      if (values.gender === 'male') genderValue = 1;
-      else if (values.gender === 'female') genderValue = 2;
-      else genderValue = 0; // unknown
+      // Convert gender to uppercase string format for BE API
+      let genderValue = 'UNKNOWN';
+      if (values.gender === 'male') genderValue = 'MALE';
+      else if (values.gender === 'female') genderValue = 'FEMALE';
+      else if (values.gender === 'unknown') genderValue = 'UNKNOWN';
 
       // Prepare updated user data for API
       const profileData = {
@@ -333,7 +334,12 @@ const EditProfile = () => {
               initialValues={{
                 username: user.username,
                 email: user.email,
-                gender: user.gender === 1 ? 'male' : user.gender === 2 ? 'female' : 'unknown',
+                gender:
+                  user.gender === 1 || user.gender === 'MALE'
+                    ? 'male'
+                    : user.gender === 2 || user.gender === 'FEMALE'
+                      ? 'female'
+                      : 'unknown',
                 bio: user.profileDetail,
                 otp: '',
               }}
