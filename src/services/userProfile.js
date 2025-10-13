@@ -196,10 +196,6 @@ const userProfileService = {
       return response.data;
     } catch (error) {
       console.error('Send email verification error:', error);
-      console.log('Error response:', {
-        status: error.response?.status,
-        data: error.response?.data,
-      });
 
       // Enhanced error handling
       if (error.response) {
