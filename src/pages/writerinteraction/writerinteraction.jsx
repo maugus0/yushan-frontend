@@ -15,12 +15,8 @@ const WriterInteraction = () => {
   const [selectedNovelId, setSelectedNovelId] = useState(null);
 
   const [reviewsList, setReviewsList] = useState([]);
-  const [reviewsTotal, setReviewsTotal] = useState(0);
-  const [reviewsPage, setReviewsPage] = useState(1);
 
   const [commentsList, setCommentsList] = useState([]);
-  const [commentsTotal, setCommentsTotal] = useState(0);
-  const [commentsPage, setCommentsPage] = useState(1);
 
   useEffect(() => {
     const getNovelData = async () => {
@@ -38,13 +34,11 @@ const WriterInteraction = () => {
     const fetchReviews = async () => {
       if (!selectedNovelId) {
         setReviewsList([]);
-        setReviewsTotal(0);
         return;
       }
       const filters = { page: 0, size: PAGE_SIZE, novelId: selectedNovelId };
       const res = await reviewService.getReviewsByNovelId(filters);
       setReviewsList(res.content || []);
-      setReviewsTotal(res.totalElements || 0);
     };
     if (reviewsTab === 'reviews') fetchReviews();
   }, [selectedNovelId, reviewsTab]);
@@ -53,21 +47,14 @@ const WriterInteraction = () => {
     const fetchComments = async () => {
       if (!selectedNovelId) {
         setCommentsList([]);
-        setCommentsTotal(0);
         return;
       }
       const filters = { page: 0, size: PAGE_SIZE, novelId: selectedNovelId };
       const res = await commentService.getCommentsByNovelId(filters);
       setCommentsList(res.comments || []);
-      setCommentsTotal(res.totalCount || 0);
     };
     if (reviewsTab === 'comments') fetchComments();
   }, [selectedNovelId, reviewsTab]);
-
-  useEffect(() => {
-    setReviewsPage(1);
-    setCommentsPage(1);
-  }, [reviewsTab, selectedNovelId]);
 
   const currentList = reviewsTab === 'reviews' ? reviewsList : commentsList;
 
