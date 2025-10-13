@@ -29,6 +29,14 @@ const historyApi = {
     const response = await axios.delete(`${BASE}/history/clear`, { headers: authHeader() });
     return response.data;
   },
+  async recordRead(novelId, chapterId) {
+    const res = await http.post(
+      `/history/novels/${novelId}/chapters/${chapterId}`,
+      {},
+      { headers: authHeader() }
+    );
+    return res?.data?.data;
+  },
 };
 
 export default historyApi;

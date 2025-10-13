@@ -28,5 +28,13 @@ const commentsApi = {
     });
     return response.data.data;
   },
+  async like(commentId) {
+    const res = await http.post(`/comments/${commentId}/like`, {}, { headers: authHeader() });
+    return res?.data?.data;
+  },
+  async unlike(commentId) {
+    const res = await http.post(`/comments/${commentId}/unlike`, {}, { headers: authHeader() });
+    return res?.data?.data;
+  },
 };
 export default commentsApi;
