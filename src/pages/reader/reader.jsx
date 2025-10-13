@@ -5,7 +5,10 @@ import { saveProgress, getProgress } from '../../utils/reader';
 import './reader.css';
 import novelsApi from '../../services/novels';
 import commentsApi from '../../services/comments';
+import historyApi from '../../services/history';
 import { Button, Input, Pagination } from 'antd';
+import { LikeOutlined, LikeFilled } from '@ant-design/icons';
+import { useSelector } from 'react-redux';
 
 const SAVE_MS = 2500;
 
@@ -13,6 +16,7 @@ export default function ReaderPage() {
   const { novelId, chapterId } = useParams();
   const navigate = useNavigate();
   const { settings, updateSetting } = useReadingSettings();
+  const { user: currentUser } = useSelector((state) => state.user);
   const [chapter, setChapter] = useState(null);
   const [loading, setLoading] = useState(true);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -23,7 +27,17 @@ export default function ReaderPage() {
   const [commentText, setCommentText] = useState('');
   const [commentError, setCommentError] = useState('');
   const [commenting, setCommenting] = useState(false);
+  const [liking, setLiking] = useState({}); // { [commentId]: true/false }
   const [globalTip, setGlobalTip] = useState({ message: '', type: 'success', visible: false });
+  const [likedComments, setLikedComments] = useState(() => {
+    // Load liked comment ids from localStorage
+    const key = `likedComments_${currentUser?.uuid || 'guest'}`;
+    try {
+      return JSON.parse(localStorage.getItem(key)) || [];
+    } catch {
+      return [];
+    }
+  });
 
   const saveTimerRef = useRef(null);
   const lastSavedRef = useRef(0);
@@ -40,6 +54,14 @@ export default function ReaderPage() {
         if (!mounted) return;
         setChapter(res);
         setLoading(false);
+        // Record reading history on chapter load
+        if (res?.id) {
+          try {
+            await historyApi.recordRead(novelId, res.id);
+          } catch (e) {
+            // ignore error
+          }
+        }
         const stored = getProgress(novelId);
         if (stored && Number(stored.chapterId) === Number(chapterId)) {
           requestAnimationFrame(() => {
@@ -165,13 +187,20 @@ export default function ReaderPage() {
   // Fetch comments for current chapter
   useEffect(() => {
     async function fetchComments() {
-      if (!chapter?.id) return; // Use chapter.id
+      if (!chapter?.id) return;
       try {
         const res = await commentsApi.listByChapter(chapter.id, {
           page: commentPage - 1,
           size: 20,
         });
-        setComments(Array.isArray(res?.comments) ? res.comments : []);
+        // Merge liked state from localStorage
+        const merged = Array.isArray(res?.comments)
+          ? res.comments.map((c) => ({
+              ...c,
+              liked: likedComments.includes(c.id),
+            }))
+          : [];
+        setComments(merged);
         setCommentTotal(res?.totalCount || 0);
       } catch {
         setComments([]);
@@ -179,7 +208,7 @@ export default function ReaderPage() {
       }
     }
     fetchComments();
-  }, [chapter?.id, commentPage]);
+  }, [chapter?.id, commentPage, likedComments]);
 
   // Add comment
   const handleSubmitComment = async () => {
@@ -209,6 +238,37 @@ export default function ReaderPage() {
     }
   };
 
+  const handleLike = async (commentId, liked) => {
+    setLiking((prev) => ({ ...prev, [commentId]: true }));
+    const key = `likedComments_${currentUser?.uuid || 'guest'}`;
+    try {
+      let updated;
+      if (liked) {
+        updated = await commentsApi.unlike(commentId);
+        // Remove from local liked
+        const newLiked = likedComments.filter((id) => id !== commentId);
+        setLikedComments(newLiked);
+        localStorage.setItem(key, JSON.stringify(newLiked));
+      } else {
+        updated = await commentsApi.like(commentId);
+        // Add to local liked
+        const newLiked = [...likedComments, commentId];
+        setLikedComments(newLiked);
+        localStorage.setItem(key, JSON.stringify(newLiked));
+      }
+      // Update comment likeCnt in local state
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === commentId ? { ...c, likeCnt: updated.likeCnt, liked: !liked } : c
+        )
+      );
+    } catch (e) {
+      showTip(e?.response?.data?.message || e?.message || 'Failed to update like', 'error');
+    } finally {
+      setLiking((prev) => ({ ...prev, [commentId]: false }));
+    }
+  };
+
   const showTip = (message, type = 'success', duration = 2000) => {
     setGlobalTip({ message, type, visible: true });
     setTimeout(() => {
@@ -218,9 +278,15 @@ export default function ReaderPage() {
 
   const handlePrev = async () => {
     if (!chapter?.previousChapterUuid) return;
-    // 通过 uuid 查 chapterNumber
+    // Get previous chapter info by uuid
     const prev = await novelsApi.getChapterByUuid(chapter.previousChapterUuid);
-    if (prev?.chapterNumber) {
+    if (prev?.chapterNumber && prev?.id) {
+      // Record reading history
+      try {
+        await historyApi.recordRead(novelId, prev.id);
+      } catch (e) {
+        // ignore error
+      }
       navigate(`/read/${novelId}/${prev.chapterNumber}`);
     }
   };
@@ -228,7 +294,12 @@ export default function ReaderPage() {
   const handleNext = async () => {
     if (!chapter?.nextChapterUuid) return;
     const next = await novelsApi.getChapterByUuid(chapter.nextChapterUuid);
-    if (next?.chapterNumber) {
+    if (next?.chapterNumber && next?.id) {
+      try {
+        await historyApi.recordRead(novelId, next.id);
+      } catch (e) {
+        // ignore error
+      }
       navigate(`/read/${novelId}/${next.chapterNumber}`);
     }
   };
@@ -364,24 +435,34 @@ export default function ReaderPage() {
             </Button>
           </div>
           {comments.map((c) => (
-            <div
-              key={c.id}
-              style={{ background: '#f7f8fa', borderRadius: 8, padding: 10, marginBottom: 8 }}
-            >
-              {c.userId ? (
-                <Link
-                  to={`/profile?userId=${encodeURIComponent(c.userId)}`}
-                  style={{ color: '#1677ff', fontWeight: 600 }}
+            <div key={c.id} className="chapter-comment-item">
+              <div className="chapter-comment-header">
+                {c.userId ? (
+                  <Link
+                    to={`/profile?userId=${encodeURIComponent(c.userId)}`}
+                    className="chapter-comment-username"
+                  >
+                    {c.username}
+                  </Link>
+                ) : (
+                  <span className="chapter-comment-username">{c.username}</span>
+                )}
+                <span className="chapter-comment-time">
+                  {c.createTime ? new Date(c.createTime).toLocaleString() : ''}
+                </span>
+              </div>
+              <div className="chapter-comment-row">
+                <div className="chapter-comment-content">{c.content}</div>
+                <Button
+                  type="text"
+                  icon={c.liked ? <LikeFilled style={{ color: '#1677ff' }} /> : <LikeOutlined />}
+                  loading={!!liking[c.id]}
+                  onClick={() => handleLike(c.id, c.liked)}
+                  className="chapter-comment-like-btn"
                 >
-                  {c.username}
-                </Link>
-              ) : (
-                <span style={{ color: '#1677ff', fontWeight: 600 }}>{c.username}</span>
-              )}
-              <span style={{ marginLeft: 12, color: '#888', fontSize: 12 }}>
-                {c.createTime ? new Date(c.createTime).toLocaleString() : ''}
-              </span>
-              <div style={{ marginTop: 4 }}>{c.content}</div>
+                  {c.likeCnt || 0}
+                </Button>
+              </div>
             </div>
           ))}
           <Pagination
