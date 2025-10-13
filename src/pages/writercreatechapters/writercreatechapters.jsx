@@ -100,6 +100,7 @@ const WriterCreateChapters = () => {
           PUBLISH
         </Button>
       </div>
+
       <div className="writercreatechapters-editor-container">
         <div style={{ marginBottom: 24 }}>
           <label style={{ fontWeight: 500, color: '#515fa0', marginRight: 12 }}>
@@ -139,23 +140,42 @@ const WriterCreateChapters = () => {
             }}
           />
         </div>
+
         <Editor
-          apiKey="i3g9n83wa35bb4y5x074zwjvwcmyeaw8ux5txo89x6xvv35c"
+          apiKey="zds03d1k6akrwouyyro25otbx4v25hd4yc1p83a0lecjfwwj"
           value={content}
           onEditorChange={setContent}
           init={{
             height: 600,
             menubar: false,
             plugins: [
-              'advlist autolink lists link image charmap preview anchor',
-              'searchreplace visualblocks code fullscreen',
-              'insertdatetime media table code help wordcount',
+              'advlist',
+              'autolink',
+              'lists',
+              'link',
+              'image',
+              'charmap',
+              'preview',
+              'anchor',
+              'searchreplace',
+              'visualblocks',
+              'code',
+              'fullscreen',
+              'insertdatetime',
+              'media',
+              'table',
+              'help',
+              'wordcount',
             ],
             toolbar:
-              'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | code',
+              'undo redo | formatselect | bold italic underline | ' +
+              'alignleft aligncenter alignright alignjustify | ' +
+              'bullist numlist outdent indent | link image | code',
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
           }}
         />
       </div>
+
       <Modal
         open={publishModal}
         title="Confirm to publish?"
@@ -169,7 +189,8 @@ const WriterCreateChapters = () => {
           </Button>,
         ]}
         centered
-      ></Modal>
+      />
+
       <Modal
         open={errorModal}
         title="Invalid Input"

@@ -251,7 +251,6 @@ const WriterWorkspace = () => {
                     >
                       EXPLORE
                     </Button>
-                    {/* 只在不是 UNDER_REVIEW 时显示下拉菜单 */}
                     {story.status !== 'UNDER_REVIEW' && (
                       <Dropdown overlay={menu(story.id)} trigger={['click']}>
                         <Button type="text" icon={<EllipsisOutlined />} />
