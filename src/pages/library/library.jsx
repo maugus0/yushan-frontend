@@ -84,6 +84,11 @@ const Library = () => {
     fetchHistoryData();
   };
 
+  const isValidBase64Url = (url) => {
+    // 检查是否以data:image/jpeg;base64,或data:image/png;base64,等开头
+    return /^data:image\/(jpeg|png|jpg|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(url);
+  };
+
   return (
     <div className="library-page">
       <div className="library-header-row">
@@ -175,11 +180,26 @@ const Library = () => {
                   >
                     <div className="library-novel-img-wrapper" style={{ position: 'relative' }}>
                       <img
-                        src={novel.novelCover}
+                        src={
+                          novel.novelCover && isValidBase64Url(novel.novelCover)
+                            ? novel.novelCover
+                            : require('../../assets/images/novel_default.png')
+                        }
                         alt={novel.novelTitle}
                         className="library-novel-img"
                         width={140}
                         height={186}
+                        style={
+                          novel.novelCover && isValidBase64Url(novel.novelCover)
+                            ? undefined
+                            : {
+                                objectFit: 'cover',
+                                objectPosition: 'center',
+                                borderRadius: 8,
+                                transform: 'scale(1.1)',
+                                background: '#f5f5f5',
+                              }
+                        }
                       />
                       {editMode && (
                         <div
@@ -265,17 +285,23 @@ const Library = () => {
                       }}
                     >
                       <img
-                        src={item.novelCover}
+                        src={
+                          item.novelCover && isValidBase64Url(item.novelCover)
+                            ? item.novelCover
+                            : require('../../assets/images/novel_default.png')
+                        }
                         alt={item.novelTitle}
                         style={{
-                          width: 70,
-                          height: 94,
+                          width: 80,
+                          height: 110,
                           objectFit: 'cover',
+                          objectPosition: 'center',
                           borderRadius: 8,
                           boxShadow: '0 2px 8px rgba(81,95,160,0.10)',
                           background: '#f5f5f5',
                           flexShrink: 0,
                           pointerEvents: 'none',
+                          transform: 'scale(1.0)',
                         }}
                       />
                       <div

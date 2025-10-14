@@ -1,5 +1,5 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { Layout, Button, Avatar, Input, Form, Select, message, App } from 'antd';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { Layout, Button, Avatar, Input, Form, Select, message, App, Modal, Slider } from 'antd';
 import { CameraOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUser } from '../../store/slices/user';
@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import userProfileService from '../../services/userProfile';
 import { processUserAvatar, getGenderBasedAvatar } from '../../utils/imageUtils';
 import authService from '../../services/auth';
+import Cropper from 'react-easy-crop';
 
 const { Content } = Layout;
 const { Option } = Select;
@@ -20,9 +21,15 @@ const EditProfile = () => {
   const [profileError, setProfileError] = useState(''); // General profile error
   const [countdown, setCountdown] = useState(0);
   const [isDirty, setIsDirty] = useState(false);
-  const [avatarFile, setAvatarFile] = useState(null); // State to store the selected avatar file
+  const [avatarFile, setAvatarFile] = useState(null); // base64 string
   const [avatarPreview, setAvatarPreview] = useState(''); // Preview of selected avatar
   const [isSaving, setIsSaving] = useState(false); // Loading state for save button
+
+  const [cropModalVisible, setCropModalVisible] = useState(false);
+  const [cropImage, setCropImage] = useState('');
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.user);
@@ -30,7 +37,7 @@ const EditProfile = () => {
 
   // Set initial avatar preview
   useEffect(() => {
-    if (user) {
+    if (user && !avatarFile) {
       const processedAvatar = processUserAvatar(
         user.avatarUrl,
         user.gender,
@@ -151,15 +158,16 @@ const EditProfile = () => {
       else if (values.gender === 'female') genderValue = 'FEMALE';
       else if (values.gender === 'unknown') genderValue = 'UNKNOWN';
 
-      // Prepare updated user data for API
       const profileData = {
         username: values.username,
         email: values.email,
         gender: genderValue,
         profileDetail: values.bio || '',
-        avatarFile: avatarFile, // Will be added to FormData in service
+        avatarBase64: avatarFile,
         verificationCode: values.otp || undefined,
       };
+
+      console.log('Profile data to submit:', profileData);
 
       setIsSaving(true);
 
@@ -251,6 +259,7 @@ const EditProfile = () => {
   // Handle avatar file selection
   const handleCameraClick = () => {
     if (fileInputRef.current) {
+      fileInputRef.current.value = null;
       fileInputRef.current.click();
     }
   };
@@ -270,15 +279,46 @@ const EditProfile = () => {
         return;
       }
 
-      setAvatarFile(file);
-      setIsDirty(true);
-
-      // Create preview
       const reader = new FileReader();
-      reader.onload = () => {
-        setAvatarPreview(reader.result);
+      reader.onload = (ev) => {
+        setCropImage(ev.target.result); // base64 url
+        setCropModalVisible(true);
+        setIsDirty(true);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const handleCropFinish = async () => {
+    if (cropImage && croppedAreaPixels) {
+      const image = new window.Image();
+      image.src = cropImage;
+      await new Promise((res) => (image.onload = res));
+      const canvas = document.createElement('canvas');
+      canvas.width = 160;
+      canvas.height = 160;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(
+        image,
+        croppedAreaPixels.x,
+        croppedAreaPixels.y,
+        croppedAreaPixels.width,
+        croppedAreaPixels.height,
+        0,
+        0,
+        160,
+        160
+      );
+      const base64url = canvas.toDataURL('image/jpeg');
+      setAvatarPreview(base64url);
+      setAvatarFile(base64url);
+      setCropModalVisible(false);
+      setCropImage('');
+      setIsDirty(true);
     }
   };
 
@@ -431,6 +471,44 @@ const EditProfile = () => {
               </Form.Item>
             </Form>
           </div>
+          <Modal
+            open={cropModalVisible}
+            title="Crop Avatar"
+            onCancel={() => setCropModalVisible(false)}
+            onOk={handleCropFinish}
+            okText="Crop"
+            cancelText="Cancel"
+            width={400}
+          >
+            {cropImage && (
+              <div style={{ position: 'relative', width: '100%', height: 320 }}>
+                <Cropper
+                  image={cropImage}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  cropShape="round"
+                  showGrid={true}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={onCropComplete}
+                />
+                <div style={{ marginTop: 16 }}>
+                  <span style={{ fontSize: 13, color: '#888' }}>
+                    Adjust and crop to 160x160 avatar.
+                  </span>
+                  <Slider
+                    min={1}
+                    max={3}
+                    step={0.01}
+                    value={zoom}
+                    onChange={setZoom}
+                    style={{ marginTop: 8 }}
+                  />
+                </div>
+              </div>
+            )}
+          </Modal>
         </Content>
       </Layout>
     </App>

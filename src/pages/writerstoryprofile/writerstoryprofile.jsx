@@ -70,6 +70,10 @@ const WriterStoryProfile = () => {
 
   const pagedChapters = chaptersData;
 
+  const isValidBase64Url = (url) => {
+    return /^data:image\/(jpeg|png|jpg|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(url);
+  };
+
   return (
     <div className="writerstoryprofile-page">
       <WriterNavbar />
@@ -95,11 +99,26 @@ const WriterStoryProfile = () => {
         <div className="storyprofile-content-box">
           <div className="storyprofile-main-row">
             <img
-              src={story.coverImgUrl}
+              src={
+                story.coverImgUrl && isValidBase64Url(story.coverImgUrl)
+                  ? story.coverImgUrl
+                  : require('../../assets/images/novel_default.png')
+              }
               alt="cover"
               className="storyprofile-cover"
               width={210}
               height={280}
+              style={
+                story.coverImgUrl && isValidBase64Url(story.coverImgUrl)
+                  ? undefined
+                  : {
+                      objectFit: 'cover',
+                      objectPosition: 'center',
+                      borderRadius: 12,
+                      transform: 'scale(1.08) translateY(-6px)',
+                      background: '#f5f5f5',
+                    }
+              }
             />
             <div className="storyprofile-info">
               <div className="storyprofile-title">{story.title}</div>

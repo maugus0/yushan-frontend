@@ -20,6 +20,7 @@ const WriterCreate = () => {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [successModal, setSuccessModal] = useState(false);
   const [typeOptions, setTypeOptions] = useState([]);
+  const [alertVisible, setAlertVisible] = useState(false);
 
   const searchParams = new URLSearchParams(location.search);
   const incomingId = searchParams.get('id');
@@ -104,10 +105,11 @@ const WriterCreate = () => {
   };
 
   const handleSubmit = async (values) => {
-    if (!values.types) {
-      message.error('Please select one type.');
+    if (!values.bookname || !values.synopsis || !values.types || !coverUrl) {
+      setAlertVisible(true);
       return;
     }
+    setAlertVisible(false);
     let novelData = {
       title: values.bookname,
       coverImgBase64: coverUrl,
@@ -205,6 +207,60 @@ const WriterCreate = () => {
             </Button>
           </Form.Item>
         </Form>
+        <Modal
+          open={alertVisible}
+          onCancel={() => setAlertVisible(false)}
+          footer={[
+            <Button
+              key="confirm"
+              type="primary"
+              style={{
+                borderRadius: 8,
+                fontWeight: 600,
+                background: '#515fa0',
+                border: 'none',
+                minWidth: 100,
+              }}
+              onClick={() => setAlertVisible(false)}
+            >
+              Confirm
+            </Button>,
+          ]}
+          centered
+          maskClosable={false}
+          closable={false}
+          bodyStyle={{
+            padding: '32px 24px 24px 24px',
+            textAlign: 'center',
+            borderRadius: 12,
+            background: '#fff',
+          }}
+        >
+          <div
+            style={{
+              color: '#cf1322',
+              background: '#fff2f0',
+              border: '1px solid #ffccc7',
+              borderRadius: 8,
+              padding: '18px 16px',
+              fontSize: 17,
+              fontWeight: 600,
+              marginBottom: 12,
+              boxShadow: '0 2px 12px rgba(255,77,79,0.08)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 10,
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="12" fill="#ff4d4f" />
+              <path d="M12 7v5" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+              <circle cx="12" cy="16" r="1.2" fill="#fff" />
+            </svg>
+            Please fill in all required information and upload a book cover before submitting.
+          </div>
+        </Modal>
         {/* Cropper Modal */}
         <Modal
           open={cropModalVisible}
