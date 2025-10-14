@@ -27,11 +27,11 @@ const TopNovels = () => {
               page: 0,
               size: 15,
               sortType: 'view',
-              timeRange: 'overall'
-            }
+              timeRange: 'overall',
+            },
           }
         );
-        
+
         if (response.data && response.data.data && response.data.data.content) {
           setNovels(response.data.data.content);
         }
@@ -95,9 +95,7 @@ const TopNovels = () => {
                       <HeartOutlined /> {novel.voteCnt?.toLocaleString() || 0}
                     </span>
                   </div>
-                  {novel.category && (
-                    <Tag className="top-novel-category">{novel.category}</Tag>
-                  )}
+                  {novel.category && <Tag className="top-novel-category">{novel.category}</Tag>}
                 </div>
               </Card>
             </div>

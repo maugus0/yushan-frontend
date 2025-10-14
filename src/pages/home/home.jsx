@@ -243,7 +243,7 @@ const Homepage = () => {
         </div>
       </section>
 
-            {/* CTA Section */}
+      {/* CTA Section */}
       <section
         className="home-cta-section"
         style={{

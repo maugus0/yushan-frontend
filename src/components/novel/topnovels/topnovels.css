@@ -139,12 +139,12 @@
     font-size: 2rem;
     margin-bottom: 30px !important;
   }
-  
+
   .top-novels-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
-  
+
   .top-novel-rank-badge {
     font-size: 0.9rem;
     padding: 3px 10px;

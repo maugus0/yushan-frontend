@@ -18,7 +18,7 @@ const CategoriesGrid = () => {
         const response = await axios.get(
           'https://yushan-backend-staging.up.railway.app/api/categories'
         );
-        
+
         if (response.data && response.data.data && response.data.data.categories) {
           setCategories(response.data.data.categories);
         }
