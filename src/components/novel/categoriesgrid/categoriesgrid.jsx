@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, Row, Col, Typography, Spin } from 'antd';
+import { Card, Row, Col, Typography, Spin, Alert } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './categoriesgrid.css';
@@ -10,11 +10,13 @@ const CategoriesGrid = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         setLoading(true);
+        setError(null);
         const response = await axios.get(
           'https://yushan-backend-staging.up.railway.app/api/categories'
         );
@@ -24,6 +26,7 @@ const CategoriesGrid = () => {
         }
       } catch (error) {
         console.error('Error fetching categories:', error);
+        setError('Failed to load categories. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -51,6 +54,24 @@ const CategoriesGrid = () => {
         <Title level={2} className="categories-grid-title">
           Browse by Category
         </Title>
+        {error && (
+          <Alert
+            message="Error"
+            description={error}
+            type="error"
+            showIcon
+            style={{ marginBottom: '24px' }}
+          />
+        )}
+        {!error && categories.length === 0 && (
+          <Alert
+            message="No categories found"
+            description="There are currently no categories to display."
+            type="info"
+            showIcon
+            style={{ marginBottom: '24px' }}
+          />
+        )}
         <Row gutter={[16, 16]} justify="center">
           {categories.map((category) => (
             <Col xs={12} sm={8} md={6} lg={4} key={category.id}>

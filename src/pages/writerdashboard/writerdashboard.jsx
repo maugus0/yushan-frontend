@@ -1,4 +1,3 @@
-import React from 'react';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 
 const WriterDashboard = () => {

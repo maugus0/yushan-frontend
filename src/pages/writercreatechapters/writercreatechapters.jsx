@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button, Modal } from 'antd';
 
 import { ArrowLeftOutlined } from '@ant-design/icons';

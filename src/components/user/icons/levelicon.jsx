@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const LevelIcon1 = ({ width = 24, height = 24, style = {} }) => (
   <svg
     t="1758794349207"

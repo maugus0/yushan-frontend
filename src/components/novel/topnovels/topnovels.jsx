@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, Typography, Spin, Tag } from 'antd';
+import { Card, Typography, Spin, Tag, Alert } from 'antd';
 import { EyeOutlined, HeartOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -13,6 +13,7 @@ const TopNovels = () => {
   const navigate = useNavigate();
   const [novels, setNovels] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const onImageError = (e) => handleImageError(e, fallbackImage);
 
@@ -20,6 +21,7 @@ const TopNovels = () => {
     const fetchTopNovels = async () => {
       try {
         setLoading(true);
+        setError(null);
         const response = await axios.get(
           'https://yushan-backend-staging.up.railway.app/api/ranking/novel',
           {
@@ -37,6 +39,7 @@ const TopNovels = () => {
         }
       } catch (error) {
         console.error('Error fetching top novels:', error);
+        setError('Failed to load top novels. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -63,6 +66,24 @@ const TopNovels = () => {
         <Title level={2} className="top-novels-title">
           Top Novels
         </Title>
+        {error && (
+          <Alert
+            message="Error"
+            description={error}
+            type="error"
+            showIcon
+            style={{ marginBottom: '24px' }}
+          />
+        )}
+        {!error && novels.length === 0 && (
+          <Alert
+            message="No novels found"
+            description="There are currently no top novels to display."
+            type="info"
+            showIcon
+            style={{ marginBottom: '24px' }}
+          />
+        )}
         <div className="top-novels-grid">
           {novels.map((novel, index) => (
             <div

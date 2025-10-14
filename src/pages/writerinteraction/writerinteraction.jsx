@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button, Tabs, Modal } from 'antd';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerinteraction.css';

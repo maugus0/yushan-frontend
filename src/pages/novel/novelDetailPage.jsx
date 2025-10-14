@@ -68,6 +68,8 @@ const ChapterButton = React.memo(({ chapter, onJumpToChapter }) => (
   </Tooltip>
 ));
 
+ChapterButton.displayName = 'ChapterButton';
+
 export default function NovelDetailPage() {
   const REVIEWS_PAGE_SIZE = 30;
   const CHAPTERS_PAGE_SIZE = 50;

@@ -1,6 +1,5 @@
 // Reading settings context (font size & font family) with localStorage persistence.
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 const LS_KEY = 'yushan.reader.settings.v1';
 const DEFAULTS = { fontSize: 18, fontFamily: 'serif' }; // 'serif' | 'sans'
 

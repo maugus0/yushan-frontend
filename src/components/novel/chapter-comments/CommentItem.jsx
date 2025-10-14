@@ -1,4 +1,3 @@
-import React from 'react';
 import './ChapterComments.css';
 import { formatCommentTime } from '../../../utils/time';
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, Image } from 'antd';
 import { StarFilled } from '@ant-design/icons';
 import './novelcard.css';

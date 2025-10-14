@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Button, Input, Upload, Select, Form, message, Modal, Slider } from 'antd';
 import { ArrowLeftOutlined, PlusOutlined, BookOutlined } from '@ant-design/icons';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';

@@ -1,5 +1,4 @@
-import React, { useMemo, useState } from 'react';
-
+import { useMemo, useState } from 'react';
 /**
  * GenreSidebar (aligned with Rankings left nav)
  * - Single "Novels" button that toggles a collapsible category list.

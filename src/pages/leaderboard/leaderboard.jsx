@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Card, Breadcrumb, Button } from 'antd';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import './leaderboard.css';

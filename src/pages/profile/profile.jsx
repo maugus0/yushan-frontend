@@ -1,4 +1,3 @@
-import React from 'react';
 import { Layout, Button, Avatar, Typography, Divider, Tooltip } from 'antd';
 import { EditOutlined, CalendarOutlined, StarFilled } from '@ant-design/icons';
 import { useSelector } from 'react-redux'; // Import useSelector to fetch Redux data

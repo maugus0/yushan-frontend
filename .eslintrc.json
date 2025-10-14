@@ -5,7 +5,7 @@
     "es2021": true,
     "jest": true
   },
-  "extends": ["eslint:recommended"],
+  "extends": ["eslint:recommended", "plugin:react/recommended", "plugin:react/jsx-runtime"],
   "parserOptions": {
     "ecmaVersion": 12,
     "sourceType": "module",
@@ -13,10 +13,20 @@
       "jsx": true
     }
   },
+  "plugins": ["react"],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "ignorePatterns": ["node_modules/", "build/", "coverage/"],
   "rules": {
     "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-    "no-console": "off"
+    "no-console": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+    "react/no-unknown-property": ["error", { "ignore": ["p-id", "t"] }],
+    "react/no-unescaped-entities": "off"
   },
   "globals": {
     "process": "readonly"
