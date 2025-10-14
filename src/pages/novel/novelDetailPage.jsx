@@ -26,50 +26,29 @@ import {
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import './novelDetailPage.css';
-import testImg from '../../assets/images/testimg2.png';
+import novelsApi from '../../services/novels';
+import reviewsApi from '../../services/reviews';
+import reportsApi from '../../services/reports';
+import libraryApi from '../../services/library';
+import historyApi from '../../services/history';
+import userProfileService from '../../services/userProfile'; // Assume this service exists
+import { toAbsoluteUrl } from '../../services/_http';
+import testImg from '../../assets/images/testimg2.png'; // keep fallback
 import PowerStatusVote from '../../components/novel/novelcard/powerStatusVote';
-import ReviewSection from '../../components/novel/novelcard/reviewSection'; // fixed import casing
+import ReviewSection from '../../components/novel/novelcard/reviewSection';
+import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
 
-const fetchNovelById = async (novelId) => {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return {
-    id: parseInt(novelId),
-    cover: testImg,
-    title: `Novel Title ${novelId}`,
-    tags: ['Fantasy'],
-    chapters: 2781,
-    views: 14500000,
-    votes: 98500,
-    author: { name: 'Author Name', avatar: '' },
-    rating: 4.8,
-    ratingsCount: 85,
-    synopsis: `This is the synopsis for novel ${novelId}. In a world of cultivation, only the strong survive...`,
-    rankings: [
-      { type: 'Popularity Ranking', value: '#1', icon: <EyeFilled /> },
-      { type: 'Vote Ranking', value: '#3', icon: <LikeFilled /> },
-    ],
-  };
-};
-
-const generateChaptersForPage = (page, pageSize, totalChapters) => {
-  const start = (page - 1) * pageSize;
-  const end = Math.min(start + pageSize, totalChapters);
-  return Array.from({ length: end - start }, (_, i) => ({
-    id: start + i + 1,
-    title: `Chapter ${start + i + 1}: The Journey Continues`,
-  }));
-};
-
-const ChapterButton = React.memo(({ chapter, onJumpToChapter }) => (
-  <Tooltip title={`Go to ${chapter.title}`}>
-    <Button type="text" className="novel-chapter-btn" onClick={() => onJumpToChapter(chapter.id)}>
-      {chapter.title}
-    </Button>
-  </Tooltip>
-));
+const REPORT_TYPE_OPTIONS = [
+  { label: 'Pornographic Content', value: 'PORNOGRAPHIC' },
+  { label: 'Hate or Bullying', value: 'HATE_BULLYING' },
+  { label: 'Release of personal info', value: 'PERSONAL_INFO' },
+  { label: 'Other inappropriate material', value: 'INAPPROPRIATE' },
+  { label: 'Spam', value: 'SPAM' },
+];
 
 export default function NovelDetailPage() {
-  const REVIEWS_PAGE_SIZE = 30;
+  const REVIEWS_PAGE_SIZE = 10; // align with BE default
   const CHAPTERS_PAGE_SIZE = 50;
 
   const { novelId } = useParams();
@@ -77,37 +56,160 @@ export default function NovelDetailPage() {
   const location = useLocation();
 
   const [novel, setNovel] = useState(null);
+  const [coverUrl, setCoverUrl] = useState(testImg);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState('about');
   const [page, setPage] = useState(1);
   const [chapterPage, setChapterPage] = useState(1);
+  const [inLibrary, setInLibrary] = useState(false);
+
+  // votes
+  const [voting, setVoting] = useState(false);
+
+  // reviews
+  const [reviewsState, setReviewsState] = useState({ list: [], total: 0 });
+
+  // Report modal state
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [reportReason, setReportReason] = useState(''); // reason text
+  const [reportType, setReportType] = useState(REPORT_TYPE_OPTIONS[0].value); // default value for report type
+  const [reportError, setReportError] = useState('');
+
+  // Current user info
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Global tip state
+  const [globalTip, setGlobalTip] = useState({ message: '', type: 'success', visible: false });
+
+  // chapter list state
+  const [chapterList, setChapterList] = useState([]);
+
+  const [voteRanking, setVoteRanking] = useState(null);
+  const [voteRankType, setVoteRankType] = useState('Vote Ranking');
+
+  useEffect(() => {
+    async function fetchVoteRanking() {
+      if (!novelId) return;
+      try {
+        const apiBase = process.env.REACT_APP_API_URL || '/api';
+        const url = `${apiBase.replace(/\/$/, '')}/ranking/novel/${novelId}/rank`;
+        const res = await axios.get(url);
+        setVoteRanking(res?.data?.data?.rank ?? null);
+        setVoteRankType(res?.data?.data?.rankType ?? 'Vote Ranking');
+      } catch {
+        setVoteRanking(null);
+        setVoteRankType('Vote Ranking');
+      }
+    }
+    fetchVoteRanking();
+  }, [novelId]);
+
+  // Show tip for a short duration
+  const showTip = (message, type = 'success', duration = 2000) => {
+    setGlobalTip({ message, type, visible: true });
+    setTimeout(() => {
+      setGlobalTip({ message: '', type, visible: false });
+    }, duration);
+  };
+
+  // Load novel detail
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await novelsApi.getDetail(novelId);
+        if (cancelled) return;
+        setNovel({
+          id: data?.id,
+          title: data?.title,
+          categoryName: data?.categoryName,
+          chapters: data?.chapterCnt ?? 0,
+          views: data?.viewCnt ?? 0,
+          votes: data?.voteCnt ?? 0,
+          author: {
+            name: data?.authorUsername || 'Author',
+            uuid: data?.authorId || data?.authorUuid, // get uuid
+          },
+          rating: data?.avgRating ?? 0,
+          ratingsCount: data?.reviewCnt ?? 0,
+          synopsis: data?.synopsis ?? '',
+          remainedYuan: data?.remainedYuan, // Ensure votesLeft is initialized
+        });
+        const abs = toAbsoluteUrl(data?.coverImgUrl);
+        setCoverUrl(abs || testImg);
+      } catch (err) {
+        if (!cancelled) {
+          setError(err?.response?.data?.message || err?.message || 'Failed to load novel details');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    if (novelId) load();
+    return () => {
+      cancelled = true;
+    };
+  }, [novelId]);
+
+  // Load current user info
+  useEffect(() => {
+    async function loadUser() {
+      const user = await userProfileService.getCurrentUser();
+      setCurrentUser(user);
+    }
+    loadUser();
+  }, []);
+
+  // Load reviews when page changes
+  useEffect(() => {
+    let cancelled = false;
+    async function loadReviews() {
+      try {
+        const res = await reviewsApi.listByNovel(novelId, {
+          page: page - 1,
+          size: REVIEWS_PAGE_SIZE,
+          sort: 'createTime',
+          order: 'desc',
+        });
+        if (cancelled) return;
+        const list = Array.isArray(res?.content) ? res.content : [];
+        setReviewsState({
+          list,
+          total: res?.totalElements ?? list.length,
+        });
+      } catch (e) {
+        return null;
+      }
+    }
+    if (novelId && currentUser) loadReviews();
+    return () => {
+      cancelled = true;
+    };
+  }, [novelId, page, currentUser]);
+
+  // Check if in library
+  useEffect(() => {
+    async function checkLibrary() {
+      if (novelId) {
+        try {
+          const inLib = await libraryApi.check(novelId);
+          setInLibrary(inLib);
+        } catch {
+          setInLibrary(false);
+        }
+      }
+    }
+    checkLibrary();
+  }, [novelId]);
+
+  // Keep your recentRead local usage for now (history is queried on Read)
   const [recentRead, setRecentRead] = useState(() => {
     const savedRecentRead = localStorage.getItem('recentRead');
     return savedRecentRead ? JSON.parse(savedRecentRead) : null;
   });
-
-  // Report modal state (existing)
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [reportReason, setReportReason] = useState('');
-  const [reportComment, setReportComment] = useState('');
-
-  useEffect(() => {
-    const loadNovel = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await fetchNovelById(novelId);
-        setNovel(data);
-      } catch (err) {
-        setError('Failed to load novel details');
-        console.error('Error loading novel:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (novelId) loadNovel();
-  }, [novelId]);
 
   useEffect(() => {
     if (tab === 'toc') setChapterPage(1);
@@ -119,6 +221,167 @@ export default function NovelDetailPage() {
     }
   }, [recentRead]);
 
+  // Read: try to jump to last read chapter from /history; fallback to 1
+  const handleReadNovel = async () => {
+    console.log('handleReadNovel called', novelId);
+    try {
+      const historyRes = await historyApi.list({ page: 0, size: 20 });
+      console.log('historyRes:', historyRes);
+      console.log('historyRes.content:', historyRes && historyRes.content);
+      let chapterNumber;
+      if (Array.isArray(historyRes?.content)) {
+        console.log('history content:', historyRes.content, 'novelId:', novelId);
+        const found = historyRes.content.find((h) => String(h.novelId) === String(novelId));
+        console.log('found:', found);
+        if (found && !isNaN(Number(found.chapterNumber))) {
+          chapterNumber = Number(found.chapterNumber);
+          console.log('qqqqqq');
+        }
+      }
+      if (typeof chapterNumber === 'number') {
+        navigate(`/read/${novelId}/${chapterNumber}`);
+      } else {
+        navigate(`/read/${novelId}/1`);
+        console.log('ssssss');
+      }
+    } catch {
+      navigate(`/read/${novelId}/1`);
+    }
+  };
+
+  const handleJumpToChapter = async (chapterId, chapterNumber) => {
+    try {
+      // Always record reading history when jumping to a chapter
+      await historyApi.recordRead(novelId, chapterId);
+    } catch (e) {
+      // Optionally handle error, or ignore
+    }
+    setRecentRead({ id: chapterId, title: `Chapter ${chapterNumber}` });
+    navigate(`/read/${novelId}/${chapterNumber}`);
+  };
+
+  const handleAddOrRemoveLibrary = async () => {
+    if (inLibrary) {
+      // Remove from library
+      try {
+        await libraryApi.remove(novelId);
+        setInLibrary(false);
+        showTip('Removed from library', 'success');
+      } catch (e) {
+        showTip(
+          e?.response?.data?.message || e?.message || 'Failed to remove from library',
+          'error'
+        );
+      }
+    } else {
+      // Add to library（previous logic）
+      try {
+        // 1. Get user's reading history for this novel
+        const historyRes = await historyApi.list({ page: 0, size: 20 });
+        let chapterId = null;
+        if (Array.isArray(historyRes?.data?.content)) {
+          const found = historyRes.data.content.find((h) => String(h.novelId) === String(novelId));
+          if (found && found.chapterId) chapterId = found.chapterId;
+        }
+        // 2. If not found, get the first chapterId of this novel
+        if (!chapterId) {
+          const chaptersRes = await novelsApi.getChapters(novelId);
+          const firstChapter = chaptersRes?.chapters?.[0];
+          if (firstChapter && firstChapter.chapterId) chapterId = firstChapter.chapterId;
+        }
+        // 3. If still not found, fallback to 1
+        if (!chapterId) chapterId = 1;
+
+        // 4. Add to library with progress = chapterId
+        await libraryApi.add(novelId, chapterId);
+        setInLibrary(true);
+        showTip('Added to library', 'success');
+      } catch (e) {
+        showTip(e?.response?.data?.message || e?.message || 'Failed to add to library', 'error');
+      }
+    }
+  };
+
+  // Get current user's yuan from redux store (login sets it)
+  const dispatch = useDispatch();
+  const userYuan = useSelector((state) => state.user?.user?.yuan ?? 0);
+
+  // Vote handler: no longer update votesLeft, just showTip
+  const handleVote = async () => {
+    if (userYuan <= 0) return;
+    setVoting(true);
+    try {
+      const res = await novelsApi.vote(novelId);
+      showTip('Voted successfully', 'success');
+      if (res?.remainedYuan !== undefined) {
+        dispatch({
+          type: 'user/updateYuan',
+          payload: res.remainedYuan,
+        });
+      }
+    } catch (e) {
+      showTip(e?.response?.data?.message || e?.message || 'Vote failed', 'error');
+    } finally {
+      setVoting(false);
+    }
+  };
+
+  // Report modal handlers
+  const showModal = () => {
+    setReportError('');
+    setIsModalVisible(true);
+  };
+  const handleOk = async () => {
+    try {
+      await reportsApi.reportNovel(novelId, {
+        reportType,
+        reason: reportReason || 'User report',
+      });
+      setIsModalVisible(false);
+      setReportError('');
+      showTip('Novel reported successfully', 'success');
+    } catch (e) {
+      setIsModalVisible(false);
+      setReportError('');
+      showTip('You have already reported this novel', 'error');
+    }
+  };
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setReportError('');
+  };
+
+  // Review submit handler
+  const onSubmitReview = async ({ rating, text, isSpoiler }) => {
+    try {
+      await reviewsApi.create({ novelId, rating, text, isSpoiler });
+      setPage(1);
+      const data = await reviewsApi.listByNovel(novelId, { page: 0, size: REVIEWS_PAGE_SIZE });
+      setReviewsState({
+        list: data?.content || [],
+        total: data?.totalElements || 0,
+      });
+      showTip('Review submitted successfully', 'success');
+    } catch (e) {
+      setIsReviewModalVisible(false);
+      showTip(
+        e?.response?.status === 400
+          ? 'You have already reviewed this novel'
+          : e?.response?.data?.message || e?.message || 'Failed to submit review',
+        'error'
+      );
+    }
+  };
+
+  // Add review modal state
+  const [isReviewModalVisible, setIsReviewModalVisible] = useState(false);
+
+  // Review button click handler: always allow opening modal
+  const handleWriteReview = () => {
+    setIsReviewModalVisible(true);
+  };
+
+  // Move memos BEFORE any early returns
   const breadcrumbItems = useMemo(() => {
     if (!novel) return [{ title: <Link to="/">Home</Link> }];
     const baseItems = [{ title: <Link to="/">Home</Link> }];
@@ -166,51 +429,22 @@ export default function NovelDetailPage() {
     return baseItems;
   }, [novel, location.state?.from]);
 
-  // Mock reviews kept in parent so the title count stays unchanged
-  const reviews = useMemo(() => {
-    if (!novel) return [];
-    return Array.from({ length: 12 }, (_, i) => ({
-      id: i + 1,
-      user: `User${i + 1}`,
-      avatar: '',
-      content: `This is a sample review for ${novel.title}. Great novel!`,
-      date: '2024-01-01',
-    }));
-  }, [novel]);
+  const pagedReviews = useMemo(() => reviewsState.list, [reviewsState.list]);
 
-  const currentPageChapters = useMemo(() => {
-    if (!novel) return [];
-    return generateChaptersForPage(chapterPage, CHAPTERS_PAGE_SIZE, novel.chapters);
-  }, [novel, chapterPage]);
+  // get chapters list
+  useEffect(() => {
+    async function fetchChapters() {
+      try {
+        const res = await novelsApi.getChaptersFull(novelId); // getChaptersFull
+        setChapterList(Array.isArray(res?.chapters) ? res.chapters : []);
+      } catch {
+        setChapterList([]);
+      }
+    }
+    if (novelId) fetchChapters();
+  }, [novelId]);
 
-  const pagedReviews = useMemo(() => {
-    return reviews.slice((page - 1) * REVIEWS_PAGE_SIZE, page * REVIEWS_PAGE_SIZE);
-  }, [reviews, page]);
-
-  const handleAddToLibrary = () => {
-    console.log('Adding novel to library:', novel.id);
-  };
-
-  const handleReadNovel = () => {
-    const startChapter = recentRead ? recentRead.id : 1;
-    navigate(`/read/${novel.id}/${startChapter}`);
-  };
-
-  const handleJumpToChapter = (chapterId) => {
-    const chapterTitle = `Chapter ${chapterId}: The Journey Continues`;
-    setRecentRead({ id: chapterId, title: chapterTitle });
-    navigate(`/read/${novel.id}/${chapterId}`);
-  };
-
-  // Report modal handlers (existing)
-  const showModal = () => setIsModalVisible(true);
-  const handleOk = () => {
-    console.log('Report Reason:', reportReason);
-    console.log('Report Comment:', reportComment);
-    setIsModalVisible(false);
-  };
-  const handleCancel = () => setIsModalVisible(false);
-
+  // Early returns AFTER all hooks
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '64px' }}>
@@ -241,7 +475,13 @@ export default function NovelDetailPage() {
 
       <div className="novel-header">
         <div className="novel-cover">
-          <img src={novel.cover} alt={novel.title} />
+          <img
+            src={coverUrl || testImg}
+            alt={novel.title}
+            onError={(e) => {
+              e.currentTarget.src = testImg;
+            }}
+          />
         </div>
         <div className="novel-header-main">
           <h1 className="novel-title">{novel.title}</h1>
@@ -249,41 +489,39 @@ export default function NovelDetailPage() {
           <div className="novel-meta-combined">
             <div className="novel-tag-single">
               <BookOutlined className="tag-icon" />
-              <span className="tag-text">{novel.tags[0]}</span>
+              <span className="tag-text">{novel.categoryName || '—'}</span>
             </div>
             <span className="meta-item">
               <BookFilled /> {novel.chapters} Chapters
             </span>
             <span className="meta-item">
-              <EyeFilled /> {novel.views.toLocaleString()} Views
+              <EyeFilled /> {Number(novel.views || 0).toLocaleString()} Views
             </span>
             <span className="meta-item">
-              <LikeFilled /> {novel.votes.toLocaleString()} Votes
+              <LikeFilled /> {Number(novel.votes || 0).toLocaleString()} Votes
             </span>
           </div>
 
           <div className="novel-author-row">
             <span>
-              <UserOutlined /> Author: <span className="author-name">{novel.author.name}</span>
+              <UserOutlined /> Author:{' '}
+              <Link
+                to={`/profile?userId=${encodeURIComponent(novel.author.uuid)}`}
+                className="author-name"
+                style={{ color: '#1677ff' }}
+              >
+                {novel.author.name}
+              </Link>
             </span>
           </div>
 
           <div className="novel-rating-row">
-            <Rate disabled defaultValue={novel.rating} allowHalf className="rating-stars" />
-            <span className="rating-score">{novel.rating}</span>
+            <Rate disabled value={novel.rating} allowHalf className="rating-stars" />
+            <span className="rating-score">{Number(novel.rating).toFixed(2)}</span>
             <span className="rating-count">({novel.ratingsCount} ratings)</span>
           </div>
 
           <div className="novel-rankings-buttons-container">
-            <div className="novel-rankings-section">
-              <div className="novel-ranking-tag">
-                {novel.rankings[0].icon} {novel.rankings[0].type}: {novel.rankings[0].value}
-              </div>
-              <div className="novel-ranking-tag">
-                {novel.rankings[1].icon} {novel.rankings[1].type}: {novel.rankings[1].value}
-              </div>
-            </div>
-
             <div className="novel-buttons-section">
               <Button
                 type="primary"
@@ -297,9 +535,9 @@ export default function NovelDetailPage() {
                 type="primary"
                 icon={<PlusOutlined />}
                 className="novel-add-btn"
-                onClick={handleAddToLibrary}
+                onClick={handleAddOrRemoveLibrary}
               >
-                Add to Library
+                {inLibrary ? 'In Library' : 'Add to Library'}
               </Button>
               <Button type="text" className="report-button" onClick={showModal}>
                 <FlagOutlined style={{ marginRight: '4px', fontSize: '13px' }} />
@@ -310,7 +548,7 @@ export default function NovelDetailPage() {
         </div>
       </div>
 
-      {/* Report Story Modal (existing) */}
+      {/* Report Story Modal */}
       <Modal
         className="report-modal"
         title={<span className="report-modal-title">Report Story</span>}
@@ -324,24 +562,28 @@ export default function NovelDetailPage() {
         <div className="report-options">
           <Radio.Group
             className="report-radio-group"
-            onChange={(e) => setReportReason(e.target.value)}
-            value={reportReason}
+            onChange={(e) => setReportType(e.target.value)}
+            value={reportType}
           >
-            <Radio value="Pornographic Content">Pornographic Content</Radio>
-            <Radio value="Hate or Bullying">Hate or Bullying</Radio>
-            <Radio value="Release of personal info">Release of personal info</Radio>
-            <Radio value="Other inappropriate material">Other inappropriate material</Radio>
-            <Radio value="Spam">Spam</Radio>
+            {REPORT_TYPE_OPTIONS.map((type) => (
+              <Radio key={type.value} value={type.value}>
+                {type.label}
+              </Radio>
+            ))}
           </Radio.Group>
         </div>
 
         <Input.TextArea
           rows={4}
-          placeholder="Type your abuse here (Required)"
-          value={reportComment}
-          onChange={(e) => setReportComment(e.target.value)}
+          placeholder="Type your abuse here (Optional)"
+          value={reportReason}
+          onChange={(e) => setReportReason(e.target.value)}
           style={{ marginTop: 16 }}
         />
+
+        {reportError && (
+          <div style={{ color: 'red', marginTop: 12, fontSize: 14 }}>{reportError}</div>
+        )}
       </Modal>
 
       <div className="novel-section-nav">
@@ -358,46 +600,55 @@ export default function NovelDetailPage() {
           <h2 className="section-title">Synopsis</h2>
           <div className="novel-synopsis">{novel.synopsis}</div>
 
-          <h2 className="section-title">Power Status</h2>
-          <PowerStatusVote ranking={1} votesLeft={1} />
+          <h2 className="section-title">Ranking Status</h2>
+          {/* PowerStatusVote display，votesLeft convert voteCnt */}
+          <PowerStatusVote
+            ranking={voteRanking}
+            voteCount={novel.votes}
+            votesLeft={userYuan}
+            onVote={handleVote}
+            loading={voting}
+            disableVote={userYuan <= 0}
+            rankType={voteRankType}
+          />
 
-          {/* Add exactly 16px gap before the Reviews title */}
           <h2 className="section-title" style={{ marginTop: 16 }}>
-            Reviews <span className="review-count">({reviews.length})</span>
+            Reviews <span className="review-count">({reviewsState.total})</span>
           </h2>
 
-          {/* Extracted review section */}
           <ReviewSection
-            novelRating={novel.rating}
+            novelRating={Number(novel.rating).toFixed(2)}
             pagedReviews={pagedReviews}
-            total={reviews.length}
+            total={reviewsState.total}
             page={page}
             pageSize={REVIEWS_PAGE_SIZE}
             onChangePage={setPage}
+            onSubmitReview={onSubmitReview}
+            isReviewModalVisible={isReviewModalVisible}
+            setIsReviewModalVisible={setIsReviewModalVisible}
+            handleWriteReview={handleWriteReview}
           />
         </div>
       )}
 
       {tab === 'toc' && (
         <div className="novel-section">
-          <h2 className="section-title">Recently Read</h2>
-          {recentRead ? (
-            <div className="novel-recent-read">
-              <Button type="link" onClick={() => handleJumpToChapter(recentRead.id)}>
-                {recentRead.title} (Chapter {recentRead.id})
-              </Button>
-            </div>
-          ) : (
-            <div className="novel-recent-read-empty">No recent chapters.</div>
-          )}
-
           <h2 className="section-title">
             All Chapters <span className="chapter-count">({novel.chapters} total)</span>
           </h2>
 
+          {/* Table of Contents chapter list */}
           <div className="novel-chapter-list">
-            {currentPageChapters.map((ch) => (
-              <ChapterButton key={ch.id} chapter={ch} onJumpToChapter={handleJumpToChapter} />
+            {chapterList.map((ch) => (
+              <Tooltip key={ch.chapterId} title={`Go to ${ch.title}`}>
+                <Button
+                  type="text"
+                  className="novel-chapter-btn"
+                  onClick={() => handleJumpToChapter(ch.chapterId, ch.chapterNumber)}
+                >
+                  {ch.title}
+                </Button>
+              </Tooltip>
             ))}
           </div>
 
@@ -417,6 +668,30 @@ export default function NovelDetailPage() {
               size="small"
             />
           </div>
+        </div>
+      )}
+
+      {globalTip.visible && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '30vh',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            minWidth: 240,
+            background: globalTip.type === 'success' ? '#52c41a' : '#ff4d4f',
+            color: '#fff',
+            padding: '18px 32px',
+            borderRadius: 8,
+            fontSize: '1.1rem',
+            zIndex: 9999,
+            textAlign: 'center',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
+            opacity: 0.97,
+            pointerEvents: 'none',
+          }}
+        >
+          {globalTip.message}
         </div>
       )}
     </div>

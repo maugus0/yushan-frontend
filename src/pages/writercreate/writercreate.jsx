@@ -1,42 +1,58 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Button, Input, Upload, Select, Form, message, Modal, Slider } from 'antd';
 import { ArrowLeftOutlined, PlusOutlined, BookOutlined } from '@ant-design/icons';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writercreate.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Cropper from 'react-easy-crop';
-
-const typeOptions = [
-  { label: 'Action', value: 'action' },
-  { label: 'Adventure', value: 'adventure' },
-  { label: 'Martial Arts', value: 'martial_arts' },
-  { label: 'Fantasy', value: 'fantasy' },
-  { label: 'Sci-Fi', value: 'scifi' },
-  { label: 'Urban', value: 'urban' },
-  { label: 'Historical', value: 'historical' },
-  { label: 'Eastern Fantasy', value: 'eastern_fantasy' },
-  { label: 'Wuxia', value: 'wuxia' },
-  { label: 'Xianxia', value: 'xianxia' },
-  { label: 'Military', value: 'military' },
-  { label: 'Sports', value: 'sports' },
-  { label: 'Romance', value: 'romance' },
-  { label: 'Drama', value: 'drama' },
-  { label: 'Slice of Life', value: 'slice_of_life' },
-  { label: 'School Life', value: 'school_life' },
-  { label: 'Comedy', value: 'comedy' },
-];
+import novelService from '../../services/novel';
+import categoriesService from '../../services/categories';
 
 const WriterCreate = () => {
   const [coverUrl, setCoverUrl] = useState('');
-  const [selectedTypes, setSelectedTypes] = useState([]);
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const location = useLocation();
   const [cropModalVisible, setCropModalVisible] = useState(false);
   const [cropImage, setCropImage] = useState('');
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [successModal, setSuccessModal] = useState(false);
+  const [typeOptions, setTypeOptions] = useState([]);
+
+  const searchParams = new URLSearchParams(location.search);
+  const incomingId = searchParams.get('id');
+  const getInitialNovel = async () => {
+    if (incomingId && typeOptions.length > 0) {
+      const initialNovel = await novelService.getNovelById(incomingId);
+      console.log(initialNovel);
+      form.setFieldsValue({
+        bookname: initialNovel.title,
+        synopsis: initialNovel.synopsis,
+        types: initialNovel.categoryId,
+      });
+      setCoverUrl(initialNovel.coverImgUrl);
+    }
+  };
+
+  useEffect(() => {
+    const getTypeOptions = async () => {
+      const categories = await categoriesService.getCategories();
+      if (categories) {
+        const opts = categories.map((category) => ({
+          label: category.name,
+          value: category.id,
+        }));
+        setTypeOptions(opts);
+      }
+    };
+    getTypeOptions();
+  }, []);
+
+  useEffect(() => {
+    getInitialNovel();
+  }, [typeOptions]);
 
   const handleCoverChange = (info) => {
     let file;
@@ -87,16 +103,28 @@ const WriterCreate = () => {
     }
   };
 
-  const handleSubmit = () => {
-    if (selectedTypes.length === 0) {
-      message.error('Please select at least one type.');
+  const handleSubmit = async (values) => {
+    if (!values.types) {
+      message.error('Please select one type.');
       return;
     }
-    message.success('Book created!');
+    let novelData = {
+      title: values.bookname,
+      coverImgBase64: coverUrl,
+      synopsis: values.synopsis,
+      categoryId: values.types,
+      isCompleted: false,
+    };
+    let res = null;
+    if (incomingId) {
+      res = await novelService.changeNovelDetailById(incomingId, novelData);
+    } else {
+      res = await novelService.createNovel(novelData);
+    }
+    await novelService.submitNovelForReview(res.id);
     setSuccessModal(true);
     form.resetFields();
     setCoverUrl('');
-    setSelectedTypes([]);
   };
 
   return (
@@ -155,16 +183,7 @@ const WriterCreate = () => {
               },
             ]}
           >
-            <Select
-              placeholder="Select type"
-              value={selectedTypes[0] || undefined}
-              onChange={(value) => setSelectedTypes([value])}
-              options={typeOptions.map((opt) => ({
-                label: opt.label,
-                value: opt.value,
-              }))}
-              style={{ width: '100%' }}
-            />
+            <Select placeholder="Select type" options={typeOptions} style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item
             label="SYNOPSIS"
@@ -182,7 +201,7 @@ const WriterCreate = () => {
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" className="writercreate-submit-btn">
-              CREATE
+              UPLOAD
             </Button>
           </Form.Item>
         </Form>

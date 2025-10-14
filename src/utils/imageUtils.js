@@ -1,5 +1,8 @@
 import React from 'react';
 import fallbackImage from '../assets/images/novel_default.png';
+import userMaleImage from '../assets/images/user_male.png';
+import userFemaleImage from '../assets/images/user_female.png';
+import userDefaultImage from '../assets/images/user.png';
 
 /**
  * Handle image loading errors with fallback
@@ -82,6 +85,98 @@ export const validateImageUrl = (imageUrl) => {
     // Set a timeout to avoid hanging
     setTimeout(() => resolve(false), 5000);
   });
+};
+
+/**
+ * Get gender-based fallback avatar image
+ * @param {number|string} gender - User gender (0=UNKNOWN, 1=MALE, 2=FEMALE, or string like "MALE")
+ * @returns {string} - Appropriate fallback image based on gender
+ */
+export const getGenderBasedAvatar = (gender) => {
+  // Handle string gender values from API
+  if (typeof gender === 'string') {
+    const genderUpper = gender.toUpperCase();
+    if (genderUpper === 'MALE') return userMaleImage;
+    if (genderUpper === 'FEMALE') return userFemaleImage;
+    return userDefaultImage; // UNKNOWN
+  }
+
+  // Handle numeric gender values (backend enum codes)
+  switch (gender) {
+    case 1:
+      return userMaleImage; // MALE
+    case 2:
+      return userFemaleImage; // FEMALE
+    case 0:
+    default:
+      return userDefaultImage; // UNKNOWN
+  }
+};
+
+/**
+ * Process user avatar URL with gender-based fallback
+ * @param {string} avatarUrl - The avatar URL (could be base64, HTTP URL, or relative path)
+ * @param {number|string} gender - User gender for fallback selection
+ * @param {string} baseUrl - Base URL for relative paths
+ * @returns {string} - Processed avatar URL
+ */
+export const processUserAvatar = (avatarUrl, gender, baseUrl = '') => {
+  // Get gender-based fallback
+  const genderFallback = getGenderBasedAvatar(gender);
+
+  console.log('=== PROCESS USER AVATAR ===');
+  console.log('Input avatarUrl:', avatarUrl);
+  console.log('Gender:', gender);
+  console.log('Base URL:', baseUrl);
+  console.log('Gender fallback:', genderFallback);
+
+  // If no avatar URL provided, return gender-based fallback
+  if (!avatarUrl) {
+    console.log('No avatarUrl, using fallback:', genderFallback);
+    return genderFallback;
+  }
+
+  // If it's a base64 string, validate it
+  if (avatarUrl.startsWith('data:image/')) {
+    const isValid = isValidBase64Image(avatarUrl);
+    console.log('Base64 image, valid:', isValid);
+    return isValid ? avatarUrl : genderFallback;
+  }
+
+  // If it's already a full URL (starts with http), use it
+  if (avatarUrl.startsWith('http')) {
+    console.log('Full HTTP URL, using as-is:', avatarUrl);
+    return avatarUrl;
+  }
+
+  // If it's a backend default avatar filename (user.png, user_male.png, user_female.png)
+  // Return our local gender-based fallback instead
+  if (
+    avatarUrl === 'user.png' ||
+    avatarUrl === 'user_male.png' ||
+    avatarUrl === 'user_female.png'
+  ) {
+    console.log('Backend default avatar filename detected, using local fallback:', genderFallback);
+    return genderFallback;
+  }
+
+  // If it's a relative path and we have a base URL, construct full URL
+  if (baseUrl) {
+    const fullUrl = `${baseUrl}/${avatarUrl}`;
+    console.log('Relative path with baseUrl, constructing:', fullUrl);
+    return fullUrl;
+  }
+
+  // For simple filenames like "user.png", return gender-based fallback
+  // as we don't have a proper path to resolve it
+  if (!avatarUrl.includes('/')) {
+    console.log('Simple filename without path, using fallback:', genderFallback);
+    return genderFallback;
+  }
+
+  // Return as is if it has a path
+  console.log('Using avatarUrl as-is:', avatarUrl);
+  return avatarUrl;
 };
 
 /**

@@ -234,3 +234,52 @@ body.reader-full-bg {
     padding: 0 16px;
   }
 }
+
+/* reader.css */
+.chapter-comment-item {
+  background: #f7f8fa;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(60, 80, 120, 0.04);
+}
+
+.chapter-comment-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
+.chapter-comment-username {
+  color: #1677ff;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.chapter-comment-time {
+  color: #888;
+  font-size: 12px;
+}
+
+.chapter-comment-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.chapter-comment-content {
+  flex: 1;
+  color: #222;
+  font-size: 15px;
+  word-break: break-word;
+  padding-right: 8px;
+}
+
+.chapter-comment-like-btn {
+  min-width: 44px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 15px;
+}

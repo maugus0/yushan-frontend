@@ -23,8 +23,13 @@ const userSlice = createSlice({
     setAuthenticated: (state, action) => {
       state.isAuthenticated = action.payload;
     },
+    updateYuan: (state, action) => {
+      if (state.user) {
+        state.user.yuan = action.payload;
+      }
+    },
   },
 });
 
-export const { login, logout, updateUser, setAuthenticated } = userSlice.actions;
+export const { login, logout, updateUser, setAuthenticated, updateYuan } = userSlice.actions;
 export default userSlice.reducer;

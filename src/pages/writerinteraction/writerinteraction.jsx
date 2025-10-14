@@ -1,77 +1,62 @@
-import React, { useState } from 'react';
-import { Button, Tabs, Modal } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Tabs, Select } from 'antd';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerinteraction.css';
+import novelService from '../../services/novel';
+import userService from '../../services/user';
+import reviewService from '../../services/review';
+import commentService from '../../services/comments';
 
-const reviewsData = [
-  {
-    id: 1,
-    content: 'Great story, loved the characters!',
-    reader: 'Alice',
-    votes: 12,
-    voteReader: 'Bob',
-    viewsReader: 'Tom',
-  },
-  {
-    id: 2,
-    content: 'Plot twist was amazing.',
-    reader: 'Bob',
-    votes: 8,
-    voteReader: 'Alice',
-    viewsReader: 'Jerry',
-  },
-  {
-    id: 3,
-    content: 'Looking forward to the next chapter.',
-    reader: 'Charlie',
-    votes: 5,
-    voteReader: 'Sam',
-    viewsReader: 'Lucy',
-  },
-];
-
-const commentsData = [
-  {
-    id: 1,
-    content: 'Thank you for your feedback!',
-    reader: 'Author',
-    votes: 3,
-    voteReader: 'Alice',
-    viewsReader: 'Tom',
-  },
-  {
-    id: 2,
-    content: 'Glad you enjoyed it!',
-    reader: 'Author',
-    votes: 2,
-    voteReader: 'Bob',
-    viewsReader: 'Jerry',
-  },
-  {
-    id: 3,
-    content: 'Stay tuned!',
-    reader: 'Author',
-    votes: 1,
-    voteReader: 'Sam',
-    viewsReader: 'Lucy',
-  },
-];
+const PAGE_SIZE = 1000;
 
 const WriterInteraction = () => {
+  const [novels, setNovels] = useState([]);
   const [reviewsTab, setReviewsTab] = useState('reviews');
-  const [reportModal, setReportModal] = useState({ visible: false, id: null });
+  const [selectedNovelId, setSelectedNovelId] = useState(null);
 
-  const handleReportClick = (id) => {
-    setReportModal({ visible: true, id });
-  };
+  const [reviewsList, setReviewsList] = useState([]);
 
-  const handleReportConfirm = () => {
-    setReportModal({ visible: false, id: null });
-  };
+  const [commentsList, setCommentsList] = useState([]);
 
-  const handleReportCancel = () => {
-    setReportModal({ visible: false, id: null });
-  };
+  useEffect(() => {
+    const getNovelData = async () => {
+      const author = await userService.getMe();
+      const data = await novelService.getNovel({ authorId: author.uuid });
+      setNovels(data || []);
+      if (data && data.length > 0) {
+        setSelectedNovelId(data[0].id);
+      }
+    };
+    getNovelData();
+  }, []);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!selectedNovelId) {
+        setReviewsList([]);
+        return;
+      }
+      const filters = { page: 0, size: PAGE_SIZE, novelId: selectedNovelId };
+      const res = await reviewService.getReviewsByNovelId(filters);
+      setReviewsList(res.content || []);
+    };
+    if (reviewsTab === 'reviews') fetchReviews();
+  }, [selectedNovelId, reviewsTab]);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!selectedNovelId) {
+        setCommentsList([]);
+        return;
+      }
+      const filters = { page: 0, size: PAGE_SIZE, novelId: selectedNovelId };
+      const res = await commentService.getCommentsByNovelId(filters);
+      setCommentsList(res.comments || []);
+    };
+    if (reviewsTab === 'comments') fetchComments();
+  }, [selectedNovelId, reviewsTab]);
+
+  const currentList = reviewsTab === 'reviews' ? reviewsList : commentsList;
 
   return (
     <div className="writerinteraction-page">
@@ -79,6 +64,13 @@ const WriterInteraction = () => {
       <div className="writerinteraction-content">
         <div className="writerinteraction-header">
           <h2 className="writerinteraction-title">Interaction</h2>
+          <Select
+            style={{ minWidth: 200, marginLeft: 'auto' }}
+            value={selectedNovelId}
+            onChange={setSelectedNovelId}
+            options={novels.map((n) => ({ label: n.title, value: n.id }))}
+            placeholder="Select a novel"
+          />
         </div>
         <div className="writerinteraction-main">
           <div style={{ marginBottom: 8 }}></div>
@@ -97,36 +89,32 @@ const WriterInteraction = () => {
             <div className="writerinteraction-list-header-2">
               <span className="writerinteraction-list-col-content">CONTENT</span>
               <span className="writerinteraction-list-col-reader">READER</span>
-              <span className="writerinteraction-list-col-action">ACTION</span>
             </div>
             <div className="writerinteraction-list-body">
-              {(reviewsTab === 'reviews' ? reviewsData : commentsData).map((item) => (
-                <div className="writerinteraction-list-row-2" key={item.id + '_' + reviewsTab}>
-                  <span className="writerinteraction-list-content">{item.content}</span>
-                  <span className="writerinteraction-list-reader">{item.reader}</span>
-                  <span className="writerinteraction-list-action">
-                    <Button type="link" danger onClick={() => handleReportClick(item.id)}>
-                      Report
-                    </Button>
-                  </span>
+              {currentList.length === 0 && (
+                <div style={{ textAlign: 'center', color: '#aaa', padding: '32px 0' }}>
+                  No data.
                 </div>
-              ))}
+              )}
+              {reviewsTab === 'reviews'
+                ? currentList.map((item) => (
+                    <div className="writerinteraction-list-row-2" key={item.id + '_review'}>
+                      <span className="writerinteraction-list-content">{item.content}</span>
+                      <span className="writerinteraction-list-reader">{item.username}</span>
+                    </div>
+                  ))
+                : currentList.map((item) => (
+                    <div className="writerinteraction-list-row-2" key={item.id + '_comment'}>
+                      <span className="writerinteraction-list-content">
+                        <span style={{ fontWeight: 500 }}>{item.chapterTitle}</span>
+                        <br />
+                        {item.content}
+                      </span>
+                      <span className="writerinteraction-list-reader">{item.username}</span>
+                    </div>
+                  ))}
             </div>
           </div>
-          <Modal
-            open={reportModal.visible}
-            title="Confirm to report?"
-            onCancel={handleReportCancel}
-            footer={[
-              <Button key="cancel" onClick={handleReportCancel}>
-                Cancel
-              </Button>,
-              <Button key="report" type="primary" danger onClick={handleReportConfirm}>
-                Report
-              </Button>,
-            ]}
-            centered
-          ></Modal>
         </div>
       </div>
     </div>
