@@ -29,12 +29,23 @@ const disabledBirthdayDate = (current) => {
 /* --------------------------------------------------
  * Component
  * -------------------------------------------------- */
-const AuthForm = ({ mode = 'login', onSuccess }) => {
+const AuthForm = ({ mode = 'login', onSuccess, loginError, registerError }) => {
   const isRegister = mode === 'register';
   const [form] = Form.useForm();
 
   const [submitting, setSubmitting] = useState(false);
   const [liveValidate, setLiveValidate] = useState(false);
+  const [otpError, setOtpError] = useState(''); // State for OTP-specific errors
+
+  // Debug logging for errors
+  useEffect(() => {
+    // Debug logging removed for production
+    // if (registerError) {
+    //   console.log('AuthForm received registerError:', registerError);
+    // }
+    // if (loginError) {
+    //   console.log('AuthForm received loginError:', loginError);
+  }, [registerError, loginError]);
 
   /**
    * OTP Countdown (timestamp-based)
@@ -112,11 +123,16 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
       setRemainingSeconds(0);
       form.setFieldValue('otp', '');
     }
+    // Clear OTP error when email changes
+    if (otpError) {
+      setOtpError('');
+    }
   };
 
   const handleSendOtp = async () => {
     try {
       console.log('Sending OTP...');
+      setOtpError(''); // Clear previous OTP errors
       await form.validateFields(['email']);
       const email = form.getFieldValue('email');
       setOtpSending(true);
@@ -128,11 +144,24 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
         startOtpCountdown();
       } catch (error) {
         console.error('OTP error:', error);
-        message.error(error.response?.data?.message || 'Failed to send verification email');
+        // Use error.message first (from thrown Error objects), then fallback to response data
+        const errorMessage =
+          error.message || error.response?.data?.message || 'Failed to send verification email';
+        setOtpError(errorMessage); // Set error to display above OTP field
+
+        // Add visual feedback for email field if it's an email-related error
+        if (errorMessage.toLowerCase().includes('email already')) {
+          const emailInput = document.querySelector('input[type="email"]');
+          if (emailInput) {
+            emailInput.focus();
+            emailInput.classList.add('shake');
+            setTimeout(() => emailInput.classList.remove('shake'), 500);
+          }
+        }
       }
     } catch (error) {
       console.error('Validation error:', error);
-      message.error('Please enter a valid email first');
+      setOtpError('Please enter a valid email first');
     } finally {
       setOtpSending(false);
     }
@@ -197,6 +226,24 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
         >
           <Input placeholder="Enter username" />
         </Form.Item>
+      )}
+
+      {/* Login Error Display - Above Email */}
+      {!isRegister && loginError && (
+        <div
+          style={{
+            marginBottom: 16,
+            padding: '8px 12px',
+            backgroundColor: '#fff2f0',
+            border: '1px solid #ffccc7',
+            borderRadius: '4px',
+            color: '#cf1322',
+          }}
+        >
+          <Text type="danger" style={{ fontSize: '14px' }}>
+            {loginError}
+          </Text>
+        </div>
       )}
 
       {/* Email (login only) */}
@@ -267,7 +314,7 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
           <Select placeholder="Select gender" allowClear>
             <Option value="male">Male</Option>
             <Option value="female">Female</Option>
-            <Option value="prefer_not_to_say">Prefer not to say</Option>
+            <Option value="unknown">Unknown</Option>
           </Select>
         </Form.Item>
       )}
@@ -304,6 +351,24 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
             <Input placeholder="Enter email" onChange={handleEmailChange} />
           </Form.Item>
 
+          {/* OTP Error Display - Above OTP Field */}
+          {otpError && (
+            <div
+              style={{
+                marginBottom: 16,
+                padding: '8px 12px',
+                backgroundColor: '#fff2f0',
+                border: '1px solid #ffccc7',
+                borderRadius: '4px',
+                color: '#cf1322',
+              }}
+            >
+              <Text type="danger" style={{ fontSize: '14px' }}>
+                {otpError}
+              </Text>
+            </div>
+          )}
+
           <Form.Item
             label={
               <Space style={{ justifyContent: 'space-between', width: '100%' }}>
@@ -338,6 +403,24 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
             <Input placeholder="Enter OTP" inputMode="numeric" />
           </Form.Item>
         </>
+      )}
+
+      {/* Register Error Display */}
+      {isRegister && registerError && (
+        <div
+          style={{
+            marginBottom: 16,
+            padding: '8px 12px',
+            backgroundColor: '#fff2f0',
+            border: '1px solid #ffccc7',
+            borderRadius: '4px',
+            color: '#cf1322',
+          }}
+        >
+          <Text type="danger" style={{ fontSize: '14px' }}>
+            {registerError}
+          </Text>
+        </div>
       )}
 
       {/* Submit */}

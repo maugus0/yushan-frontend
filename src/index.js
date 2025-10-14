@@ -8,6 +8,7 @@ import authService from './services/auth';
 import App from './app';
 import axios from 'axios';
 import './utils/axios-interceptor';
+import { App as AntdApp } from 'antd';
 
 // Initialize auth headers if token exists
 const token = authService.getToken();
@@ -20,7 +21,9 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <App />
+        <AntdApp>
+          <App />
+        </AntdApp>
       </PersistGate>
     </Provider>
   </React.StrictMode>
