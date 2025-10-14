@@ -1,7 +1,12 @@
 import axios from 'axios';
 
-const API_URL =
-  process.env.REACT_APP_API_URL || 'https://yushan-backend-staging.up.railway.app/api';
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const CONFIG_URL = (process.env.REACT_APP_API_URL || '').trim();
+const BASE = CONFIG_URL ? CONFIG_URL.replace(/\/+$/, '') : '/api';
+const authHeader = () => {
+  const token = localStorage.getItem('jwt_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 // Map string gender from API to numeric values
 const GENDER_MAP = {
@@ -40,7 +45,7 @@ const transformUserData = (apiData) => {
 const userProfileService = {
   async getCurrentUser() {
     try {
-      const response = await axios.get(`${API_URL}/users/me`);
+      const response = await axios.get(`${BASE}/users/me`, { headers: authHeader() });
 
       if (response.data.code === 200 && response.data.data) {
         return {
@@ -89,8 +94,6 @@ const userProfileService = {
         requestData = formData;
         headers['Content-Type'] = 'multipart/form-data';
 
-        console.log('=== UPDATE PROFILE (WITH FILE) ===');
-        console.log('User ID:', userId);
         for (let [key, value] of formData.entries()) {
           if (value instanceof File) {
             console.log(`${key}:`, `File(${value.name}, ${value.type}, ${value.size} bytes)`);
@@ -115,19 +118,16 @@ const userProfileService = {
           jsonData.verificationCode = profileData.verificationCode;
         }
 
+        if (profileData.avatarBase64) {
+          jsonData.avatarBase64 = profileData.avatarBase64;
+        }
+
         requestData = jsonData;
         headers['Content-Type'] = 'application/json';
-
-        console.log('=== UPDATE PROFILE (JSON) ===');
-        console.log('User ID:', userId);
-        console.log('Request Data:', jsonData);
       }
 
-      console.log('Content-Type:', headers['Content-Type']);
-      console.log('===========================');
-
-      const response = await axios.put(`${API_URL}/users/${userId}/profile`, requestData, {
-        headers,
+      const response = await axios.put(`${BASE}/users/${userId}/profile`, requestData, {
+        headers: authHeader(),
       });
 
       if (response.data.code === 200 && response.data.data) {
@@ -190,9 +190,13 @@ const userProfileService = {
 
   async sendEmailChangeVerification(email) {
     try {
-      const response = await axios.post(`${API_URL}/users/send-email-change-verification`, {
-        email,
-      });
+      const response = await axios.post(
+        `${BASE}/users/send-email-change-verification`,
+        {
+          email,
+        },
+        { headers: authHeader() }
+      );
       return response.data;
     } catch (error) {
       console.error('Send email verification error:', error);
@@ -229,7 +233,7 @@ const userProfileService = {
   },
 
   async getUserById(userId) {
-    const response = await axios.get(`${API_URL}/users/${userId}`);
+    const response = await axios.get(`${BASE}/users/${userId}`, { headers: authHeader() });
     return response.data?.data;
   },
 };

@@ -43,6 +43,7 @@ const Profile = () => {
           if (response.code === 200 && response.data) {
             setUser(response.data);
             dispatch(updateUser(response.data));
+            console.log('Updated current user in Redux:', response.data);
           }
         }
       } catch (error) {
