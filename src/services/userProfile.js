@@ -119,6 +119,10 @@ const userProfileService = {
           jsonData.verificationCode = profileData.verificationCode;
         }
 
+        if (profileData.avatarBase64) {
+          jsonData.avatarBase64 = profileData.avatarBase64;
+        }
+
         requestData = jsonData;
         headers['Content-Type'] = 'application/json';
 
