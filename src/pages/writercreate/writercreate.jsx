@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Button, Input, Upload, Select, Form, message, Modal, Slider } from 'antd';
+import { Button, Input, Upload, Select, Form, Modal, Slider } from 'antd';
 import { ArrowLeftOutlined, PlusOutlined, BookOutlined } from '@ant-design/icons';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writercreate.css';
@@ -20,7 +20,6 @@ const WriterCreate = () => {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [successModal, setSuccessModal] = useState(false);
   const [typeOptions, setTypeOptions] = useState([]);
-  const [coverError, setCoverError] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
 
   const searchParams = new URLSearchParams(location.search);
@@ -111,11 +110,6 @@ const WriterCreate = () => {
       return;
     }
     setAlertVisible(false);
-    if (!coverUrl) {
-      setCoverError(true);
-      return;
-    }
-    setCoverError(false);
     let novelData = {
       title: values.bookname,
       coverImgBase64: coverUrl,
