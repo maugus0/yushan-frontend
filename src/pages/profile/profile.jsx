@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Layout, Button, Avatar, Typography, Divider, Tooltip, Spin, message } from 'antd';
 import { EditOutlined, CalendarOutlined, StarFilled } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';

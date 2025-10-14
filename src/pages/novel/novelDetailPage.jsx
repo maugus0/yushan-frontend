@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Button,
@@ -46,8 +46,6 @@ const REPORT_TYPE_OPTIONS = [
   { label: 'Other inappropriate material', value: 'INAPPROPRIATE' },
   { label: 'Spam', value: 'SPAM' },
 ];
-
-ChapterButton.displayName = 'ChapterButton';
 
 export default function NovelDetailPage() {
   const REVIEWS_PAGE_SIZE = 10; // align with BE default

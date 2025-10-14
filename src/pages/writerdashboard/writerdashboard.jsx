@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import { Select, Card, Typography, Tag, Row, Col, Divider } from 'antd';
 import './writerdashboard.css';
