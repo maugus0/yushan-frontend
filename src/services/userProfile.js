@@ -80,6 +80,10 @@ const userProfileService = {
           formData.append('profileDetail', profileData.profileDetail || '');
         }
 
+        if (profileData.avatarBase64) {
+          formData.append('avatarBase64', profileData.avatarBase64);
+        }
+
         formData.append('avatar', profileData.avatarFile);
 
         if (profileData.verificationCode) {
@@ -113,6 +117,10 @@ const userProfileService = {
 
         if (profileData.verificationCode) {
           jsonData.verificationCode = profileData.verificationCode;
+        }
+
+        if (profileData.avatarBase64) {
+          jsonData.avatarBase64 = profileData.avatarBase64;
         }
 
         requestData = jsonData;

@@ -128,6 +128,11 @@ const WriterWorkspace = () => {
     );
   };
 
+  // 检查base64url格式
+  const isValidBase64Url = (url) => {
+    return /^data:image\/(jpeg|png|jpg|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(url);
+  };
+
   return (
     <div className="writerworkspace-page">
       <WriterNavbar />
@@ -175,7 +180,26 @@ const WriterWorkspace = () => {
               stories.map((story) => (
                 <div className="writerworkspace-board-row" key={story.id}>
                   <div className="board-column">
-                    <img src={story.coverImgUrl} alt={story.title} className="story-cover" />
+                    <img
+                      src={
+                        story.coverImgUrl && isValidBase64Url(story.coverImgUrl)
+                          ? story.coverImgUrl
+                          : require('../../assets/images/novel_default.png')
+                      }
+                      alt={story.title}
+                      className="story-cover"
+                      style={
+                        story.coverImgUrl && isValidBase64Url(story.coverImgUrl)
+                          ? undefined
+                          : {
+                              objectFit: 'cover',
+                              objectPosition: 'center',
+                              borderRadius: 8,
+                              transform: 'scale(1.08) translateY(-6px)',
+                              background: '#f5f5f5',
+                            }
+                      }
+                    />
                     <span className="story-title">
                       {story.title}
                       {story.status === 'UNDER_REVIEW' && (

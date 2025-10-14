@@ -32,6 +32,11 @@ const WriterDashboard = () => {
     }
   }, [novels, selectedNovelId]);
 
+  // 在组件内添加base64url检测函数
+  const isValidBase64Url = (url) => {
+    return /^data:image\/(jpeg|png|jpg|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(url);
+  };
+
   return (
     <div className="writerdashboard-page">
       <WriterNavbar />
@@ -58,10 +63,24 @@ const WriterDashboard = () => {
               <Row gutter={32}>
                 <Col xs={24} sm={8} md={6} style={{ display: 'flex', justifyContent: 'center' }}>
                   <img
-                    src={selectedNovel.coverImgUrl}
-                    alt="cover"
+                    src={
+                      selectedNovel.coverImgUrl && isValidBase64Url(selectedNovel.coverImgUrl)
+                        ? selectedNovel.coverImgUrl
+                        : require('../../assets/images/novel_default.png')
+                    }
+                    alt={selectedNovel.title}
                     className="writerdashboard-novel-cover"
-                    style={{ boxShadow: '0 4px 24px rgba(81,95,160,0.08)' }}
+                    style={
+                      selectedNovel.coverImgUrl && isValidBase64Url(selectedNovel.coverImgUrl)
+                        ? undefined
+                        : {
+                            objectFit: 'cover',
+                            objectPosition: 'center',
+                            borderRadius: 12,
+                            transform: 'scale(1.08) translateY(-6px)',
+                            background: '#f5f5f5',
+                          }
+                    }
                   />
                 </Col>
                 <Col xs={24} sm={16} md={18}>
