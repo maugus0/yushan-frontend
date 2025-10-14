@@ -1,4 +1,3 @@
-import React from 'react';
 import { Typography, Card, Divider, Row, Col } from 'antd';
 import './terms.css';
 

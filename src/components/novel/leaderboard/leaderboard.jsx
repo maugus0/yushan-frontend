@@ -1,4 +1,3 @@
-import React from 'react';
 import NovelCard from '../novelcard/novelcard';
 import { Button } from 'antd';
 import './leaderboard.css';

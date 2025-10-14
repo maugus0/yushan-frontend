@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const WriterIcon = ({ width = 24, height = 24, style = {} }) => (
   <svg
     t="1758861457896"

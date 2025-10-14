@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import './home.css';
 import HeroSection from '../../components/novel/herosection/herosection';
 import FeatureNovels from '../../components/novel/featurenovels/featurenovels';
+import CategoriesGrid from '../../components/novel/categoriesgrid/categoriesgrid';
+import TopNovels from '../../components/novel/topnovels/topnovels';
 import {
   getWeeklyFeaturedNovels,
   getOngoingNovels,
@@ -241,32 +243,11 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Weekly Features Section */}
-      <FeatureNovels
-        title="Weekly Featured"
-        novels={weeklyFeaturedNovels}
-        onNovelClick={handleNovelClick}
-      />
-
-      {/* Ongoing Novels Section */}
-      <FeatureNovels
-        title="Ongoing Novels"
-        novels={ongoingNovels}
-        onNovelClick={handleNovelClick}
-      />
-
-      {/* Completed Novels Section */}
-      <FeatureNovels
-        title="Completed Novels"
-        novels={completedNovels}
-        onNovelClick={handleNovelClick}
-      />
-
       {/* CTA Section */}
       <section
         className="home-cta-section"
         style={{
-          background: GRADIENT_COLORS,
+          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
           padding: '80px 0',
         }}
       >
@@ -280,10 +261,10 @@ const Homepage = () => {
                 backdropFilter: 'blur(10px)',
               }}
             >
-              <Title level={2} className="home-cta-title" style={{ color: 'white' }}>
+              <Title level={2} className="home-cta-title" style={{ color: '#1a1a1a' }}>
                 Ready to Begin Your Journey?
               </Title>
-              <Paragraph className="home-cta-desc" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+              <Paragraph className="home-cta-desc" style={{ color: '#4a5568' }}>
                 Join thousands of readers and writers in the Yushan community. Your next favorite
                 story is just a click away.
               </Paragraph>
@@ -294,9 +275,9 @@ const Homepage = () => {
                   className="home-cta-btn"
                   onClick={() => navigate('/browse')}
                   style={{
-                    backgroundColor: 'white',
-                    borderColor: 'white',
-                    color: '#6B46C1',
+                    backgroundColor: '#667eea',
+                    borderColor: '#667eea',
+                    color: 'white',
                   }}
                 >
                   Start Reading Now
@@ -308,8 +289,8 @@ const Homepage = () => {
                   onClick={() => navigate('/writerdashboard')}
                   style={{
                     backgroundColor: 'transparent',
-                    borderColor: 'white',
-                    color: 'white',
+                    borderColor: '#667eea',
+                    color: '#667eea',
                   }}
                 >
                   Become an Author
@@ -319,6 +300,33 @@ const Homepage = () => {
           </Col>
         </Row>
       </section>
+
+      {/* Weekly Features Section */}
+      <FeatureNovels
+        title="Weekly Featured"
+        novels={weeklyFeaturedNovels}
+        onNovelClick={handleNovelClick}
+      />
+
+      {/* Categories Section */}
+      <CategoriesGrid />
+
+      {/* Ongoing Novels Section */}
+      <FeatureNovels
+        title="Ongoing Novels"
+        novels={ongoingNovels}
+        onNovelClick={handleNovelClick}
+      />
+
+      {/* Top Novels Section */}
+      <TopNovels />
+
+      {/* Completed Novels Section */}
+      <FeatureNovels
+        title="Completed Novels"
+        novels={completedNovels}
+        onNovelClick={handleNovelClick}
+      />
     </div>
   );
 };

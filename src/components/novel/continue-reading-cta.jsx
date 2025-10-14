@@ -1,5 +1,4 @@
 // Optional CTA component (not auto-injected to preserve current layout)
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { getProgress } from '../../utils/reader';
 

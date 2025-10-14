@@ -1,4 +1,3 @@
-import React from 'react';
 import { Typography, Card, Divider, Row, Col, Button, Space, List } from 'antd';
 import { DollarOutlined, TeamOutlined, TrophyOutlined, MailOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';

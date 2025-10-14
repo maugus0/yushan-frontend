@@ -1,4 +1,3 @@
-import React from 'react';
 import { useReadingSettings } from '../../store/readingSettings';
 import './reading-settings.css';
 

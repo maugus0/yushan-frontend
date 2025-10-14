@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Tooltip } from 'antd';
 import { AppstoreOutlined, UnorderedListOutlined } from '@ant-design/icons';
 

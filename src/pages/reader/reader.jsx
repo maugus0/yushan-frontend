@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback, useLayoutEffect } from 'react';
+import { useEffect, useRef, useState, useCallback, useLayoutEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useReadingSettings } from '../../store/readingSettings';
 import { saveProgress, getProgress } from '../../utils/reader';

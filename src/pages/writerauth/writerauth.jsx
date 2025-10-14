@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button, Input, message } from 'antd';
 import './writerauth.css';
 import { useNavigate } from 'react-router-dom';

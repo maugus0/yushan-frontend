@@ -1,4 +1,3 @@
-import React from 'react';
 import './featurenovels.css';
 import { handleImageError } from '../../../utils/imageUtils';
 import fallbackImage from '../../../assets/images/novel_default.png';

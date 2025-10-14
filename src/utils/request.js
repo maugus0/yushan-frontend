@@ -18,7 +18,6 @@ const apiClient = rateLimit(baseAxios, {
 });
 
 // Keep your existing custom rate limiting as additional protection
-let requestCount = 0;
 const maxRequestsPerMinute = 60;
 const requestTimes = [];
 

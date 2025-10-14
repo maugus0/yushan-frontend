@@ -1,4 +1,3 @@
-import React from 'react';
 import './herosection.css';
 
 const HeroSection = ({ data, title = 'Meet Webnovel', onItemClick }) => (

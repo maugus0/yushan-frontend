@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from 'antd';
 import { TrophyOutlined, StarOutlined } from '@ant-design/icons';
 import './powerStatusVote.css';

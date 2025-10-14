@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const MaleIcon = ({ width = 24, height = 24, style = {} }) => (
   <svg
     t="1758795011265"

@@ -2,7 +2,7 @@
  * Application root – adds ReadingSettingsProvider (new) and the Reader / Reading Settings routes.
  * Existing functionality for auth, protected routes, and other pages is preserved.
  */
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider, App as AntApp, message } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './contentpopover.css';
 
 // Split an array into N columns with near-even distribution

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Alert, Empty, Spin, Button } from 'antd';
 import NovelCard from './novelcard';
 import { useNavigate } from 'react-router-dom';

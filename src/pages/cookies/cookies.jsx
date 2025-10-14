@@ -1,4 +1,3 @@
-import React from 'react';
 import { Typography, Card, Divider, Row, Col, Table } from 'antd';
 import './cookies.css';
 
