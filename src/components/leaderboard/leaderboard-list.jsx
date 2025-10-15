@@ -5,12 +5,13 @@ import {
   CrownFilled,
   UserOutlined,
   ReadOutlined,
-  FireFilled,
   LikeFilled,
   BookFilled,
+  EyeOutlined,
 } from '@ant-design/icons';
 import { xpToLevel, levelMeta } from '../../utils/levels';
 import './leaderboard-list.css';
+import testImg from '../../assets/images/novel_default.png'; // keep fallback
 
 // Build absolute URL for images from backend (staging or same-origin /api)
 const API_BASE = (process.env.REACT_APP_API_URL || '/api').replace(/\/$/, '');
@@ -137,16 +138,18 @@ export default function LeaderboardList({
     const views = or(item.views, item.viewCnt);
     const votes = or(item.votes, item.voteCnt);
 
+    // If coverImgUrl/cover = /null/undefined，fallback to DEFAULT_NOVEL_COVER
+    let coverSrc = item.coverImgUrl || item.cover;
+    if (!coverSrc) {
+      //console.log('Novel cover missing, using default:', id, item.title);
+      coverSrc = testImg;
+    }
+
     return (
       <div className="lb-row lb-row--novel" key={id || `novel-${index}`}>
         <RankCell rank={rank} />
         <div className="lb-cell lb-cell--avatar">
-          <AvatarMaybeAuth
-            shape="square"
-            size={48}
-            src={item.coverImgUrl || item.cover}
-            icon={<ReadOutlined />}
-          />
+          <Avatar shape="square" size={48} src={coverSrc} icon={<ReadOutlined />} />
         </div>
 
         <div className="lb-cell lb-cell--content-line1">
@@ -172,7 +175,7 @@ export default function LeaderboardList({
 
         <div className="lb-cell lb-cell--content-line2">
           <span className="desc-item">
-            <FireFilled className="desc-icon views" /> {views?.toLocaleString?.() || 0}
+            <EyeOutlined className="desc-icon views" /> {views?.toLocaleString?.() || 0}
           </span>
           <span className="separator">•</span>
           <span className="desc-item">
@@ -231,7 +234,7 @@ export default function LeaderboardList({
         <div className="lb-cell lb-cell--content">
           <div className="row-title">
             <Medal rank={rank} />
-            {/* 修改为跳转到 /profile?userId=xxx */}
+            {/* to /profile?userId=xxx */}
             <Link to={`/profile?userId=${encodeURIComponent(key)}`} className="title-link">
               {item.username || 'Writer'}
             </Link>
@@ -247,7 +250,7 @@ export default function LeaderboardList({
             </span>
             <span className="separator">•</span>
             <span className="desc-item">
-              <FireFilled className="desc-icon views" />{' '}
+              <EyeOutlined className="desc-icon views" />{' '}
               {item.totalViewCnt?.toLocaleString?.() ?? 0}
             </span>
           </div>
