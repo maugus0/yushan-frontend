@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons';
 import { xpToLevel, levelMeta } from '../../utils/levels';
 import './leaderboard-list.css';
+import testImg from '../../assets/images/novel_default.png'; // keep fallback
 
 // Build absolute URL for images from backend (staging or same-origin /api)
 const API_BASE = (process.env.REACT_APP_API_URL || '/api').replace(/\/$/, '');
@@ -137,14 +138,21 @@ export default function LeaderboardList({
     const views = or(item.views, item.viewCnt);
     const votes = or(item.votes, item.voteCnt);
 
+    // If coverImgUrl/cover = /null/undefined，fallback to DEFAULT_NOVEL_COVER
+    let coverSrc = item.coverImgUrl || item.cover;
+    if (!coverSrc) {
+      //console.log('Novel cover missing, using default:', id, item.title);
+      coverSrc = testImg;
+    }
+
     return (
       <div className="lb-row lb-row--novel" key={id || `novel-${index}`}>
         <RankCell rank={rank} />
         <div className="lb-cell lb-cell--avatar">
-          <AvatarMaybeAuth
+          <Avatar
             shape="square"
             size={48}
-            src={item.coverImgUrl || item.cover}
+            src={coverSrc}
             icon={<ReadOutlined />}
           />
         </div>

@@ -33,7 +33,7 @@ import libraryApi from '../../services/library';
 import historyApi from '../../services/history';
 import userProfileService from '../../services/userProfile'; // Assume this service exists
 import { toAbsoluteUrl } from '../../services/_http';
-import testImg from '../../assets/images/testimg2.png'; // keep fallback
+import testImg from '../../assets/images/novel_default.png'; // keep fallback
 import PowerStatusVote from '../../components/novel/novelcard/powerStatusVote';
 import ReviewSection from '../../components/novel/novelcard/reviewSection';
 import axios from 'axios';
