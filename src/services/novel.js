@@ -19,6 +19,41 @@ const novelService = {
     });
     return response.data.data.content;
   },
+  async getNovels(filters = {}) {
+    const {
+      page = 0,
+      size = 24,
+      category,
+      status,
+      sort = 'createTime',
+      order = 'desc',
+      ...rest
+    } = filters;
+    const params = {
+      page,
+      size,
+      sort,
+      order,
+      ...rest,
+    };
+
+    // Add category filter if provided
+    if (category) {
+      params.category = category;
+    }
+
+    // Add status filter if provided (for published novels)
+    if (status !== undefined) {
+      params.status = status; // Use the status from filters
+    }
+
+    const response = await axios.get(`${BASE}/novels`, {
+      params,
+      headers: authHeader(),
+    });
+
+    return response.data.data;
+  },
   async getNovelById(novelId) {
     const response = await axios.get(`${BASE}/novels/${novelId}`, { headers: authHeader() });
     return response.data.data;

@@ -18,6 +18,7 @@ import authService from '../../../services/auth'; // unified auth operations
 import './navbar.css';
 import ContentPopover from '../contentpopover/contentpopover';
 import userService from '../../../services/user';
+import categoriesService from '../../../services/categories';
 
 const { Header } = Layout;
 
@@ -48,6 +49,7 @@ const Navbar = ({ isAuthenticated, user }) => {
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  const [categories, setCategories] = useState([]);
   const searchInputRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -65,6 +67,40 @@ const Navbar = ({ isAuthenticated, user }) => {
     if (searchExpanded && searchInputRef.current) searchInputRef.current.focus();
   }, [searchExpanded]);
 
+  // Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const fetchedCategories = await categoriesService.getCategories();
+        setCategories(fetchedCategories.filter((cat) => cat.isActive));
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+        // Fallback to hardcoded categories if API fails
+        setCategories([
+          { id: 1, name: 'Action' },
+          { id: 2, name: 'Adventure' },
+          { id: 3, name: 'Martial Arts' },
+          { id: 4, name: 'Fantasy' },
+          { id: 5, name: 'Sci-Fi' },
+          { id: 6, name: 'Urban' },
+          { id: 7, name: 'Historical' },
+          { id: 8, name: 'Eastern Fantasy' },
+          { id: 9, name: 'Wuxia' },
+          { id: 10, name: 'Xianxia' },
+          { id: 11, name: 'Military' },
+          { id: 12, name: 'Sports' },
+          { id: 13, name: 'Romance' },
+          { id: 14, name: 'Drama' },
+          { id: 15, name: 'Slice of Life' },
+          { id: 16, name: 'School Life' },
+          { id: 17, name: 'Comedy' },
+        ]);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const handleCreate = async () => {
     if (!finalIsAuthenticated) {
       navigate('/login');
@@ -78,30 +114,20 @@ const Navbar = ({ isAuthenticated, user }) => {
     }
   };
 
-  const browseCategories = [
-    'Action',
-    'Adventure',
-    'Martial Arts',
-    'Fantasy',
-    'Sci-Fi',
-    'Urban',
-    'Historical',
-    'Eastern Fantasy',
-    'Wuxia',
-    'Xianxia',
-    'Military',
-    'Sports',
-    'Romance',
-    'Drama',
-    'Slice of Life',
-    'School Life',
-    'Comedy',
-  ];
   const browseMenuData = useMemo(
     () => [
-      { key: 'novels', label: 'Novels', right: [{ title: 'CATEGORIES', types: browseCategories }] },
+      {
+        key: 'novels',
+        label: 'Novels',
+        right: [
+          {
+            title: 'CATEGORIES',
+            types: categories.map((cat) => cat.name),
+          },
+        ],
+      },
     ],
-    []
+    [categories]
   );
 
   const rankingsPopoverItems = useMemo(
@@ -115,8 +141,15 @@ const Navbar = ({ isAuthenticated, user }) => {
 
   const handleBrowseSelect = (_sectionKey, typeLabel) => {
     if (typeLabel) {
-      const slug = slugify(typeLabel);
-      navigate(`/browse/novel/${slug}`);
+      // Find the category by name to get the ID
+      const category = categories.find((cat) => cat.name === typeLabel);
+      if (category) {
+        navigate(`/browse?category=${category.id}`);
+      } else {
+        // Fallback to slug-based navigation if category not found
+        const slug = slugify(typeLabel);
+        navigate(`/browse/novel/${slug}`);
+      }
     } else {
       navigate('/browse/novel');
     }

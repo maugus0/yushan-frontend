@@ -35,7 +35,8 @@ const TopNovels = () => {
         );
 
         if (response.data && response.data.data && response.data.data.content) {
-          setNovels(response.data.data.content);
+          const novels = response.data.data.content;
+          setNovels(novels);
         }
       } catch (error) {
         console.error('Error fetching top novels:', error);
@@ -105,8 +106,16 @@ const TopNovels = () => {
                   <Title level={5} ellipsis={{ rows: 2 }} className="top-novel-title-text">
                     {novel.title}
                   </Title>
-                  <Typography.Text className="top-novel-author" ellipsis>
-                    by {novel.author}
+                  <Typography.Text
+                    className="top-novel-author"
+                    ellipsis
+                    style={{ cursor: 'pointer', color: '#1890ff' }}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent novel card click
+                      navigate(`/profile/${novel.authorId || novel.userId}`);
+                    }}
+                  >
+                    by {novel.authorUsername || novel.author || 'Unknown Author'}
                   </Typography.Text>
                   <div className="top-novel-stats">
                     <span className="top-novel-stat">
