@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import categoriesService from '../../../services/categories';
 /**
  * GenreSidebar (aligned with Rankings left nav)
  * - Single "Novels" button that toggles a collapsible category list.
@@ -7,38 +8,42 @@ import { useMemo, useState } from 'react';
  *
  * Props used:
  *  - activeGenre: string | null       // display name, e.g., "Fantasy"
+ *  - activeCategoryId: number | null  // category ID from URL params
  *  - onClickAll(section)              // called with 'novel' when "All Novels" is selected
- *  - onClickGenre(section, _lead, g)  // called with ('novel', null, 'Fantasy') for a category
+ *  - onClickGenre(section, _lead, g, categoryId)  // called with ('novel', null, 'Fantasy', 1) for a category
  *
  * Other legacy props (section, lead, onClickSection, onClickLead) are accepted but unused.
  */
 
-const NOVEL_CATEGORIES = [
-  'Action',
-  'Adventure',
-  'Martial Arts',
-  'Fantasy',
-  'Sci-Fi',
-  'Urban',
-  'Historical',
-  'Eastern Fantasy',
-  'Wuxia',
-  'Xianxia',
-  'Military',
-  'Sports',
-  'Romance',
-  'Drama',
-  'Slice of Life',
-  'School Life',
-  'Comedy',
-];
-
-const GenreSidebar = ({ activeGenre, onClickAll, onClickGenre }) => {
+const GenreSidebar = ({ activeGenre, activeCategoryId, onClickAll, onClickGenre }) => {
   // Keep "Novels" expanded by default (same as Rankings)
   const [catsOpen, setCatsOpen] = useState(true);
+  const [categories, setCategories] = useState([]);
+
+  // Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const fetchedCategories = await categoriesService.getCategories();
+        setCategories(fetchedCategories.filter((cat) => cat.isActive));
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+        // Fallback to empty array if API fails
+        setCategories([]);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // UI active genre derived from current browse URL state
-  const uiGenre = useMemo(() => activeGenre || 'all', [activeGenre]);
+  const uiGenre = useMemo(() => {
+    if (activeCategoryId) {
+      // Find category name by ID
+      const category = categories.find((cat) => cat.id === activeCategoryId);
+      return category ? category.name : 'all';
+    }
+    return activeGenre || 'all';
+  }, [activeGenre, activeCategoryId, categories]);
 
   return (
     <aside className="browse-sidebar" aria-label="Genre navigation">
@@ -66,16 +71,16 @@ const GenreSidebar = ({ activeGenre, onClickAll, onClickGenre }) => {
             >
               All Novels
             </button>
-            {NOVEL_CATEGORIES.map((category, i) => {
-              const isActive = uiGenre === category;
+            {categories.map((category, i) => {
+              const isActive = uiGenre === category.name;
               return (
                 <button
-                  key={`${category}-${i}`}
+                  key={`${category.id}-${i}`}
                   type="button"
                   className={`cat-pill${isActive ? ' active' : ''}`}
-                  onClick={() => onClickGenre?.('novel', null, category)}
+                  onClick={() => onClickGenre?.('novel', null, category.name, category.id)}
                 >
-                  {category}
+                  {category.name}
                 </button>
               );
             })}

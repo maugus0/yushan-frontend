@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Breadcrumb, Drawer, message, Typography, Alert, Button } from 'antd';
+import { Breadcrumb, Drawer, message, Typography, Alert, Button, Pagination } from 'antd';
 import { Link, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { FunnelPlotOutlined } from '@ant-design/icons';
 
 import ViewToggle from '../../components/novel/browse/viewtoggle';
 import ResultsList from '../../components/novel/browse/resultslist';
 import GenreSidebar from '../../components/novel/browse/genresidebar';
+import novelService from '../../services/novel';
 import './browse.css';
 
 const { Title } = Typography;
@@ -78,13 +79,15 @@ const FEMALE_GENRES_SET = new Set(['Romance', 'Drama', 'Slice of Life', 'School 
    - /browse/comics/:genre
    - /browse/fanfics
    - /browse/fanfics/:genre
+   Also handles URL query params like ?category=13
 */
-function parseBrowsePath(pathname) {
+function parseBrowsePath(pathname, searchParams) {
   const parts = pathname.toLowerCase().split('/').filter(Boolean);
   let section = 'novel';
   let genre = null;
+  let categoryId = null;
 
-  if (parts[0] !== 'browse') return { section, genre };
+  if (parts[0] !== 'browse') return { section, genre, categoryId };
 
   const p2 = parts[1];
   if (p2 === 'novel' || p2 === 'novels') section = 'novel';
@@ -93,45 +96,18 @@ function parseBrowsePath(pathname) {
 
   const p3 = parts[2];
   if (p3) genre = unslug(p3);
-  return { section, genre };
+
+  // Check for category query parameter
+  const categoryParam = searchParams.get('category');
+  if (categoryParam) {
+    categoryId = parseInt(categoryParam, 10);
+  }
+
+  return { section, genre, categoryId };
 }
 
 /* -------- Demo data -------- */
-const MOCK_GENRES = [
-  'Fantasy',
-  'Action',
-  'Romance',
-  'Sci-Fi',
-  'Drama',
-  'Comedy',
-  'Adventure',
-  'Mystery',
-  'Horror',
-  'History',
-  'War',
-];
-const MOCK_STATUSES = ['Ongoing', 'Completed'];
-const MOCK_NOVELS = Array.from({ length: 120 }).map((_, i) => {
-  const genreCount = 1 + (i % 3);
-  const genres = [];
-  for (let g = 0; g < genreCount; g++) genres.push(MOCK_GENRES[(i + g) % MOCK_GENRES.length]);
-  const lead = i % 2 === 0 ? 'male' : 'female';
-  return {
-    id: i + 1,
-    title: `Novel Title ${i + 1}`,
-    author: `Author ${((i % 10) + 1).toString().padStart(2, '0')}`,
-    cover: `https://picsum.photos/seed/novel_${i + 1}/300/400`,
-    genres,
-    status: MOCK_STATUSES[i % 2],
-    description: 'Static mock description. Replace with real summary from backend later.',
-    //stats: { chapters: 50 + (i % 200), popularity: 1000 + ((i * 13) % 5000), rating: 3 + ((i * 37) % 20) / 10 },
-    stats: { chapters: 50 + (i % 200), popularity: ' ', rating: 3 + ((i * 37) % 20) / 10 },
-    createdAt: Date.now() - i * 86400000,
-    lead,
-  };
-});
-
-const PAGE_SIZE = 24;
+const PAGE_SIZE = 20;
 const STORAGE_KEY = 'browsePageState_v6';
 
 function loadStoredState() {
@@ -155,15 +131,17 @@ const BrowsePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const navType = useNavigationType();
+  const searchParams = new URLSearchParams(location.search);
 
   const persisted = useRef(navType === 'POP' ? loadStoredState() : null);
 
   const [viewMode, setViewMode] = useState(persisted.current?.viewMode || 'grid');
 
   // Derived from URL
-  const initial = useRef(parseBrowsePath(location.pathname));
+  const initial = useRef(parseBrowsePath(location.pathname, searchParams));
   const [section, setSection] = useState(initial.current.section);
   const [activeGenre, setActiveGenre] = useState(initial.current.genre);
+  const [activeCategoryId, setActiveCategoryId] = useState(initial.current.categoryId);
 
   // Lead: UI-only; default male once
   const [lead, setLead] = useState('male');
@@ -171,22 +149,23 @@ const BrowsePage = () => {
   const [filters, setFilters] = useState(
     persisted.current?.filters || { status: null, sort: 'popularity' }
   );
-  const [pageCount, setPageCount] = useState(persisted.current?.pageCount || 1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [novels, setNovels] = useState([]);
-  const [displayed, setDisplayed] = useState([]);
   const [loading, setLoading] = useState(false);
   const [softError, setSoftError] = useState('');
+  const [totalNovels, setTotalNovels] = useState(0);
 
-  const sentinelRef = useRef(null);
   const restoringScroll = useRef(navType === 'POP');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   /* -------- FIX: infer lead from genre when URL has a novel genre -------- */
   useEffect(() => {
-    const parsed = parseBrowsePath(location.pathname);
+    const searchParams = new URLSearchParams(location.search);
+    const parsed = parseBrowsePath(location.pathname, searchParams);
     setSection(parsed.section);
     setActiveGenre(parsed.genre);
+    setActiveCategoryId(parsed.categoryId);
 
     if (parsed.section === 'novel') {
       if (parsed.genre) {
@@ -199,57 +178,92 @@ const BrowsePage = () => {
         // setLead((prev) => prev); // no-op, just for clarity
       }
     }
-    setPageCount(1);
-  }, [location.pathname]);
+    setCurrentPage(1); // Reset to first page when URL changes
+  }, [location.pathname, location.search]);
 
-  /* -------- Fetch (demo) -------- */
-  const fetchNovels = useCallback(async () => {
-    setLoading(true);
-    setSoftError('');
-    try {
-      await new Promise((r) => setTimeout(r, 160));
-      let data = [...MOCK_NOVELS];
+  /* -------- Fetch novels from API -------- */
+  const fetchNovels = useCallback(
+    async (page = 1) => {
+      setLoading(true);
+      setSoftError('');
+      try {
+        // Map frontend filters to API parameters
+        const apiParams = {
+          page: page - 1, // API uses 0-based pagination
+          size: PAGE_SIZE,
+          status: 'published', // Only show published novels
+        };
 
-      if (section === 'novel') {
-        data = data.filter((n) => n.lead === lead);
-      }
-      if (activeGenre) {
-        data = data.filter((n) => n.genres.includes(activeGenre));
-      }
-      if (filters.status) {
-        data = data.filter((n) => n.status === filters.status);
-      }
+        // Add category filter if we have an active category
+        if (activeCategoryId) {
+          apiParams.category = activeCategoryId;
+        }
 
-      switch (filters.sort) {
-        case 'latest':
-          data.sort((a, b) => b.createdAt - a.createdAt);
-          break;
-        case 'rating':
-          data.sort((a, b) => b.stats.rating - a.stats.rating);
-          break;
-        default:
-          data.sort((a, b) => b.stats.popularity - a.stats.popularity);
-      }
+        // Map sort options to API parameters
+        switch (filters.sort) {
+          case 'latest':
+            apiParams.sort = 'createTime';
+            apiParams.order = 'desc';
+            break;
+          case 'rating':
+            apiParams.sort = 'avgRating';
+            apiParams.order = 'desc';
+            break;
+          case 'popularity':
+          default:
+            apiParams.sort = 'viewCnt';
+            apiParams.order = 'desc';
+            break;
+        }
 
-      setNovels(data);
-    } catch {
-      setSoftError('Network error (simulated).');
-    } finally {
-      setLoading(false);
-    }
-  }, [section, lead, activeGenre, filters.status, filters.sort]);
+        const response = await novelService.getNovels(apiParams);
+        let data = response.content || [];
+
+        // Apply frontend filters that aren't handled by the API
+        if (filters.status === 'Completed') {
+          data = data.filter((n) => n.isCompleted === true);
+        } else if (filters.status === 'Ongoing') {
+          data = data.filter((n) => n.isCompleted === false || n.isCompleted === null);
+        }
+        // If filters.status is null, show all novels (no filtering)
+
+        // Transform API response to match expected format
+        const transformedNovels = data.map((novel) => ({
+          id: novel.id,
+          title: novel.title,
+          author: novel.authorUsername || 'Unknown Author',
+          cover: novel.coverImgUrl || null, // Let NovelCard handle null cover
+          genres: [novel.categoryName],
+          status: novel.isCompleted ? 'Completed' : 'Ongoing',
+          description: novel.synopsis || 'No description available.',
+          stats: {
+            chapters: novel.chapterCnt || 0,
+            popularity: novel.viewCnt || 0,
+            rating: novel.avgRating || 0,
+          },
+          createdAt: new Date(novel.createTime || novel.publishTime).getTime(),
+          lead: 'male', // Default since API doesn't provide this
+        }));
+
+        setNovels(transformedNovels);
+        setTotalNovels(response.totalElements || 0);
+      } catch (error) {
+        console.error('Failed to fetch novels:', error);
+        setSoftError('Failed to load novels. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [activeCategoryId, filters.status, filters.sort]
+  );
 
   useEffect(() => {
-    fetchNovels();
-  }, [fetchNovels]);
+    fetchNovels(currentPage); // Fetch novels for current page when filters change
+  }, [activeCategoryId, filters.status, filters.sort, currentPage, fetchNovels]);
 
   useEffect(() => {
-    setDisplayed(novels.slice(0, PAGE_SIZE * pageCount));
-  }, [novels, pageCount]);
-
-  useEffect(() => {
-    saveState({ viewMode, filters, pageCount, scrollY: window.scrollY });
-  }, [viewMode, filters, pageCount]);
+    saveState({ viewMode, filters, currentPage, scrollY: window.scrollY });
+  }, [viewMode, filters, currentPage]);
 
   useEffect(() => {
     if (restoringScroll.current && persisted.current?.scrollY != null) {
@@ -260,34 +274,36 @@ const BrowsePage = () => {
     }
   }, []);
 
-  const hasMore = displayed.length < novels.length;
-  useEffect(() => {
-    if (!sentinelRef.current) return;
-    const node = sentinelRef.current;
-    const obs = new IntersectionObserver(
-      (es) => {
-        if (es[0].isIntersecting && hasMore && !loading && !softError) setPageCount((c) => c + 1);
-      },
-      { root: null, rootMargin: '600px 0px 0px 0px', threshold: 0 }
-    );
-    obs.observe(node);
-    return () => obs.disconnect();
-  }, [hasMore, loading, softError]);
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    // Scroll to top when page changes
+    window.scrollTo(0, 0);
+  };
 
   /* -------- Navigation helpers -------- */
   const toSectionRoot = (sec) => navigate(`/browse/${sec === 'novel' ? 'novel' : sec}`);
-  const toNovelGenre = (name) => navigate(`/browse/novel/${slugify(name)}`);
+  const toNovelGenre = (name, categoryId) => {
+    if (categoryId) {
+      // Use category ID for better URL structure
+      navigate(`/browse?category=${categoryId}`);
+    } else {
+      // Fallback to slug-based navigation
+      navigate(`/browse/novel/${slugify(name)}`);
+    }
+  };
   const toSectionGenre = (sec, name) => navigate(`/browse/${sec}/${slugify(name)}`);
 
   const handleReset = () => {
     setFilters({ status: null, sort: 'popularity' });
-    setPageCount(1);
+    setCurrentPage(1);
+    // Clear URL parameters and navigate to base browse page
+    navigate('/browse', { replace: true });
     message.success('Filters reset');
   };
 
   const handleRetry = () => {
     setSoftError('');
-    fetchNovels();
+    fetchNovels(currentPage);
   };
 
   const viewToggleEl = <ViewToggle mode={viewMode} onChange={setViewMode} />;
@@ -305,26 +321,27 @@ const BrowsePage = () => {
             section={section}
             lead={lead}
             activeGenre={activeGenre}
+            activeCategoryId={activeCategoryId}
             onClickSection={(sec) => {
               toSectionRoot(sec);
-              setPageCount(1);
+              setCurrentPage(1);
             }}
             onClickLead={(leadType) => {
               setLead(leadType);
-              setPageCount(1);
+              setCurrentPage(1);
             }}
             onClickAll={(sec) => {
               toSectionRoot(sec);
-              setPageCount(1);
+              setCurrentPage(1);
             }}
-            onClickGenre={(sec, leadType, name) => {
+            onClickGenre={(sec, leadType, name, categoryId) => {
               if (sec === 'novel') {
                 if (leadType) setLead(leadType);
-                toNovelGenre(name);
+                toNovelGenre(name, categoryId);
               } else {
                 toSectionGenre(sec, name);
               }
-              setPageCount(1);
+              setCurrentPage(1);
             }}
           />
         )}
@@ -436,7 +453,7 @@ const BrowsePage = () => {
           )}
 
           <ResultsList
-            novels={displayed}
+            novels={novels}
             loading={loading}
             error={null}
             viewMode={viewMode}
@@ -448,22 +465,29 @@ const BrowsePage = () => {
             }
           />
 
-          <div ref={sentinelRef} className="browse-infinite-sentinel" aria-hidden="true" />
-
-          {!loading && !softError && displayed.length === 0 && (
+          {!loading && !softError && novels.length === 0 && (
             <div className="browse-end-indicator" role="status">
-              No results.
-            </div>
-          )}
-          {!loading && !softError && displayed.length > 0 && displayed.length === novels.length && (
-            <div className="browse-end-indicator" role="status">
-              All {novels.length} results loaded.
+              No results found.
             </div>
           )}
 
-          <div className="browse-backend-note">
-            Backend integration placeholder: replace mock data with API calls.
-          </div>
+          {!loading && !softError && totalNovels > PAGE_SIZE && (
+            <div
+              style={{ display: 'flex', justifyContent: 'center', marginTop: 24, marginBottom: 24 }}
+            >
+              <Pagination
+                current={currentPage}
+                total={totalNovels}
+                pageSize={PAGE_SIZE}
+                onChange={handlePageChange}
+                showSizeChanger={false}
+                showQuickJumper
+                showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} novels`}
+              />
+            </div>
+          )}
+
+          <div className="browse-backend-note">Browse powered by real API data.</div>
         </div>
       </div>
 
