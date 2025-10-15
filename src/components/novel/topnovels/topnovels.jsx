@@ -36,7 +36,6 @@ const TopNovels = () => {
 
         if (response.data && response.data.data && response.data.data.content) {
           const novels = response.data.data.content;
-          console.log('Top novels API response sample:', novels[0]); // Debug: Check actual data structure
           setNovels(novels);
         }
       } catch (error) {
