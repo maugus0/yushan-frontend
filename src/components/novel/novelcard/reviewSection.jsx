@@ -140,34 +140,20 @@ const ReviewSection = ({
     if (onRefreshNovelRating) await onRefreshNovelRating();
   };
 
-  /**
-   * Like/Unlike handler.
-   * The backend API should handle increment/decrement of likeCnt based on user's current like status.
-   * Here, we only update local likedReviews and expect the backend to return the correct likeCnt.
-   */
+  // Like/Unlike handler
   const handleLike = async (reviewId, liked) => {
     try {
+      await onLikeReview(reviewId, liked);
+      // local update likedReviews
+      const key = `likedReviews_${currentUser?.data?.uuid || 'guest'}`;
+      let newLiked;
       if (liked) {
-        // Unlike: remove from local likedReviews
-        await onLikeReview(reviewId, false); // Pass false to indicate unlike
-        const newLiked = likedReviews.filter((id) => id !== reviewId);
-        setLikedReviews(newLiked);
-        localStorage.setItem(
-          `likedReviews_${currentUser?.data?.uuid || 'guest'}`,
-          JSON.stringify(newLiked)
-        );
+        newLiked = likedReviews.filter((id) => id !== reviewId);
       } else {
-        // Like: add to local likedReviews
-        await onLikeReview(reviewId, true); // Pass true to indicate like
-        const newLiked = [...likedReviews, reviewId];
-        setLikedReviews(newLiked);
-        localStorage.setItem(
-          `likedReviews_${currentUser?.data?.uuid || 'guest'}`,
-          JSON.stringify(newLiked)
-        );
+        newLiked = [...likedReviews, reviewId];
       }
-      // Optionally refresh reviews to get updated likeCnt from backend
-      if (onRefreshNovelRating) await onRefreshNovelRating();
+      setLikedReviews(newLiked);
+      localStorage.setItem(key, JSON.stringify(newLiked));
     } catch (e) {
       // Error handling
     }
