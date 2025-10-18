@@ -393,9 +393,7 @@ export default function NovelDetailPage() {
       setReviewsState((prev) => ({
         ...prev,
         list: prev.list.map((r) =>
-          r.id === reviewId
-            ? { ...r, likeCnt: updated.likeCnt, liked: !liked }
-            : r
+          r.id === reviewId ? { ...r, likeCnt: updated.likeCnt, liked: !liked } : r
         ),
       }));
       showTip(liked ? 'Unliked review' : 'Liked review', 'success');
