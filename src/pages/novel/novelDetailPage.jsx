@@ -380,14 +380,25 @@ export default function NovelDetailPage() {
     }
   };
 
-  // Like review handler
-  const onLikeReview = async (reviewId) => {
+  // Like/unlike review handler
+  const onLikeReview = async (reviewId, liked) => {
     try {
-      await reviewsApi.like(reviewId);
-      await refreshReviewsAndRating(false); // Only refresh reviews, not rating
-      showTip('Liked review', 'success');
+      let updated;
+      if (liked) {
+        updated = await reviewsApi.unlike(reviewId);
+      } else {
+        updated = await reviewsApi.like(reviewId);
+      }
+      // local update reviewsState.list
+      setReviewsState((prev) => ({
+        ...prev,
+        list: prev.list.map((r) =>
+          r.id === reviewId ? { ...r, likeCnt: updated.likeCnt, liked: !liked } : r
+        ),
+      }));
+      showTip(liked ? 'Unliked review' : 'Liked review', 'success');
     } catch (e) {
-      showTip(e?.response?.data?.message || e?.message || 'Failed to like review', 'error');
+      showTip(e?.response?.data?.message || e?.message || 'Failed to update like', 'error');
     }
   };
 

@@ -32,6 +32,10 @@ const reviewsApi = {
     const res = await http.post(`/reviews/${id}/like`, {}, { headers: authHeader() });
     return res?.data?.data;
   },
+  async unlike(id) {
+    const res = await http.post(`/reviews/${id}/unlike`, {}, { headers: authHeader() });
+    return res?.data?.data;
+  },
   async getMyReview(novelId) {
     const res = await http.get(`/reviews/my-reviews/novel/${novelId}`, {
       headers: authHeader(),
