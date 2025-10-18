@@ -36,5 +36,19 @@ const commentsApi = {
     const res = await http.post(`/comments/${commentId}/unlike`, {}, { headers: authHeader() });
     return res?.data?.data;
   },
+  // Edit comment
+  async edit(commentId, { content, isSpoiler }) {
+    const res = await http.put(
+      `/comments/${commentId}`,
+      { content, isSpoiler },
+      { headers: authHeader() }
+    );
+    return res?.data?.data;
+  },
+  // Delete comment
+  async delete(commentId) {
+    const res = await http.delete(`/comments/${commentId}`, { headers: authHeader() });
+    return res?.data?.data;
+  },
 };
 export default commentsApi;

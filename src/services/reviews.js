@@ -19,6 +19,25 @@ const reviewsApi = {
     const res = await http.post(`/reviews`, body, { headers: authHeader() });
     return res?.data?.data;
   },
+  async edit(id, { rating, title, content, isSpoiler }) {
+    const body = { rating, title, content, isSpoiler };
+    const res = await http.put(`/reviews/${id}`, body, { headers: authHeader() });
+    return res?.data?.data;
+  },
+  async delete(id) {
+    const res = await http.delete(`/reviews/${id}`, { headers: authHeader() });
+    return res?.data?.data;
+  },
+  async like(id) {
+    const res = await http.post(`/reviews/${id}/like`, {}, { headers: authHeader() });
+    return res?.data?.data;
+  },
+  async getMyReview(novelId) {
+    const res = await http.get(`/reviews/my-reviews/novel/${novelId}`, {
+      headers: authHeader(),
+    });
+    return res?.data?.data;
+  },
 };
 
 export default reviewsApi;

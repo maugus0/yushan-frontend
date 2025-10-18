@@ -40,7 +40,7 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 
 const REPORT_TYPE_OPTIONS = [
-  { label: 'Pornographic Content', value: 'PORNOGRAPHIC' },
+  { label: 'Pornographic Content', value: 'PORN' },
   { label: 'Hate or Bullying', value: 'HATE_BULLYING' },
   { label: 'Release of personal info', value: 'PERSONAL_INFO' },
   { label: 'Other inappropriate material', value: 'INAPPROPRIATE' },
@@ -87,6 +87,7 @@ export default function NovelDetailPage() {
 
   const [voteRanking, setVoteRanking] = useState(null);
   const [voteRankType, setVoteRankType] = useState('Vote Ranking');
+  const [voteRankingMessage, setVoteRankingMessage] = useState('');
 
   useEffect(() => {
     async function fetchVoteRanking() {
@@ -97,9 +98,11 @@ export default function NovelDetailPage() {
         const res = await axios.get(url);
         setVoteRanking(res?.data?.data?.rank ?? null);
         setVoteRankType(res?.data?.data?.rankType ?? 'Vote Ranking');
-      } catch {
+        setVoteRankingMessage(res?.data?.message ?? '');
+      } catch (e) {
         setVoteRanking(null);
         setVoteRankType('Vote Ranking');
+        setVoteRankingMessage('');
       }
     }
     fetchVoteRanking();
@@ -163,7 +166,7 @@ export default function NovelDetailPage() {
     loadUser();
   }, []);
 
-  // Load reviews when page changes
+  // Load reviews when page changes or after user info loaded
   useEffect(() => {
     let cancelled = false;
     async function loadReviews() {
@@ -223,26 +226,19 @@ export default function NovelDetailPage() {
 
   // Read: try to jump to last read chapter from /history; fallback to 1
   const handleReadNovel = async () => {
-    console.log('handleReadNovel called', novelId);
     try {
       const historyRes = await historyApi.list({ page: 0, size: 20 });
-      console.log('historyRes:', historyRes);
-      console.log('historyRes.content:', historyRes && historyRes.content);
       let chapterNumber;
       if (Array.isArray(historyRes?.content)) {
-        console.log('history content:', historyRes.content, 'novelId:', novelId);
         const found = historyRes.content.find((h) => String(h.novelId) === String(novelId));
-        console.log('found:', found);
         if (found && !isNaN(Number(found.chapterNumber))) {
           chapterNumber = Number(found.chapterNumber);
-          console.log('qqqqqq');
         }
       }
       if (typeof chapterNumber === 'number') {
         navigate(`/read/${novelId}/${chapterNumber}`);
       } else {
         navigate(`/read/${novelId}/1`);
-        console.log('ssssss');
       }
     } catch {
       navigate(`/read/${novelId}/1`);
@@ -251,10 +247,9 @@ export default function NovelDetailPage() {
 
   const handleJumpToChapter = async (chapterId, chapterNumber) => {
     try {
-      // Always record reading history when jumping to a chapter
       await historyApi.recordRead(novelId, chapterId);
     } catch (e) {
-      // Optionally handle error, or ignore
+      // ignore
     }
     setRecentRead({ id: chapterId, title: `Chapter ${chapterNumber}` });
     navigate(`/read/${novelId}/${chapterNumber}`);
@@ -262,7 +257,6 @@ export default function NovelDetailPage() {
 
   const handleAddOrRemoveLibrary = async () => {
     if (inLibrary) {
-      // Remove from library
       try {
         await libraryApi.remove(novelId);
         setInLibrary(false);
@@ -274,25 +268,19 @@ export default function NovelDetailPage() {
         );
       }
     } else {
-      // Add to library（previous logic）
       try {
-        // 1. Get user's reading history for this novel
         const historyRes = await historyApi.list({ page: 0, size: 20 });
         let chapterId = null;
         if (Array.isArray(historyRes?.data?.content)) {
           const found = historyRes.data.content.find((h) => String(h.novelId) === String(novelId));
           if (found && found.chapterId) chapterId = found.chapterId;
         }
-        // 2. If not found, get the first chapterId of this novel
         if (!chapterId) {
           const chaptersRes = await novelsApi.getChapters(novelId);
           const firstChapter = chaptersRes?.chapters?.[0];
           if (firstChapter && firstChapter.chapterId) chapterId = firstChapter.chapterId;
         }
-        // 3. If still not found, fallback to 1
         if (!chapterId) chapterId = 1;
-
-        // 4. Add to library with progress = chapterId
         await libraryApi.add(novelId, chapterId);
         setInLibrary(true);
         showTip('Added to library', 'success');
@@ -356,11 +344,7 @@ export default function NovelDetailPage() {
     try {
       await reviewsApi.create({ novelId, rating, text, isSpoiler });
       setPage(1);
-      const data = await reviewsApi.listByNovel(novelId, { page: 0, size: REVIEWS_PAGE_SIZE });
-      setReviewsState({
-        list: data?.content || [],
-        total: data?.totalElements || 0,
-      });
+      await refreshReviewsAndRating();
       showTip('Review submitted successfully', 'success');
     } catch (e) {
       setIsReviewModalVisible(false);
@@ -373,12 +357,77 @@ export default function NovelDetailPage() {
     }
   };
 
+  // Edit review handler
+  const onEditReview = async (reviewId, { rating, title, content, isSpoiler }) => {
+    try {
+      await reviewsApi.edit(reviewId, { rating, title, content, isSpoiler });
+      await refreshReviewsAndRating();
+      showTip('Review updated successfully', 'success');
+    } catch (e) {
+      showTip(e?.response?.data?.message || e?.message || 'Failed to update review', 'error');
+    }
+  };
+
+  // Delete review handler
+  const onDeleteReview = async (reviewId) => {
+    try {
+      await reviewsApi.delete(reviewId);
+      setPage(1);
+      await refreshReviewsAndRating();
+      showTip('Review deleted successfully', 'success');
+    } catch (e) {
+      showTip(e?.response?.data?.message || e?.message || 'Failed to delete review', 'error');
+    }
+  };
+
+  // Like review handler
+  const onLikeReview = async (reviewId) => {
+    try {
+      await reviewsApi.like(reviewId);
+      await refreshReviewsAndRating(false); // Only refresh reviews, not rating
+      showTip('Liked review', 'success');
+    } catch (e) {
+      showTip(e?.response?.data?.message || e?.message || 'Failed to like review', 'error');
+    }
+  };
+
+  // Helper to refresh both reviews and rating
+  const refreshReviewsAndRating = async (refreshRating = true) => {
+    const data = await reviewsApi.listByNovel(novelId, {
+      page: page - 1,
+      size: REVIEWS_PAGE_SIZE,
+      sort: 'createTime',
+      order: 'desc',
+    });
+    setReviewsState({
+      list: data?.content || [],
+      total: data?.totalElements || 0,
+    });
+    if (refreshRating) {
+      await refreshNovelRating();
+    }
+  };
+
   // Add review modal state
   const [isReviewModalVisible, setIsReviewModalVisible] = useState(false);
 
   // Review button click handler: always allow opening modal
   const handleWriteReview = () => {
     setIsReviewModalVisible(true);
+  };
+
+  // refresh novel rating after review submission
+  const refreshNovelRating = async () => {
+    try {
+      const data = await novelsApi.getDetail(novelId);
+      setNovel((prev) => ({
+        ...prev,
+        rating: data?.avgRating ?? 0,
+        ratingsCount: data?.reviewCnt ?? 0,
+      }));
+    } catch {
+      showTip('Failed to refresh novel rating', 'error');
+    }
   };
 
   // Move memos BEFORE any early returns
@@ -601,7 +650,6 @@ export default function NovelDetailPage() {
           <div className="novel-synopsis">{novel.synopsis}</div>
 
           <h2 className="section-title">Ranking Status</h2>
-          {/* PowerStatusVote display，votesLeft convert voteCnt */}
           <PowerStatusVote
             ranking={voteRanking}
             voteCount={novel.votes}
@@ -610,6 +658,7 @@ export default function NovelDetailPage() {
             loading={voting}
             disableVote={userYuan <= 0}
             rankType={voteRankType}
+            message={voteRankingMessage}
           />
 
           <h2 className="section-title" style={{ marginTop: 16 }}>
@@ -624,9 +673,14 @@ export default function NovelDetailPage() {
             pageSize={REVIEWS_PAGE_SIZE}
             onChangePage={setPage}
             onSubmitReview={onSubmitReview}
+            onEditReview={onEditReview}
+            onDeleteReview={onDeleteReview}
+            onLikeReview={onLikeReview}
             isReviewModalVisible={isReviewModalVisible}
             setIsReviewModalVisible={setIsReviewModalVisible}
             handleWriteReview={handleWriteReview}
+            currentUser={currentUser}
+            onRefreshNovelRating={refreshNovelRating}
           />
         </div>
       )}
@@ -637,7 +691,6 @@ export default function NovelDetailPage() {
             All Chapters <span className="chapter-count">({novel.chapters} total)</span>
           </h2>
 
-          {/* Table of Contents chapter list */}
           <div className="novel-chapter-list">
             {chapterList.map((ch) => (
               <Tooltip key={ch.chapterId} title={`Go to ${ch.title}`}>
