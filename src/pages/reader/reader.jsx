@@ -6,8 +6,8 @@ import './reader.css';
 import novelsApi from '../../services/novels';
 import commentsApi from '../../services/comments';
 import historyApi from '../../services/history';
-import { Button, Input, Pagination } from 'antd';
-import { LikeOutlined, LikeFilled } from '@ant-design/icons';
+import { Button, Input, Pagination, Tooltip, Popconfirm, Modal, Checkbox } from 'antd';
+import { LikeOutlined, LikeFilled, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 
 const SAVE_MS = 2500;
@@ -38,6 +38,13 @@ export default function ReaderPage() {
       return [];
     }
   });
+
+  // State for editing a comment
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editCommentId, setEditCommentId] = useState(null);
+  const [editCommentText, setEditCommentText] = useState('');
+  const [editCommentIsSpoiler, setEditCommentIsSpoiler] = useState(false);
+  const [editCommentError, setEditCommentError] = useState('');
 
   const saveTimerRef = useRef(null);
   const lastSavedRef = useRef(0);
@@ -185,29 +192,31 @@ export default function ReaderPage() {
   }, []);
 
   // Fetch comments for current chapter
-  useEffect(() => {
-    async function fetchComments() {
-      if (!chapter?.id) return;
-      try {
-        const res = await commentsApi.listByChapter(chapter.id, {
-          page: commentPage - 1,
-          size: 20,
-        });
-        // Merge liked state from localStorage
-        const merged = Array.isArray(res?.comments)
-          ? res.comments.map((c) => ({
-              ...c,
-              liked: likedComments.includes(c.id),
-            }))
-          : [];
-        setComments(merged);
-        setCommentTotal(res?.totalCount || 0);
-      } catch {
-        setComments([]);
-        setCommentTotal(0);
-      }
+  const fetchComments = async (pageNum = commentPage) => {
+    if (!chapter?.id) return;
+    try {
+      const res = await commentsApi.listByChapter(chapter.id, {
+        page: pageNum - 1,
+        size: 20,
+      });
+      // Merge liked state from localStorage
+      const merged = Array.isArray(res?.comments)
+        ? res.comments.map((c) => ({
+            ...c,
+            liked: likedComments.includes(c.id),
+          }))
+        : [];
+      setComments(merged);
+      setCommentTotal(res?.totalCount || 0);
+    } catch {
+      setComments([]);
+      setCommentTotal(0);
     }
+  };
+
+  useEffect(() => {
     fetchComments();
+    // eslint-disable-next-line
   }, [chapter?.id, commentPage, likedComments]);
 
   // Add comment
@@ -227,9 +236,7 @@ export default function ReaderPage() {
       setCommentText('');
       showTip('Comment submitted successfully', 'success');
       // Refresh comments
-      const res = await commentsApi.listByChapter(chapter.id, { page: 0, size: 20 });
-      setComments(Array.isArray(res?.comments) ? res.comments : []);
-      setCommentTotal(res?.totalCount || 0);
+      await fetchComments(1);
       setCommentPage(1);
     } catch (e) {
       showTip(e?.response?.data?.message || e?.message || 'Failed to submit comment', 'error');
@@ -238,6 +245,7 @@ export default function ReaderPage() {
     }
   };
 
+  // Like/unlike comment
   const handleLike = async (commentId, liked) => {
     setLiking((prev) => ({ ...prev, [commentId]: true }));
     const key = `likedComments_${currentUser?.uuid || 'guest'}`;
@@ -266,6 +274,48 @@ export default function ReaderPage() {
       showTip(e?.response?.data?.message || e?.message || 'Failed to update like', 'error');
     } finally {
       setLiking((prev) => ({ ...prev, [commentId]: false }));
+    }
+  };
+
+  // Open edit modal for a comment
+  const handleEditClick = (comment) => {
+    setEditCommentId(comment.id);
+    setEditCommentText(comment.content);
+    setEditCommentIsSpoiler(!!comment.isSpoiler);
+    setEditCommentError('');
+    setIsEditModalVisible(true);
+  };
+
+  // Submit edited comment
+  const submitEditComment = async () => {
+    if (!editCommentText.trim()) {
+      setEditCommentError('Please enter your comment.');
+      return;
+    }
+    try {
+      await commentsApi.edit(editCommentId, {
+        content: editCommentText,
+        isSpoiler: editCommentIsSpoiler,
+      });
+      setIsEditModalVisible(false);
+      setEditCommentId(null);
+      setEditCommentText('');
+      setEditCommentIsSpoiler(false);
+      await fetchComments();
+      showTip('Comment updated successfully', 'success');
+    } catch (e) {
+      setEditCommentError(e?.response?.data?.message || e?.message || 'Failed to update comment');
+    }
+  };
+
+  // Delete comment
+  const handleDelete = async (commentId) => {
+    try {
+      await commentsApi.delete(commentId);
+      await fetchComments();
+      showTip('Comment deleted successfully', 'success');
+    } catch (e) {
+      showTip(e?.response?.data?.message || e?.message || 'Failed to delete comment', 'error');
     }
   };
 
@@ -303,6 +353,9 @@ export default function ReaderPage() {
       navigate(`/read/${novelId}/${next.chapterNumber}`);
     }
   };
+
+  // Helper: check if current user is the owner of the comment
+  const isMyComment = (c) => currentUser?.uuid && (c.userId === currentUser.uuid || c.isOwnComment);
 
   return (
     <div
@@ -452,7 +505,34 @@ export default function ReaderPage() {
                 </span>
               </div>
               <div className="chapter-comment-row">
-                <div className="chapter-comment-content">{c.content}</div>
+                <div className="chapter-comment-content">
+                  {c.content}
+                  {c.isSpoiler && (
+                    <span style={{ color: 'red', fontSize: 12, marginLeft: 8 }}>(Spoiler)</span>
+                  )}
+                </div>
+                {/* Move edit/delete to the left of like button */}
+                {isMyComment(c) && (
+                  <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginRight: 4 }}>
+                    <Tooltip title="Edit">
+                      <Button
+                        type="text"
+                        icon={<EditOutlined />}
+                        onClick={() => handleEditClick(c)}
+                      />
+                    </Tooltip>
+                    <Popconfirm
+                      title="Are you sure to delete this comment?"
+                      onConfirm={() => handleDelete(c.id)}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Tooltip title="Delete">
+                        <Button type="text" icon={<DeleteOutlined />} />
+                      </Tooltip>
+                    </Popconfirm>
+                  </div>
+                )}
                 <Button
                   type="text"
                   icon={c.liked ? <LikeFilled style={{ color: '#1677ff' }} /> : <LikeOutlined />}
@@ -475,6 +555,47 @@ export default function ReaderPage() {
           />
         </div>
       </div>
+      {/* Edit comment modal */}
+      <Modal
+        title={<strong>Edit your comment</strong>}
+        open={isEditModalVisible}
+        onCancel={() => setIsEditModalVisible(false)}
+        footer={null}
+        centered
+      >
+        <Input.TextArea
+          rows={4}
+          placeholder="Edit your comment here"
+          value={editCommentText}
+          onChange={(e) => setEditCommentText(e.target.value)}
+          style={{ marginBottom: 12 }}
+        />
+        <div style={{ marginBottom: 16 }}>
+          <Checkbox
+            checked={editCommentIsSpoiler}
+            onChange={(e) => setEditCommentIsSpoiler(e.target.checked)}
+          >
+            This comment contains spoilers
+          </Checkbox>
+        </div>
+        {editCommentError && (
+          <div style={{ color: 'red', marginBottom: 12 }}>{editCommentError}</div>
+        )}
+        <Button
+          type="primary"
+          onClick={submitEditComment}
+          style={{
+            background: '#7a76c3ff',
+            borderColor: '#7975c9ff',
+            color: '#fff',
+            borderRadius: 20,
+            padding: '0 16px',
+            height: 32,
+          }}
+        >
+          SAVE
+        </Button>
+      </Modal>
       {globalTip.visible && (
         <div
           style={{

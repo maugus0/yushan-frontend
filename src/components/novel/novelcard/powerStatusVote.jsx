@@ -2,6 +2,13 @@ import { Button } from 'antd';
 import { TrophyOutlined, StarOutlined } from '@ant-design/icons';
 import './powerStatusVote.css';
 
+const displayRanking = (ranking, message) => {
+  if (message === 'Novel is not in the top 100 for this ranking.') {
+    return '100+';
+  }
+  return ranking ?? '-';
+};
+
 const PowerStatusVote = ({
   ranking,
   voteCount = 0,
@@ -10,12 +17,13 @@ const PowerStatusVote = ({
   loading = false,
   disableVote = false,
   rankType = 'Vote Ranking',
+  message,
 }) => {
   return (
     <div className="power-status-vote">
       <div className="vote-item" style={{ marginRight: '30px' }}>
         <TrophyOutlined style={{ color: 'red' }} />
-        <span className="vote-number">NO. {ranking ?? '-'}</span>
+        <span className="vote-number">NO. {displayRanking(ranking, message)}</span>
         <span className="vote-description">{rankType}</span>
       </div>
       <div className="vote-item">
