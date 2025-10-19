@@ -1,6 +1,7 @@
 .writerworkspace-page {
   display: flex;
   height: 100vh;
+  --sidebar-width: 220px;
 }
 
 .writerworkspace-content {
@@ -9,40 +10,39 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-left: 220px;
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.2s;
+  overflow-y: auto;
 }
 
 .writerworkspace-header {
   display: flex;
   position: fixed;
   top: 0;
-  left: 220px;
+  left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
   height: 60px;
   background: #fff;
   align-items: center;
-  width: calc(100% - 220px);
   border-bottom: 1px solid #e1e6f5;
   z-index: 101;
   padding: 0 32px;
   justify-content: space-between;
+  transition:
+    left 0.2s,
+    width 0.2s;
 }
 
 .writerworkspace-title {
   font-size: 24px;
   font-weight: 700;
   color: #283157;
-  display: flex;
-  align-items: center;
-  height: 60px;
-  margin-left: 0;
-  margin-top: 6px;
+  margin: 0;
 }
 
 .writerworkspace-create-btn {
   font-size: 12px;
   font-weight: 600;
-  display: flex;
-  align-items: center;
   height: 30px;
 }
 
@@ -68,8 +68,6 @@
 .writerworkspace-board-body {
   position: relative;
   min-height: 200px;
-  max-height: 600px;
-  overflow-y: auto;
   background: #fff;
 }
 
@@ -78,6 +76,7 @@
   grid-template-columns: 5fr 1.5fr 1.5fr 2fr;
   align-items: center;
   padding: 12px 24px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .writerworkspace-board-row:last-child {
@@ -87,7 +86,7 @@
 .board-column {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .story-cover {
@@ -95,12 +94,46 @@
   height: 80px;
   border-radius: 8px;
   object-fit: cover;
+  flex-shrink: 0;
+}
+
+.story-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .story-title {
   font-size: 16px;
   font-weight: 500;
   color: #283157;
+}
+
+.story-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.story-status-tag {
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #fff;
+}
+.story-status-UNDER_REVIEW {
+  background: #0a921fff;
+}
+.story-status-draft {
+  background: #ff4d4f;
+  cursor: pointer;
+}
+.story-status-hidden {
+  background: #f2a516ff;
+  cursor: pointer;
+}
+.story-status-completed {
+  background: #1a50c4ff;
 }
 
 .explore-btn {
@@ -111,6 +144,123 @@
   padding: 0 16px;
 }
 
-.writerworkspace-board-row .ant-btn {
-  font-size: 14px;
+.no-data-placeholder {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: 22px;
+  color: #aaa;
+  z-index: 2;
+}
+
+@media (max-width: 900px) {
+  .writerworkspace-page {
+    --sidebar-width: 64px;
+  }
+}
+
+@media (max-width: 768px) {
+  .writerworkspace-content {
+    padding: 12px;
+  }
+
+  .writerworkspace-header {
+    padding: 0 16px;
+  }
+
+  .writerworkspace-title {
+    font-size: 20px;
+  }
+
+  .writerworkspace-create-btn {
+    font-size: 0;
+    padding: 0 8px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 50%;
+    background: #1890ff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .writerworkspace-create-btn span {
+    display: none !important;
+  }
+  .writerworkspace-create-btn::before {
+    content: '+';
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    display: block;
+  }
+
+  .writerworkspace-board {
+    margin-top: 60px;
+  }
+
+  .writerworkspace-board-header {
+    display: none;
+  }
+
+  .writerworkspace-board-body {
+    padding: 8px;
+  }
+
+  .writerworkspace-board-row {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    align-items: flex-start;
+    border: 1px solid #e1e6f5;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .board-column {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .board-column.story-info {
+    flex-direction: row;
+  }
+
+  .board-column.story-chapters,
+  .board-column.story-words,
+  .board-column.story-operations {
+    font-size: 14px;
+    color: #555;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 12px;
+    justify-content: space-between;
+  }
+
+  .board-column::before {
+    font-weight: 600;
+    color: #515fa0;
+  }
+
+  .story-chapters::before {
+    content: 'Chapters:';
+  }
+
+  .story-words::before {
+    content: 'Words:';
+  }
+
+  .story-operations {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .story-operations::before {
+    content: 'Actions:';
+    justify-self: flex-start;
+    margin-right: auto;
+  }
 }

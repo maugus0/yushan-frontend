@@ -1,6 +1,7 @@
 .writerstoryprofile-page {
   display: flex;
   height: 100vh;
+  --sidebar-width: 220px;
 }
 
 .writerstoryprofile-content {
@@ -9,22 +10,27 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-left: 220px;
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.2s;
+  overflow-y: auto;
 }
 
 .writerstoryprofile-header {
   display: flex;
   position: fixed;
   top: 0;
-  left: 220px;
+  left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
   height: 60px;
   background: #fff;
   align-items: center;
-  width: calc(100% - 220px);
   border-bottom: 1px solid #e1e6f5;
   z-index: 101;
   padding: 0 32px;
   justify-content: space-between;
+  transition:
+    left 0.2s,
+    width 0.2s;
 }
 
 .writerstoryprofile-back-btn {
@@ -36,6 +42,8 @@
   font-size: 20px;
   font-weight: 500;
   color: #283157;
+  flex-shrink: 1;
+  text-align: center;
 }
 
 .writerstoryprofile-create-btn {
@@ -44,13 +52,14 @@
   display: flex;
   align-items: center;
   height: 30px;
+  white-space: nowrap;
 }
 
 .storyprofile-content-box {
   width: 100%;
-  margin: 60px auto 0 auto;
+  max-width: 1100px;
+  margin-top: 60px;
   background: #fff;
-  box-shadow: none;
   border: 1px solid #e1e6f5;
   border-radius: 12px;
   padding: 32px;
@@ -63,16 +72,18 @@
 }
 
 .storyprofile-cover {
+  width: 210px;
+  height: 280px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(40, 49, 87, 0.08);
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .storyprofile-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
 }
 
 .storyprofile-title {
@@ -88,13 +99,14 @@
   margin-bottom: 18px;
 }
 
-.storyprofile-author {
-  font-weight: 600;
-  color: #2962ff;
-}
-
+.storyprofile-author,
 .storyprofile-type {
   font-weight: 600;
+}
+.storyprofile-author {
+  color: #2962ff;
+}
+.storyprofile-type {
   color: #faad14;
 }
 
@@ -103,48 +115,45 @@
   border: 1px solid #e1e6f5;
   border-radius: 8px;
   padding: 18px 24px;
-  margin-bottom: 0;
-  margin-top: 50px;
+  margin-top: auto;
   width: 100%;
   max-width: 500px;
 }
 
 .storyprofile-stats-row {
   display: flex;
-  gap: 32px;
+  justify-content: space-between;
+  gap: 16px;
+}
+.storyprofile-stats-row:not(:last-child) {
   margin-bottom: 6px;
+}
+
+.storyprofile-stat-label,
+.storyprofile-stat-value {
+  flex: 1;
+  text-align: left;
 }
 
 .storyprofile-stat-label {
   font-size: 15px;
   color: #515fa0;
   font-weight: 500;
-  flex: 1;
 }
 
 .storyprofile-stat-value {
   font-size: 18px;
   color: #283157;
   font-weight: 700;
-  flex: 1;
 }
 
 .storyprofile-chapters-list-box {
   margin-top: 32px;
 }
 
-.storyprofile-chapters-title {
-  font-size: 16px;
-  font-weight: 500;
-  color: #515fa0;
-  margin-bottom: 10px;
-  margin-left: 5px;
-}
-
 .storyprofile-chapters-title-row {
   display: flex;
   align-items: center;
-  gap: 24px;
   margin-bottom: 12px;
   font-size: 18px;
   font-weight: 600;
@@ -161,17 +170,14 @@
     color 0.2s;
   user-select: none;
 }
-
 .storyprofile-chapters-title-tab.active {
   background: #e1e6f5;
   color: #1890ff;
 }
 
 .storyprofile-chapters-list {
-  padding: 8px 0;
-  background-color: #fff;
   border: 1px solid #e1e6f5;
-  box-shadow: none;
+  border-radius: 8px;
 }
 
 .storyprofile-chapter-row {
@@ -182,64 +188,132 @@
   font-size: 16px;
   color: #283157;
   transition: background 0.2s;
-  cursor: pointer;
-  border-radius: 6px;
-  position: relative;
+  border-bottom: 1px solid #f0f0f0;
 }
-
+.storyprofile-chapters-list .storyprofile-chapter-row:last-child {
+  border-bottom: none;
+}
 .storyprofile-chapter-row:hover {
-  background: #e1e6f5;
+  background: #f1f3fa;
 }
 
 .storyprofile-chapter-name {
   font-weight: 500;
   flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 16px;
 }
 
 .storyprofile-chapter-actions {
   display: flex;
   align-items: center;
   gap: 18px;
+}
+
+.storyprofile-chapter-edit,
+.storyprofile-chapter-delete {
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  opacity: 0;
   pointer-events: none;
 }
 
 .storyprofile-chapter-row:hover .storyprofile-chapter-edit,
-.storyprofile-chapter-row:hover .storyprofile-chapter-hidden,
 .storyprofile-chapter-row:hover .storyprofile-chapter-delete {
   opacity: 1;
   pointer-events: auto;
 }
 
-.storyprofile-chapter-hidden {
-  color: #faad14;
-  font-weight: 600;
-  margin-right: 8px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-  opacity: 0;
-}
-
 .storyprofile-chapter-edit {
   color: #2962ff;
-  font-weight: 600;
-  margin-right: 8px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-  opacity: 0;
 }
-
 .storyprofile-chapter-delete {
   color: #fa4d4f;
-  font-weight: 600;
-  margin-right: 8px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-  opacity: 0;
 }
-
 .storyprofile-chapter-date {
   color: #515fa0;
   font-size: 15px;
-  font-weight: 500;
-  margin-left: 8px;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .writerstoryprofile-page {
+    --sidebar-width: 64px;
+  }
+}
+
+@media (max-width: 768px) {
+  .writerstoryprofile-content {
+    padding: 12px;
+  }
+  .writerstoryprofile-header {
+    padding: 0 16px;
+  }
+  .writerstoryprofile-create-btn {
+    font-size: 0;
+    padding: 0 8px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 50%;
+    background: #1890ff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .writerstoryprofile-create-btn span {
+    display: none !important;
+  }
+  .writerstoryprofile-create-btn::before {
+    content: '+';
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    display: block;
+  }
+  .storyprofile-content-box {
+    padding: 16px;
+    margin-top: 60px;
+  }
+  .storyprofile-main-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  .storyprofile-cover {
+    width: 150px;
+    height: 200px;
+  }
+  .storyprofile-info {
+    align-items: center;
+    text-align: center;
+  }
+  .storyprofile-stats-box {
+    margin-top: 24px;
+  }
+  .storyprofile-chapter-row {
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    gap: 8px;
+  }
+  .storyprofile-chapter-name {
+    width: 100%;
+    margin-right: 0;
+  }
+  .storyprofile-chapter-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .storyprofile-chapter-edit,
+  .storyprofile-chapter-delete {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .storyprofile-chapter-date {
+    display: none !important;
+  }
 }

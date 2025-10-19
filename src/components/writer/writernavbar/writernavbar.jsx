@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Layout, Button, Avatar, Tooltip } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -17,13 +17,25 @@ const WriterNavbar = () => {
   const user = useContext(UserContext);
   const navigate = useNavigate();
 
+  const [collapsed, setCollapsed] = useState(window.innerWidth < 900);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setCollapsed(window.innerWidth < 900);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   return (
     <Sider
       className="writer-sider"
       width={220}
-      collapsedWidth={220}
-      collapsible={false}
-      trigger={null}
+      collapsed={collapsed}
+      collapsedWidth={64} // 确保折叠宽度和 CSS 对应
     >
       <div className="writer-navbar-header">
         <Button
@@ -34,50 +46,59 @@ const WriterNavbar = () => {
           onClick={() => navigate('/')}
         />
       </div>
+
       <div className="writer-navbar-menu">
-        <Tooltip title="Dashboard" placement="right" overlayClassName="writer-navbar-tooltip">
+        <Tooltip
+          title={collapsed ? 'Dashboard' : ''}
+          placement="right"
+          overlayClassName="writer-navbar-tooltip"
+        >
           <Button
             type="text"
             icon={<DashboardOutlined />}
             className="writer-navbar-btn"
             block
             size="large"
-            style={{
-              justifyContent: 'flex-start',
-            }}
             onClick={() => navigate('/writerdashboard')}
           >
-            <span>Dashboard</span>
+            {/* 修改点：当不折叠时才渲染文字 */}
+            {!collapsed && 'Dashboard'}
           </Button>
         </Tooltip>
-        <Tooltip title="Workspace" placement="right" overlayClassName="writer-navbar-tooltip">
+
+        <Tooltip
+          title={collapsed ? 'Workspace' : ''}
+          placement="right"
+          overlayClassName="writer-navbar-tooltip"
+        >
           <Button
             type="text"
             icon={<AppstoreOutlined />}
             className="writer-navbar-btn"
             block
             size="large"
-            style={{
-              justifyContent: 'flex-start',
-            }}
             onClick={() => navigate('/writerworkspace')}
           >
-            <span>Workspace</span>
+            {/* 修改点：当不折叠时才渲染文字 */}
+            {!collapsed && 'Workspace'}
           </Button>
         </Tooltip>
-        <Tooltip title="Promote" placement="right" overlayClassName="writer-navbar-tooltip">
+
+        <Tooltip
+          title={collapsed ? 'Interaction' : ''}
+          placement="right"
+          overlayClassName="writer-navbar-tooltip"
+        >
           <Button
             type="text"
             icon={<RocketOutlined />}
             className="writer-navbar-btn"
             block
             size="large"
-            style={{
-              justifyContent: 'flex-start',
-            }}
             onClick={() => navigate('/writerinteraction')}
           >
-            <span>Interaction</span>
+            {/* 修改点：当不折叠时才渲染文字 */}
+            {!collapsed && 'Interaction'}
           </Button>
         </Tooltip>
       </div>
@@ -89,7 +110,8 @@ const WriterNavbar = () => {
           icon={<UserOutlined />}
           className="writer-navbar-avatar"
         />
-        <span className="writer-navbar-username">{user.username}</span>
+        {/* 修改点：当不折叠时才渲染用户名 */}
+        {!collapsed && <span className="writer-navbar-username">{user.username}</span>}
       </div>
     </Sider>
   );

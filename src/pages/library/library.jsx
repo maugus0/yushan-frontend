@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Button, Typography } from 'antd';
+import { useCallback, useEffect, useState, useRef } from 'react';
+import { Button, Typography, Modal, Spin } from 'antd';
 import { EditOutlined, CheckCircleFilled, RightOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import './library.css';
@@ -8,45 +8,96 @@ import historyService from '../../services/history';
 
 const { Title, Text } = Typography;
 
-const PAGE_SIZE = 1000;
+const PAGE_SIZE = 5;
 
 const Library = () => {
   const [editMode, setEditMode] = useState(false);
   const [novels, setNovels] = useState([]);
+  const [novelsPage, setNovelsPage] = useState(0);
+  const [novelsHasMore, setNovelsHasMore] = useState(true);
   const [selectedIds, setSelectedIds] = useState([]);
   const [tab, setTab] = useState('library');
   const [historyList, setHistoryList] = useState([]);
+  const [historyPage, setHistoryPage] = useState(0);
+  const [historyHasMore, setHistoryHasMore] = useState(true);
+  const [errorModal, setErrorModal] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [listLoading, setListLoading] = useState(false);
   const navigate = useNavigate();
-
-  const fetchLibraryData = useCallback(async () => {
-    const filters = {
-      size: PAGE_SIZE,
-      page: 0,
-    };
-    const novels = await libraryService.getLibraryNovels(filters);
-    setNovels(novels.data.content);
-  }, []);
-
-  const fetchHistoryData = useCallback(async () => {
-    const filters = {
-      size: PAGE_SIZE,
-      page: 0,
-    };
-    const historynovels = await historyService.getHistoryNovels(filters);
-    setHistoryList(historynovels.content);
-  }, []);
+  const observer = useRef();
 
   useEffect(() => {
-    if (tab === 'library') {
-      fetchLibraryData();
-    }
-  }, [tab, fetchLibraryData]);
+    setNovels([]);
+    setNovelsPage(0);
+    setNovelsHasMore(true);
+    setHistoryList([]);
+    setHistoryPage(0);
+    setHistoryHasMore(true);
+    setLoading(true);
+  }, [tab]);
 
   useEffect(() => {
-    if (tab === 'history') {
-      fetchHistoryData();
-    }
-  }, [tab, fetchHistoryData]);
+    if (tab !== 'library') return;
+    const fetchLibraryData = async () => {
+      setListLoading(true);
+      try {
+        const filters = { size: PAGE_SIZE, page: novelsPage };
+        const novelsRes = await libraryService.getLibraryNovels(filters);
+        const content = novelsRes.data.content || [];
+        setNovels((prev) => (novelsPage === 0 ? content : [...prev, ...content]));
+        setNovelsHasMore(content.length === PAGE_SIZE);
+        console.log('Fetched library novels:', content);
+      } catch (error) {
+        setErrorMsg(error.message || 'Failed to load library.');
+        setErrorModal(true);
+      } finally {
+        setLoading(false);
+        setListLoading(false);
+      }
+    };
+    fetchLibraryData();
+  }, [tab, novelsPage]);
+
+  useEffect(() => {
+    if (tab !== 'history') return;
+    const fetchHistoryData = async () => {
+      setListLoading(true);
+      try {
+        const filters = { size: PAGE_SIZE, page: historyPage };
+        const historyRes = await historyService.getHistoryNovels(filters);
+        const content = historyRes.content || [];
+        setHistoryList((prev) => (historyPage === 0 ? content : [...prev, ...content]));
+        setHistoryHasMore(content.length === PAGE_SIZE);
+      } catch (error) {
+        setErrorMsg(error.message || 'Failed to load history.');
+        setErrorModal(true);
+      } finally {
+        setLoading(false);
+        setListLoading(false);
+      }
+    };
+    fetchHistoryData();
+  }, [tab, historyPage]);
+
+  const lastElementRef = useCallback(
+    (node) => {
+      if (listLoading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          if (tab === 'library' && novelsHasMore) {
+            setNovelsPage((prevPage) => prevPage + 1);
+          }
+          if (tab === 'history' && historyHasMore) {
+            setHistoryPage((prevPage) => prevPage + 1);
+          }
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [listLoading, novelsHasMore, historyHasMore, tab]
+  );
 
   const handleEdit = () => {
     setEditMode(true);
@@ -64,29 +115,179 @@ const Library = () => {
     );
   };
 
-  const handleRemove = () => {
-    const deleteNovelsFromLibrary = async (ids) => {
-      await Promise.all(ids.map((id) => libraryService.deleteNovelFromLibrary(id)));
-      await fetchLibraryData();
+  const handleRemove = async () => {
+    try {
+      await Promise.all(selectedIds.map((id) => libraryService.deleteNovelFromLibrary(id)));
+
+      setNovels((prev) => prev.filter((novel) => !selectedIds.includes(novel.novelId)));
+
       setEditMode(false);
       setSelectedIds([]);
-    };
-    deleteNovelsFromLibrary(selectedIds);
+    } catch (error) {
+      setErrorMsg(error.message || 'Failed to remove novels.');
+      setErrorModal(true);
+    }
   };
 
   const handleDelete = async (historyId) => {
-    await historyService.deleteHistoryById(historyId);
-    fetchHistoryData();
+    try {
+      await historyService.deleteHistoryById(historyId);
+      setHistoryList((prev) => prev.filter((item) => (item.historyId || item.id) !== historyId));
+    } catch (error) {
+      setErrorMsg(error.message || 'Failed to delete history.');
+      setErrorModal(true);
+    }
   };
 
   const handleClearHistory = async () => {
-    await historyService.clearHistory();
-    fetchHistoryData();
+    try {
+      await historyService.clearHistory();
+      setHistoryList([]);
+      setHistoryHasMore(false);
+    } catch (error) {
+      setErrorMsg(error.message || 'Failed to clear history.');
+      setErrorModal(true);
+    }
   };
 
   const isValidBase64Url = (url) => {
-    // 检查是否以data:image/jpeg;base64,或data:image/png;base64,等开头
     return /^data:image\/(jpeg|png|jpg|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(url);
+  };
+
+  const renderLibraryList = () => {
+    if (loading)
+      return (
+        <div className="loading-container">
+          <Spin size="large" />
+        </div>
+      );
+    if (novels.length === 0) return <div className="no-data-container">No data.</div>;
+
+    return (
+      <>
+        <div className="library-novel-list">
+          {novels.map((novel, index) => {
+            const isLastElement = novels.length === index + 1;
+            return (
+              <div
+                ref={isLastElement ? lastElementRef : null}
+                className="library-novel-card"
+                key={novel.novelId}
+                onClick={
+                  editMode
+                    ? () => handleSelect(novel.novelId)
+                    : () => navigate(`/read/${novel.novelId}/${novel.chapterNumber}`)
+                }
+              >
+                <div className="library-novel-img-wrapper">
+                  <img
+                    src={
+                      novel.novelCover && isValidBase64Url(novel.novelCover)
+                        ? novel.novelCover
+                        : require('../../assets/images/novel_default.png')
+                    }
+                    alt={novel.novelTitle}
+                    className="library-novel-img"
+                  />
+                  {editMode && (
+                    <div className="library-novel-mask">
+                      <span
+                        className={`library-novel-check ${selectedIds.includes(novel.novelId) ? 'checked' : ''}`}
+                      >
+                        <CheckCircleFilled />
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="library-novel-title">{novel.novelTitle}</div>
+                <div className="library-novel-progress">
+                  <Text type="secondary">
+                    Progress {novel.chapterNumber}/{novel.chapterCnt}
+                  </Text>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {listLoading && (
+          <div className="loading-container">
+            <Spin />
+          </div>
+        )}
+      </>
+    );
+  };
+
+  const renderHistoryList = () => {
+    if (loading)
+      return (
+        <div className="loading-container">
+          <Spin size="large" />
+        </div>
+      );
+    if (historyList.length === 0) return <div className="no-data-container">No data.</div>;
+
+    return (
+      <>
+        <div className="history-chapters-list">
+          {historyList.map((item, index) => {
+            const isLastElement = historyList.length === index + 1;
+            return (
+              <div
+                ref={isLastElement ? lastElementRef : null}
+                className="history-chapter-row hoverable-history-row"
+                key={item.historyId || item.id}
+                onClick={() => navigate(`/read/${item.novelId}/${item.chapterNumber}`)}
+              >
+                <div className="history-chapter-content">
+                  <img
+                    src={
+                      item.novelCover && isValidBase64Url(item.novelCover)
+                        ? item.novelCover
+                        : require('../../assets/images/novel_default.png')
+                    }
+                    alt={item.novelTitle}
+                    className="history-novel-cover"
+                  />
+                  <div className="history-details">
+                    <div className="history-novel-title">{item.novelTitle}</div>
+                    <div className="history-novel-info">
+                      {item.categoryName && <span>[{item.categoryName}]</span>}
+                      {item.novelAuthor && <span>by {item.novelAuthor}</span>}
+                    </div>
+                  </div>
+                  <div className="history-progress">
+                    <span>
+                      Progress: {item.chapterNumber}/{item.chapterCnt}
+                    </span>
+                  </div>
+                </div>
+                <span className="history-arrow">
+                  <RightOutlined />
+                </span>
+                <Button
+                  className="history-delete-btn"
+                  size="small"
+                  type="primary"
+                  danger
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(item.historyId || item.id);
+                  }}
+                >
+                  Delete
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+        {listLoading && (
+          <div className="loading-container">
+            <Spin />
+          </div>
+        )}
+      </>
+    );
   };
 
   return (
@@ -125,8 +326,7 @@ const Library = () => {
           <Button
             type="text"
             className="library-edit-btn"
-            onClick={() => handleClearHistory()}
-            style={{ marginLeft: 12 }}
+            onClick={handleClearHistory}
             icon={<EditOutlined />}
           >
             CLEAR ALL HISTORY
@@ -135,286 +335,43 @@ const Library = () => {
       </div>
       <div className="library-tab-bar">
         <div
-          className={`library-tab${tab === 'library' ? ' active' : ''}`}
+          className={`library-tab ${tab === 'library' ? 'active' : ''}`}
           onClick={() => setTab('library')}
         >
           Library
         </div>
         <div
-          className={`library-tab${tab === 'history' ? ' active' : ''}`}
+          className={`library-tab ${tab === 'history' ? 'active' : ''}`}
           onClick={() => setTab('history')}
         >
           History
         </div>
       </div>
       <div className="library-main-container">
-        {tab === 'library' ? (
-          <>
-            <div className="library-novel-list">
-              {novels.length === 0 ? (
-                <div
-                  style={{
-                    width: '100%',
-                    textAlign: 'center',
-                    color: '#aaa',
-                    padding: '32px 0',
-                    fontSize: 16,
-                    background: '#fff',
-                    borderRadius: 8,
-                    border: '1px solid #e1e6f5',
-                  }}
-                >
-                  No data.
-                </div>
-              ) : (
-                novels.map((novel) => (
-                  <div
-                    className="library-novel-card"
-                    key={novel.novelId}
-                    style={{ cursor: editMode ? 'pointer' : 'pointer' }}
-                    onClick={
-                      editMode
-                        ? () => handleSelect(novel.novelId)
-                        : () => navigate(`/read/${novel.novelId}/${novel.chapterNumber}`)
-                    }
-                  >
-                    <div className="library-novel-img-wrapper" style={{ position: 'relative' }}>
-                      <img
-                        src={
-                          novel.novelCover && isValidBase64Url(novel.novelCover)
-                            ? novel.novelCover
-                            : require('../../assets/images/novel_default.png')
-                        }
-                        alt={novel.novelTitle}
-                        className="library-novel-img"
-                        width={140}
-                        height={186}
-                        style={
-                          novel.novelCover && isValidBase64Url(novel.novelCover)
-                            ? undefined
-                            : {
-                                objectFit: 'cover',
-                                objectPosition: 'center',
-                                borderRadius: 8,
-                                transform: 'scale(1.1)',
-                                background: '#f5f5f5',
-                              }
-                        }
-                      />
-                      {editMode && (
-                        <div
-                          className="library-novel-mask"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSelect(novel.novelId);
-                          }}
-                          style={{
-                            cursor: 'pointer',
-                            background: selectedIds.includes(novel.novelId)
-                              ? 'rgba(81,95,160,0.18)'
-                              : 'rgba(40,49,87,0.18)',
-                          }}
-                        >
-                          <span
-                            className={`library-novel-check${selectedIds.includes(novel.novelId) ? ' checked' : ''}`}
-                          >
-                            <CheckCircleFilled />
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="library-novel-title">{novel.novelTitle}</div>
-                    <div className="library-novel-progress">
-                      <Text type="secondary">
-                        Progress {novel.chapterNumber}/{novel.chapterCnt}
-                      </Text>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </>
-        ) : (
-          <div className="history-chapters-list-box">
-            <div className="history-chapters-list">
-              {historyList.length === 0 ? (
-                <div
-                  style={{
-                    textAlign: 'center',
-                    color: '#aaa',
-                    padding: '32px 0',
-                    width: '100%',
-                    fontSize: 16,
-                    background: '#fff',
-                    borderRadius: 8,
-                    border: '1px solid #e1e6f5',
-                  }}
-                >
-                  No data.
-                </div>
-              ) : (
-                historyList.map((item) => (
-                  <div
-                    className="history-chapter-row hoverable-history-row"
-                    key={item.historyId || item.id}
-                    style={{
-                      background: '#fff',
-                      borderRadius: 10,
-                      margin: '16px 0',
-                      boxShadow: '0 2px 8px rgba(81,95,160,0.06)',
-                      padding: 0,
-                      position: 'relative',
-                      cursor: 'pointer',
-                      transition: 'box-shadow 0.2s, transform 0.2s',
-                    }}
-                    onClick={() => navigate(`/read/${item.novelId}/${item.chapterNumber}`)}
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        navigate(`/read/${item.novelId}/${item.chapterNumber}`);
-                      }
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 24,
-                        padding: 18,
-                        width: '100%',
-                      }}
-                    >
-                      <img
-                        src={
-                          item.novelCover && isValidBase64Url(item.novelCover)
-                            ? item.novelCover
-                            : require('../../assets/images/novel_default.png')
-                        }
-                        alt={item.novelTitle}
-                        style={{
-                          width: 80,
-                          height: 110,
-                          objectFit: 'cover',
-                          objectPosition: 'center',
-                          borderRadius: 8,
-                          boxShadow: '0 2px 8px rgba(81,95,160,0.10)',
-                          background: '#f5f5f5',
-                          flexShrink: 0,
-                          pointerEvents: 'none',
-                          transform: 'scale(1.0)',
-                        }}
-                      />
-                      <div
-                        style={{
-                          flex: 1,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'center',
-                          pointerEvents: 'none',
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                          }}
-                        >
-                          <div>
-                            <div
-                              style={{
-                                fontWeight: 700,
-                                fontSize: 18,
-                                color: '#283157',
-                                marginBottom: 4,
-                              }}
-                            >
-                              {item.novelTitle}
-                            </div>
-                            <div style={{ fontSize: 14, color: '#888', marginBottom: 4 }}>
-                              {item.categoryName ? (
-                                <span style={{ color: '#515fa0' }}>[{item.categoryName}]</span>
-                              ) : null}
-                              {item.novelAuthor ? (
-                                <span style={{ marginLeft: 8 }}>by {item.novelAuthor}</span>
-                              ) : null}
-                            </div>
-                            {item.synopsis && (
-                              <div style={{ fontSize: 13, color: '#aaa', marginBottom: 2 }}>
-                                {item.synopsis}
-                              </div>
-                            )}
-                          </div>
-                          <div
-                            style={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'flex-end',
-                              minWidth: 120,
-                              marginRight: 24,
-                            }}
-                          >
-                            <span
-                              style={{
-                                color: '#515fa0',
-                                fontWeight: 500,
-                                fontSize: 15,
-                                marginRight: 16,
-                              }}
-                            >
-                              Progress: {item.chapterNumber}/{item.chapterCnt}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div style={{ width: 32, pointerEvents: 'none' }} />
-                    </div>
-                    <span
-                      className="history-arrow"
-                      style={{
-                        position: 'absolute',
-                        right: 64,
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        transition: 'transform 0.2s',
-                        cursor: 'pointer',
-                        pointerEvents: 'none',
-                      }}
-                    >
-                      <RightOutlined />
-                    </span>
-                    <Button
-                      className="history-delete-btn"
-                      size="small"
-                      type="primary"
-                      danger
-                      style={{
-                        position: 'absolute',
-                        right: 12,
-                        bottom: 12,
-                        zIndex: 3,
-                        fontSize: 12,
-                        height: 22,
-                        lineHeight: '20px',
-                        padding: '0 10px',
-                        minWidth: 0,
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(item.historyId || item.id);
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
+        {tab === 'library' ? renderLibraryList() : renderHistoryList()}
       </div>
+      <Modal /* Error Modal */
+        open={errorModal}
+        onCancel={() => setErrorModal(false)}
+        footer={[
+          <Button key="confirm" type="primary" onClick={() => setErrorModal(false)}>
+            Confirm
+          </Button>,
+        ]}
+        centered
+        closable={false}
+        maskClosable={false}
+        style={{ textAlign: 'center' }}
+      >
+        <div className="error-modal-content">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="12" fill="#ff4d4f" />
+            <path d="M12 7v5" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+            <circle cx="12" cy="16" r="1.2" fill="#fff" />
+          </svg>
+          {errorMsg}
+        </div>
+      </Modal>
     </div>
   );
 };
