@@ -710,6 +710,7 @@ export default function NovelDetailPage() {
                   className="novel-chapter-btn"
                   onClick={() => handleJumpToChapter(ch.chapterId, ch.chapterNumber)}
                 >
+                  <span className="chapter-number-label">{`Chapter ${ch.chapterNumber}: `}</span>
                   {ch.title}
                 </Button>
               </Tooltip>

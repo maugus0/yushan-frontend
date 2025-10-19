@@ -182,8 +182,6 @@
   color: #808080;
 }
 
-/* ...existing code... */
-
 /* Report modal styles */
 .report-modal .ant-modal-title,
 .report-modal-title {
@@ -331,6 +329,14 @@
   flex-wrap: wrap;
   gap: 9px 20px;
   margin-bottom: 18px;
+  max-width: 500px; /* 2 * 120px + gap */
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  overflow-x: visible;
+  margin-left: 0;
+  margin-right: 0;
+  box-sizing: border-box;
 }
 .novel-chapter-btn {
   font-size: 1rem;
@@ -354,7 +360,11 @@
   .novel-header {
     flex-direction: column;
     gap: 18px;
-    padding: 20px 10px 12px 10px;
+    padding: 20px 6px 12px 6px;
+  }
+  .novel-header-main {
+    padding: 0 2px;
+    gap: 10px;
   }
   .novel-title {
     font-size: 1.4rem;
@@ -367,92 +377,115 @@
   }
   .novel-meta-combined {
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 10px;
+    font-size: 0.98rem;
   }
-}
-
-/* Chapter pagination styles */
-.chapter-pagination-bottom {
-  margin: 32px 0 16px 0;
-  display: flex;
-  justify-content: center;
-}
-
-.chapter-count {
-  font-size: 14px;
-  font-weight: normal;
-  color: #666;
-  margin-left: 8px;
-}
-
-/* Custom styling for chapter range text */
-.chapter-range-text {
-  font-weight: 700;
-  color: #1677ff;
-  font-size: 14px;
-  margin-right: 24px;
-}
-
-/* Update chapter list to two columns */
-.novel-chapter-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px 16px;
-  margin-bottom: 18px;
-  max-height: none;
-}
-
-.novel-chapter-btn {
-  text-align: left;
-  justify-content: flex-start;
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-  font-size: 1rem;
-  color: #585a5f;
-  min-width: auto;
-}
-
-.novel-chapter-btn:hover {
-  background-color: #eaf3ff;
-  color: #1677ff;
-}
-
-/* Style the pagination quick jumper */
-:global(.ant-pagination-options-quick-jumper) {
-  font-weight: 600;
-}
-
-:global(.ant-pagination-options-quick-jumper input) {
-  font-weight: 600;
-  border-radius: 4px;
-}
-
-/* Add spacing between total and quick jumper */
-:global(.ant-pagination-total-text) {
-  margin-right: 24px !important;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .chapter-pagination-top .ant-pagination,
-  .chapter-pagination-bottom .ant-pagination {
-    font-size: 12px;
+  .novel-buttons-section {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+    width: 100%;
   }
-
+  .novel-add-btn,
+  .novel-read-btn {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    margin-right: 0;
+    margin-left: 0;
+  }
+  .report-button {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    margin-right: 0;
+    margin-left: 0;
+    text-align: left;
+    justify-content: flex-start;
+  }
+  .novel-rankings-buttons-container {
+    margin-top: 8px;
+    width: 100%;
+  }
   .novel-chapter-list {
-    grid-template-columns: 1fr;
-    gap: 4px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
-
   .novel-chapter-btn {
-    padding: 12px 16px;
-    font-size: 14px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    text-align: left;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    box-sizing: border-box;
+    display: block;
   }
+}
 
-  .chapter-range-text {
-    margin-right: 16px;
-    font-size: 12px;
+/* Vote button and vote bar mobile fix */
+@media (max-width: 700px) {
+  .power-status-vote {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px 4px;
+  }
+  .vote-item {
+    margin-right: 0 !important;
+    justify-content: flex-start;
+  }
+  .vote-button-container {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+  }
+  .vote-button {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    padding: 14px 0 !important;
+    font-size: 1.1rem;
+    border-radius: 18px;
+    box-sizing: border-box;
+  }
+}
+
+/* Review card like/edit/delete buttons mobile fix */
+@media (max-width: 700px) {
+  .review-card {
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 8px;
+  }
+  .review-content {
+    width: 100%;
+    min-width: 0;
+  }
+  .review-header {
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 1rem;
+  }
+  .chapter-comment-like-btn {
+    min-width: 44px;
+    padding: 0 6px;
+    font-size: 1rem;
+  }
+  .review-card .ant-btn {
+    min-width: 36px;
+    padding: 0 4px;
+  }
+}
+
+/* Pagination mobile fix */
+@media (max-width: 700px) {
+  .review-pagination {
+    padding-bottom: 0;
+    margin-top: 10px;
   }
 }
