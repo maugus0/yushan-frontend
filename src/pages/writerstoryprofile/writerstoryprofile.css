@@ -313,4 +313,7 @@
     opacity: 1;
     pointer-events: auto;
   }
+  .storyprofile-chapter-date {
+    display: none !important;
+  }
 }

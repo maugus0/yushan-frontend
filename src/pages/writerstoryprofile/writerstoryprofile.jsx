@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Button, Modal, Spin } from 'antd';
+import { Button, Modal, Spin, message } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import WriterNavbar from '../../components/writer/writernavbar/writernavbar';
 import './writerstoryprofile.css';
@@ -110,6 +110,7 @@ const WriterStoryProfile = () => {
       setChaptersData((prev) => prev.filter((chapter) => chapter.uuid !== deleteModal.idx));
       setStory((prev) => ({ ...prev, chapterCnt: prev.chapterCnt - 1 }));
       setDeleteModal({ visible: false, idx: null });
+      message.success('Successfully deleted!', 3);
     } catch (error) {
       setErrorMsg(error.message || 'Failed to delete chapter.');
       setErrorModal(true);
