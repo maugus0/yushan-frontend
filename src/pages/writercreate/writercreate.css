@@ -1,29 +1,39 @@
+/* 1. Define CSS variables for the page layout */
 .writercreate-page {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  background: #f7f8fa;
+  /* Default sidebar width */
+  --sidebar-width: 220px;
 }
 
 .writercreate-content {
   flex: 1;
-  padding: 32px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-left: 220px;
+  /* 2. Use the variable for dynamic layout */
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.2s;
+  overflow-y: auto; /* Allow content to scroll */
 }
 
-.writercreate-header-row {
+.writercreate-header {
   display: flex;
+  align-items: center;
+  gap: 16px;
   position: fixed;
   top: 0;
-  left: 220px;
+  /* 2. Use the variable here too */
+  left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
   height: 60px;
   background: #fff;
-  align-items: center;
-  width: calc(100% - 220px);
   border-bottom: 1px solid #e1e6f5;
   z-index: 101;
   padding: 0 32px;
+  transition:
+    left 0.2s,
+    width 0.2s;
 }
 
 .writercreate-back-btn {
@@ -37,96 +47,35 @@
   color: #283157;
 }
 
-.writercreate-form {
+.writercreate-form-container {
   width: 100%;
+  max-width: 900px;
+  margin: 60px auto 0 auto; /* Space for header, centered */
+  padding: 32px;
+}
+
+.writercreate-form {
   background: #fff;
   border-radius: 12px;
   border: 1px solid #e1e6f5;
-  margin-top: 60px;
-  padding: 32px 32px 24px 32px;
+  padding: 32px;
 }
 
 .writercreate-form-title {
   display: flex;
   align-items: center;
+  gap: 8px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: #283157;
-  margin-bottom: 18px;
-  margin-top: 8px;
-  max-width: 480px;
-  width: 100%;
+  margin-bottom: 24px;
 }
 
-.writercreate-cover-upload {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.writercreate-cover-box {
-  width: 120px;
-  height: 160px;
-  border: 2px dashed #e1e6f5;
-  border-radius: 8px;
-  background: #f1f3fa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-
-.writercreate-cover-plus {
-  font-size: 32px;
-  color: #1890ff;
-}
-
-.writercreate-cover-img {
-  width: 120px;
-  height: 160px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.writercreate-type-select {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.writercreate-type-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.writercreate-type-tag {
-  font-size: 15px;
-  padding: 4px 16px;
-  border-radius: 999px;
-  font-weight: 500;
-  background: #f1f3fa;
-  border: none;
-}
-
-.writercreate-type-dropdown {
-  padding: 8px 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  background: #fff;
-}
-
-.writercreate-type-dropdown-tag {
-  font-size: 15px;
-  padding: 4px 16px;
-  border-radius: 999px;
-  font-weight: 500;
-  background: #f1f3fa;
-  border: none;
+/* Ant Design Upload component override */
+.writercreate-cover-uploader .ant-upload-select {
+  width: 120px !important;
+  height: 160px !important;
+  border-radius: 8px !important;
 }
 
 .writercreate-submit-btn {
@@ -136,4 +85,76 @@
   font-weight: 600;
   border-radius: 8px;
   margin-top: 12px;
+}
+
+/* Modal Styles */
+.cropper-container {
+  position: relative;
+  width: 100%;
+  height: 320px;
+}
+
+.cropper-controls {
+  margin-top: 16px;
+  font-size: 13px;
+  color: #888;
+}
+.cropper-controls .ant-slider {
+  margin-top: 8px;
+}
+
+.success-modal-content,
+.error-modal-content {
+  text-align: center;
+  padding: 24px 0;
+}
+.success-modal-content h2 {
+  color: #52c41a;
+}
+.success-modal-content p {
+  font-size: 16px;
+  color: #283157;
+  margin-bottom: 24px;
+}
+.error-message-box {
+  color: #cf1322;
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+  border-radius: 8px;
+  padding: 18px 16px;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 12px rgba(255, 77, 79, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.error-modal-content .ant-btn,
+.success-modal-content .ant-btn {
+  min-width: 120px;
+}
+
+/* 3. Media Query: Adapt to Collapsed Navbar */
+@media (max-width: 900px) {
+  .writercreate-page {
+    /* Update the variable, and the layout adapts! */
+    --sidebar-width: 64px;
+  }
+}
+
+/* 4. Media Query: Adapt to Mobile Screens */
+@media (max-width: 768px) {
+  .writercreate-header {
+    padding: 0 16px;
+  }
+
+  .writercreate-form-container {
+    padding: 16px;
+  }
+
+  .writercreate-form {
+    padding: 24px 16px;
+  }
 }
