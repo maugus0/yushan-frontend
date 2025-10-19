@@ -134,16 +134,12 @@ export default function LeaderboardList({
 
   const renderNovelRow = (item, index) => {
     const rank = index + 1;
-    const id = item.id ?? item.uuid; // prefer numeric id for /api/novels/{id}
+    const id = item.id ?? item.uuid;
     const views = or(item.views, item.viewCnt);
     const votes = or(item.votes, item.voteCnt);
 
-    // If coverImgUrl/cover = /null/undefined，fallback to DEFAULT_NOVEL_COVER
     let coverSrc = item.coverImgUrl || item.cover;
-    if (!coverSrc) {
-      //console.log('Novel cover missing, using default:', id, item.title);
-      coverSrc = testImg;
-    }
+    if (!coverSrc) coverSrc = testImg;
 
     return (
       <div className="lb-row lb-row--novel" key={id || `novel-${index}`}>
@@ -172,6 +168,9 @@ export default function LeaderboardList({
             </div>
           )}
         </div>
+
+        {/* synopsis render */}
+        {item.synopsis && <div className="lb-cell lb-cell--synopsis">{item.synopsis}</div>}
 
         <div className="lb-cell lb-cell--content-line2">
           <span className="desc-item">
@@ -212,9 +211,7 @@ export default function LeaderboardList({
               Lv.{level} · {meta.title}
             </span>
             <span className="separator">•</span>
-            <span className="desc-item nowrap">
-              Experience Points: {xp?.toLocaleString?.() || 0}
-            </span>
+            <span className="desc-item nowrap">EXP: {xp?.toLocaleString?.() || 0}</span>
           </div>
         </div>
       </div>

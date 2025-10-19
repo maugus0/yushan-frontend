@@ -4,7 +4,7 @@ import './leaderboard-filters.css';
  * Single-row capsule filter bar.
  * - Label "FILTER"
  * - No reset button, no view toggles
- * - Novels: only "Most Popular (Views)" and "Most Voted (Votes)"
+ * - Novels: only "most Popular (Views)" and "Most Voted (Votes)"
  * - Writers: "By Books", "By Votes", "By Views"
  * - Hide sort group when hideSort = true (Readers)
  */
@@ -12,25 +12,31 @@ export default function LeaderboardFilters({ tab, query, onChange, hideSort = fa
   const timeOptions = [
     { key: 'weekly', label: 'Weekly' },
     { key: 'monthly', label: 'Monthly' },
-    { key: 'overall', label: 'Overall' },
+    { key: 'overall', label: 'Total' },
   ];
 
   const sortOptions =
     tab === 'novels'
       ? [
-          { key: 'views', label: 'Most Popular' },
-          { key: 'votes', label: 'Most Voted' },
+          { key: 'views', label: 'Popularity' },
+          { key: 'votes', label: 'Votes' },
         ]
       : tab === 'writers'
         ? [
-            { key: 'books', label: 'By Novels' },
-            { key: 'votes', label: 'By Votes' },
-            { key: 'views', label: 'By Views' },
+            { key: 'books', label: 'Novels' },
+            { key: 'votes', label: 'Votes' },
+            { key: 'views', label: 'Views' },
           ]
         : [];
 
+  // fallback: if invalid sortBy，automatically fallback to first option
+  let activeSortBy = query.sortBy;
+  if (!sortOptions.find((s) => s.key === activeSortBy)) {
+    activeSortBy = sortOptions.length > 0 ? sortOptions[0].key : '';
+  }
+
   return (
-    <div className="lb-filters-bar one-line">
+    <div className="lb-filters-bar responsive">
       <div className="lb-filter-group">
         <div className="lb-filter-title">FILTER:</div>
         <div className="lb-pills nowrap">
@@ -55,7 +61,7 @@ export default function LeaderboardFilters({ tab, query, onChange, hideSort = fa
               <button
                 key={s.key}
                 type="button"
-                className={`lb-pill${(query.sortBy || '') === s.key ? ' active' : ''}`}
+                className={`lb-pill${activeSortBy === s.key ? ' active' : ''}`}
                 onClick={() => onChange?.({ sortBy: s.key })}
               >
                 {s.label}
