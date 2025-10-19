@@ -1,6 +1,7 @@
 .writerinteraction-page {
   display: flex;
   height: 100vh;
+  --sidebar-width: 220px;
 }
 
 .writerinteraction-content {
@@ -9,45 +10,58 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-left: 220px;
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.2s;
+  overflow-y: auto;
 }
 
 .writerinteraction-header {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
+  gap: 16px;
   position: fixed;
   top: 0;
-  left: 220px;
-  width: calc(100% - 220px);
+  left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
   height: 60px;
   background: #fff;
   border-bottom: 1px solid #e1e6f5;
   z-index: 101;
   padding: 0 32px;
+  transition:
+    left 0.2s,
+    width 0.2s;
 }
 
 .writerinteraction-title {
   font-size: 24px;
   font-weight: 700;
   color: #283157;
-  display: flex;
-  align-items: center;
-  height: 60px;
-  margin-left: 0;
-  margin-top: 6px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.writerinteraction-select {
+  min-width: 200px;
+  max-width: 300px;
 }
 
 .writerinteraction-main {
   width: 100%;
   max-width: 1200px;
-  margin-top: 20px;
+  margin-top: 60px;
   background: #fff;
   border-radius: 12px;
-  padding: 32px 32px 24px 32px;
+  border: 1px solid #e1e6f5;
+  padding: 24px;
 }
 
-.writerinteraction-list-header-2 {
+.writerinteraction-tabs {
+  margin-bottom: 16px;
+}
+
+.writerinteraction-list-header {
   display: grid;
   grid-template-columns: 3fr 1fr;
   padding: 12px 24px;
@@ -56,46 +70,116 @@
   font-weight: 600;
   color: #515fa0;
   border-radius: 8px 8px 0 0;
-}
-
-.writerinteraction-filter-row {
-  margin-bottom: 0;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.writerinteraction-list-box {
-  margin-top: 24px;
+  border: 1px solid #e1e6f5;
+  border-bottom: none;
 }
 
 .writerinteraction-list-body {
   background: #fff;
   border-radius: 0 0 8px 8px;
   border: 1px solid #e1e6f5;
-  max-height: 520px;
-  overflow-y: auto;
 }
 
-.writerinteraction-list-row-2 {
+.writerinteraction-list-row {
   display: grid;
   grid-template-columns: 3fr 1fr;
-  align-items: center;
-  padding: 12px 24px;
+  align-items: start;
+  gap: 16px;
+  padding: 16px 24px;
   font-size: 16px;
   color: #283157;
   border-bottom: 1px solid #e1e6f5;
 }
 
-.writerinteraction-list-row-2:last-child {
-  border-bottom: none;
+.writerinteraction-list-content {
+  font-weight: 400;
+  word-break: break-word;
+  line-height: 1.6;
 }
 
-.writerinteraction-list-content {
-  font-weight: 500;
-  word-break: break-word;
+.comment-chapter-title {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+  color: #283157;
 }
 
 .writerinteraction-list-reader {
   color: #515fa0;
+  font-weight: 500;
+}
+
+.no-data-placeholder {
+  text-align: center;
+  color: #aaa;
+  padding: 48px 0;
+}
+
+.load-more-container {
+  text-align: center;
+  padding: 16px 0;
+}
+
+@media (max-width: 900px) {
+  .writerinteraction-page {
+    --sidebar-width: 64px;
+  }
+}
+
+@media (max-width: 768px) {
+  .writerinteraction-content {
+    padding: 12px;
+  }
+
+  .writerinteraction-header {
+    flex-direction: column;
+    height: auto;
+    padding: 12px 16px;
+    align-items: flex-start;
+  }
+
+  .writerinteraction-title {
+    font-size: 20px;
+  }
+
+  .writerinteraction-select {
+    width: 100%;
+    min-width: initial;
+    max-width: initial;
+  }
+
+  .writerinteraction-main {
+    padding: 16px;
+    margin-top: 100px;
+  }
+
+  .writerinteraction-list-header {
+    display: none;
+  }
+
+  .writerinteraction-list-body {
+    border: none;
+  }
+
+  .writerinteraction-list-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    border: 1px solid #e1e6f5;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .writerinteraction-list-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .writerinteraction-list-reader {
+    align-self: flex-end;
+    font-size: 14px;
+    padding-top: 8px;
+    border-top: 1px solid #f0f0f0;
+    width: 100%;
+    text-align: right;
+  }
 }

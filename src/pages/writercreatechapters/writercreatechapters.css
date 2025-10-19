@@ -1,33 +1,151 @@
+/* 1. Define CSS variables for the page layout */
 .writercreatechapters-page {
-  padding: 32px;
+  display: flex;
   min-height: 100vh;
-  background: #fff;
+  background: #f7f8fa;
+  /* Default sidebar width */
+  --sidebar-width: 220px;
 }
 
-.writercreatechapters-editor-container {
-  max-width: 1200px;
-  margin: 30px 0 0 220px;
-  background: #fff;
-  border-radius: 12px;
-  padding: 32px;
+/* Main content area that respects the sidebar */
+.writercreatechapters-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.2s;
 }
 
 .writercreatechapters-header {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   position: fixed;
   top: 0;
-  left: 220px;
+  /* 2. Use the variable for dynamic layout */
+  left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
   height: 60px;
   background: #fff;
-  align-items: center;
-  width: calc(100% - 220px);
   border-bottom: 1px solid #e1e6f5;
   z-index: 101;
   padding: 0 32px;
-  justify-content: space-between;
+  transition:
+    left 0.2s,
+    width 0.2s;
 }
 
 .writercreatechapters-back-btn {
   font-size: 16px;
   color: #515fa0;
+}
+
+/* Container for the editor and its inputs */
+.writercreatechapters-editor-area {
+  width: 100%;
+  max-width: 1200px;
+  margin: 60px auto 0 auto; /* Space for header, centered */
+  padding: 32px;
+}
+
+/* Flex container for the chapter number and name inputs */
+.chapter-meta-container {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 24px;
+  margin-bottom: 24px;
+  align-items: center;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column; /* Stack label on top of input */
+  gap: 8px;
+}
+
+.meta-label {
+  font-weight: 500;
+  color: #515fa0;
+  font-size: 14px;
+}
+
+.meta-input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #e1e6f5;
+  font-size: 15px;
+  background: #fdfdff;
+  width: 260px;
+  transition: border-color 0.2s;
+}
+.meta-input:focus {
+  outline: none;
+  border-color: #1890ff;
+}
+
+.meta-input.readonly {
+  background: #f1f3fa;
+  color: #888;
+  cursor: not-allowed;
+  width: 180px;
+}
+
+/* 3. Media Query: Adapt to Collapsed Navbar */
+@media (max-width: 900px) {
+  .writercreatechapters-page {
+    /* Update the variable, and the layout adapts! */
+    --sidebar-width: 64px;
+  }
+}
+
+/* 4. Media Query: Adapt to Mobile Screens */
+@media (max-width: 768px) {
+  .writercreatechapters-content {
+    /* Margin is already handled by the page container */
+  }
+
+  .writercreatechapters-header {
+    padding: 0 16px;
+  }
+
+  .writercreatechapters-publish-btn {
+    font-size: 0;
+    padding: 0 8px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 50%;
+    background: #1890ff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .writercreatechapters-publish-btn span {
+    display: none !important;
+  }
+  .writercreatechapters-publish-btn .anticon {
+    display: none !important;
+  }
+  .writercreatechapters-publish-btn::before {
+    content: '+';
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    display: block;
+  }
+
+  .writercreatechapters-editor-area {
+    padding: 16px;
+  }
+
+  /* Make input groups take full width and stack */
+  .input-group {
+    width: 100%;
+  }
+
+  .meta-input,
+  .meta-input.readonly {
+    width: 100%; /* Make inputs full-width */
+  }
 }

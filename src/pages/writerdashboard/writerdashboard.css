@@ -1,98 +1,120 @@
+/* 1. Define CSS variables for the page layout */
 .writerdashboard-page {
+  display: flex; /* Changed from default to flex for structure */
   min-height: 100vh;
-  background: #fff;
-  padding: 0;
+  background: #f7f8fa; /* Move background color here */
+  /* Default sidebar width */
+  --sidebar-width: 220px;
 }
 
 .writerdashboard-content {
-  margin-left: 220px;
-  padding: 32px 32px 0 32px;
-  min-height: 100vh;
-  background: #f7f8fa;
+  flex: 1; /* Allow content to grow */
+  padding: 32px;
+  /* 2. Use the variable for dynamic layout */
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.2s;
 }
 
 .writerdashboard-header {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
+  gap: 16px;
   position: fixed;
   top: 0;
-  left: 220px;
-  width: calc(100% - 220px);
+  /* 2. Use the variable here too */
+  left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
   height: 60px;
   background: #fff;
   border-bottom: 1px solid #e1e6f5;
   z-index: 101;
   padding: 0 32px;
+  transition:
+    left 0.2s,
+    width 0.2s;
 }
 
 .writerdashboard-title {
   font-size: 24px;
   font-weight: 700;
   color: #283157;
-  display: flex;
-  align-items: center;
-  height: 60px;
-  margin-left: 0;
-  margin-top: 6px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.writerdashboard-select {
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.writerdashboard-main {
+  width: 100%;
+  margin-top: 60px; /* Space for fixed header */
+}
+
+.no-data-placeholder {
+  text-align: center;
+  margin-top: 60px;
+  font-size: 22px;
+  color: #aaa;
 }
 
 .writerdashboard-novel-card {
   width: 100%;
-  margin-top: 80px;
-  margin-bottom: 24px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  min-height: 420px;
+  border: 1px solid #e1e6f5;
+  padding: 32px;
 }
 
-.writerdashboard-novel-info {
+.writerdashboard-cover-col {
   display: flex;
-  align-items: flex-start;
-  min-height: 220px;
+  justify-content: center;
+  align-items: center;
 }
 
 .writerdashboard-novel-cover {
-  width: 140px;
-  height: 190px;
+  width: 180px;
+  height: 240px;
   border-radius: 12px;
   object-fit: cover;
-  margin-right: 32px;
-  margin-left: 20px;
   box-shadow: 0 4px 24px rgba(81, 95, 160, 0.08);
 }
 
-.writerdashboard-novel-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
 .writerdashboard-novel-title {
-  margin-bottom: 8px !important;
-  text-align: left;
   font-size: 28px !important;
   font-weight: 700 !important;
   color: #283157;
+  margin-bottom: 8px !important;
+}
+
+.writerdashboard-tags {
+  margin-bottom: 16px;
 }
 
 .writerdashboard-novel-desc {
-  margin-bottom: 16px !important;
-  display: block;
-  text-align: left;
   font-size: 16px;
   color: #515fa0;
+  line-height: 1.6;
+  max-height: 6.4em; /* Approx 4 lines */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.writerdashboard-divider {
+  margin: 24px 0 !important;
 }
 
 .writerdashboard-novel-stat-item {
-  text-align: left;
-  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
 }
 
 .writerdashboard-novel-stat-value {
   font-size: 20px;
   color: #283157;
+  font-weight: 600;
 }
 
 .writerdashboard-novel-stat-label {
@@ -100,24 +122,69 @@
   color: #888;
 }
 
-.writerdashboard-charts-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 2%;
-  margin-bottom: 24px;
+/* 3. Media Query: Adapt to Collapsed Navbar */
+@media (max-width: 900px) {
+  .writerdashboard-page {
+    /* Update the variable, and the layout adapts! */
+    --sidebar-width: 64px;
+  }
 }
 
-.writerdashboard-chart-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
+/* 4. Media Query: Adapt to Mobile Screens */
+@media (max-width: 768px) {
+  .writerdashboard-content {
+    padding: 16px;
+  }
 
-.writerdashboard-chart-echarts {
-  width: 100%;
-  height: 280px;
-}
+  .writerdashboard-header {
+    flex-direction: column;
+    height: auto;
+    padding: 12px 16px;
+    align-items: flex-start;
+  }
 
-.writerdashboard-gender-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  .writerdashboard-title {
+    font-size: 20px;
+  }
+
+  .writerdashboard-select {
+    width: 100%;
+    min-width: initial;
+    max-width: initial;
+  }
+
+  .writerdashboard-main {
+    margin-top: 100px; /* Adjust for taller header */
+  }
+
+  .writerdashboard-novel-card {
+    padding: 24px 16px;
+  }
+
+  .writerdashboard-details-col,
+  .writerdashboard-cover-col {
+    text-align: center;
+  }
+
+  .writerdashboard-novel-cover {
+    width: 120px;
+    height: 160px;
+    margin-bottom: 16px;
+  }
+
+  .writerdashboard-novel-title {
+    font-size: 22px !important;
+  }
+
+  .writerdashboard-tags {
+    justify-content: center;
+  }
+
+  .writerdashboard-novel-desc {
+    text-align: left; /* Keep description text aligned left for readability */
+  }
+
+  .writerdashboard-novel-stat-item {
+    align-items: center; /* Center stat items on mobile */
+  }
 }
