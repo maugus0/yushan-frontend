@@ -90,12 +90,16 @@ export default function LeaderboardPage() {
 
   const [activeTab, setActiveTab] = useState(TAB_KEYS.NOVELS);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
-  const [catsOpen, setCatsOpen] = useState(true);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 700;
+  const [catsOpen, setCatsOpen] = useState(() => !isMobile); // mobile default closed
 
   // category damically from backend
   const [categories, setCategories] = useState([]);
   const [catSlugToId, setCatSlugToId] = useState({});
   const [catIdToCat, setCatIdToCat] = useState({});
+
+  // Add a derived state to indicate categories are loaded
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
 
   // fetch the BE category
   useEffect(() => {
@@ -112,10 +116,12 @@ export default function LeaderboardPage() {
         });
         setCatSlugToId(slugToId);
         setCatIdToCat(idToCat);
+        setCategoriesLoaded(true); // mark loaded
       } catch (e) {
         setCategories([]);
         setCatSlugToId({});
         setCatIdToCat({});
+        setCategoriesLoaded(true); // still mark loaded to avoid deadlock
       }
     }
     fetchCategories();
@@ -250,7 +256,7 @@ export default function LeaderboardPage() {
     const p = location.pathname;
     let nextTab = TAB_KEYS.NOVELS;
     let nextGenre = 'all';
-    let shouldOpenCats = true;
+    let shouldOpenCats = !isMobile; // mobile closed by default
 
     if (/(leaderboard|rankings)\/Readers/i.test(p)) {
       nextTab = TAB_KEYS.READERS;
@@ -262,11 +268,11 @@ export default function LeaderboardPage() {
       nextTab = TAB_KEYS.NOVELS;
       const slug = (params.category || extractUrlCategory(p) || '').trim();
       nextGenre = slug ? slug.toLowerCase() : 'all';
-      shouldOpenCats = true;
+      shouldOpenCats = !isMobile; // <-- keep mobile closed
     } else if (/(leaderboard|rankings)\/?$/i.test(p)) {
       nextTab = TAB_KEYS.NOVELS;
       nextGenre = 'all';
-      shouldOpenCats = true;
+      shouldOpenCats = !isMobile; // <-- keep mobile closed
       navigate('/rankings/Novel', { replace: true });
       return;
     }
@@ -274,8 +280,16 @@ export default function LeaderboardPage() {
     const savedTime = loadGlobalTimeRange() || DEFAULT_FILTERS.timeRange;
     let savedSort = null;
     if (nextTab === TAB_KEYS.NOVELS || nextTab === TAB_KEYS.WRITERS) {
-      savedSort = loadSortForTab(nextTab) || defaultSortFor(nextTab);
+      savedSort = loadSortForTab(nextTab);
+      // check validity
+      const validSorts =
+        nextTab === TAB_KEYS.NOVELS ? ['views', 'votes'] : ['books', 'votes', 'views'];
+      if (!savedSort || !validSorts.includes(savedSort)) {
+        savedSort = defaultSortFor(nextTab);
+      }
     }
+    if (nextTab === TAB_KEYS.NOVELS && !savedSort) savedSort = 'views';
+    if (nextTab === TAB_KEYS.WRITERS && !savedSort) savedSort = 'books';
 
     setActiveTab(nextTab);
     setCatsOpen(shouldOpenCats);
@@ -308,11 +322,18 @@ export default function LeaderboardPage() {
   const onFiltersChange = useCallback(
     (patch) => {
       const base = filtersRef.current;
-      const next = { ...base, ...patch };
+      let next = { ...base, ...patch };
 
       if (activeTab === TAB_KEYS.READERS) next.sortBy = 'levelxp';
-      if (activeTab === TAB_KEYS.NOVELS && !next.sortBy) next.sortBy = 'views';
-      if (activeTab === TAB_KEYS.WRITERS && !next.sortBy) next.sortBy = 'books';
+
+      if (activeTab === TAB_KEYS.NOVELS) {
+        const validSorts = ['views', 'votes'];
+        if (!next.sortBy || !validSorts.includes(next.sortBy)) next.sortBy = 'views';
+      }
+      if (activeTab === TAB_KEYS.WRITERS) {
+        const validSorts = ['books', 'votes', 'views'];
+        if (!next.sortBy || !validSorts.includes(next.sortBy)) next.sortBy = 'books';
+      }
 
       setFilters(next);
       pageRef.current = 1;
@@ -354,6 +375,8 @@ export default function LeaderboardPage() {
   // Initial load – pass timeRange & sortBy
   useEffect(() => {
     if (!urlInitializedRef.current || initialLoadDoneRef.current) return;
+    // Wait for categories to load if on novels tab
+    if (activeTab === TAB_KEYS.NOVELS && !categoriesLoaded) return;
     initialLoadDoneRef.current = false;
     const f = { ...filters };
     fetchPage(
@@ -368,10 +391,12 @@ export default function LeaderboardPage() {
     ).finally(() => {
       initialLoadDoneRef.current = true;
     });
-  }, [filters, activeTab, fetchPage]);
+  }, [filters, activeTab, fetchPage, categoriesLoaded]);
 
   const loadMore = useCallback(() => {
     if (loadingInitial || loadingMore || !hasMoreRef.current) return;
+    // Wait for categories to load if on novels tab
+    if (activeTab === TAB_KEYS.NOVELS && !categoriesLoaded) return;
     const nextPage = pageRef.current + 1;
     pageRef.current = nextPage;
     const f = filtersRef.current;
@@ -383,7 +408,7 @@ export default function LeaderboardPage() {
       genre: f.genre,
       sortBy: sort,
     });
-  }, [activeTab, fetchPage, loadingInitial, loadingMore]);
+  }, [activeTab, fetchPage, loadingInitial, loadingMore, categoriesLoaded]);
 
   // current slug
   const uiGenre = useMemo(() => {
@@ -404,7 +429,7 @@ export default function LeaderboardPage() {
   return (
     <div className="rankings-layout">
       <div className="rankings-breadcrumb">
-        <Breadcrumb items={[{ title: <Link to="/">Home</Link> }, { title: 'Leaderboard' }]} />
+        <Breadcrumb items={[{ title: <Link to="/">Home</Link> }, { title: 'Ranking' }]} />
       </div>
 
       <Card bordered className="rankings-card">
@@ -468,6 +493,7 @@ export default function LeaderboardPage() {
                 aria-selected={activeTab === TAB_KEYS.READERS}
               >
                 Readers
+                <span className="caret" />
               </button>
 
               <button
@@ -477,6 +503,7 @@ export default function LeaderboardPage() {
                 aria-selected={activeTab === TAB_KEYS.WRITERS}
               >
                 Writers
+                <span className="caret" />
               </button>
             </nav>
           </div>

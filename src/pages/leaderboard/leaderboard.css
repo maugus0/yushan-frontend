@@ -202,3 +202,96 @@
     min-width: 160px;
   }
 }
+
+/* Responsive for mobile devices */
+@media (max-width: 700px) {
+  .rankings-layout,
+  .rankings-content,
+  .rankings-right {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100vw !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .rankings-left {
+    width: 100%;
+    flex: none;
+    padding-right: 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .side-accordion-body {
+    grid-template-columns: 1fr;
+    gap: 4px 0;
+    padding: 4px 4px 6px 4px;
+  }
+  .cat-pill {
+    font-size: 13px;
+    padding: 7px 8px;
+  }
+  .side-nav-item {
+    font-size: 15px;
+    padding: 7px 8px;
+  }
+  .rankings-right {
+    padding: 0;
+    width: 100%;
+    min-width: 0;
+  }
+  .rankings-filters {
+    padding: 6px 4px 0 4px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .rankings-list-wrap {
+    min-width: 0;
+    width: 100%;
+  }
+  .leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px 0;
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+  .leaderboard-list .ant-list-item {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 0 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+  .leaderboard-list .ant-list-item-meta {
+    min-width: 0 !important;
+    width: auto !important;
+    flex: 1 1 0 !important;
+  }
+  .leaderboard-list .ant-list-item-meta-content {
+    min-width: 0 !important;
+    width: 100% !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+  }
+  .leaderboard-list .ant-list-item-extra {
+    min-width: 48px !important;
+    max-width: 64px !important;
+    margin-inline-start: 4px !important;
+    font-size: 13px !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+    justify-content: flex-end !important;
+  }
+  /* Make sure long titles/tags wrap */
+  .novel-card-title,
+  .novel-card-category {
+    font-size: 14px !important;
+    margin-bottom: 2px !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+  }
+}
