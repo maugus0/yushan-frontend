@@ -57,3 +57,5 @@ beforeAll(() => {
 afterAll(() => {
   console.error = originalError;
 });
+
+window.scrollTo = window.scrollTo || (() => {});
