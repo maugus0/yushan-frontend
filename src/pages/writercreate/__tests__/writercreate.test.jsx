@@ -192,7 +192,7 @@ jest.mock('antd', () => {
       data-testid="mock-upload"
       {...props}
       onClick={() => {
-        const mockFile = new File(['mock-cover-content'], 'cover.png', { type: 'image/png' });
+        const mockFile = new globalThis.File(['mock-cover-content'], 'cover.png', { type: 'image/png' });
         onChange({ file: { originFileObj: mockFile } });
       }}
     >
