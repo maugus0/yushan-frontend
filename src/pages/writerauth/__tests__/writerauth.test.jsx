@@ -1,10 +1,9 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import WriterAuth from '../writerauth';
 import userService from '../../../services/user';
-import { message, Modal } from 'antd'; // Import Modal
+import { message } from 'antd'; // Import Modal
 
 // Mock antd components and services
 jest.mock('antd', () => {
@@ -73,9 +72,10 @@ describe('WriterAuth Component', () => {
     expect(userService.getMe).toHaveBeenCalledTimes(1);
     expect(screen.getByPlaceholderText('Enter OTP code')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Send OTP' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Register to be a Yushan author' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Register to be a Yushan author' })
+    ).toBeInTheDocument();
   });
-
 
   test('handles sending OTP successfully', async () => {
     render(
@@ -99,8 +99,8 @@ describe('WriterAuth Component', () => {
     expect(message.success).toHaveBeenCalledWith('OTP sent to your email.');
 
     await waitFor(() => {
-        expect(sendOtpButton).toHaveTextContent(/Resend OTP \(05:00\)/i);
-        expect(sendOtpButton).toBeDisabled();
+      expect(sendOtpButton).toHaveTextContent(/Resend OTP \(05:00\)/i);
+      expect(sendOtpButton).toBeDisabled();
     });
 
     act(() => {
@@ -111,14 +111,14 @@ describe('WriterAuth Component', () => {
       expect(sendOtpButton).toHaveTextContent(/Resend OTP \(04:59\)/i);
     });
 
-     act(() => {
-        jest.advanceTimersByTime(299 * 1000);
-     });
+    act(() => {
+      jest.advanceTimersByTime(299 * 1000);
+    });
 
     await waitFor(() => {
-        expect(sendOtpButton).toHaveTextContent('Send OTP');
-        expect(sendOtpButton).not.toBeDisabled();
-    })
+      expect(sendOtpButton).toHaveTextContent('Send OTP');
+      expect(sendOtpButton).not.toBeDisabled();
+    });
   });
 
   test('handles sending OTP failure', async () => {
@@ -130,7 +130,7 @@ describe('WriterAuth Component', () => {
         <WriterAuth />
       </BrowserRouter>
     );
-     await waitFor(() => {
+    await waitFor(() => {
       expect(screen.getByPlaceholderText('Enter your email')).toHaveValue(mockUserEmail);
     });
 
@@ -145,40 +145,40 @@ describe('WriterAuth Component', () => {
     });
 
     await waitFor(() => {
-        const modal = screen.getByTestId('mock-modal');
-        expect(modal).toBeInTheDocument();
-        expect(modal).toHaveTextContent(errorMessage);
+      const modal = screen.getByTestId('mock-modal');
+      expect(modal).toBeInTheDocument();
+      expect(modal).toHaveTextContent(errorMessage);
     });
 
-     const confirmButton = screen.getByRole('button', { name: 'Confirm' });
-     fireEvent.click(confirmButton);
+    const confirmButton = screen.getByRole('button', { name: 'Confirm' });
+    fireEvent.click(confirmButton);
 
     await waitFor(() => {
-        expect(screen.queryByTestId('mock-modal')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('mock-modal')).not.toBeInTheDocument();
     });
 
     await waitFor(() => {
-        expect(sendOtpButton).toHaveTextContent('Send OTP');
-        expect(sendOtpButton).not.toBeDisabled();
+      expect(sendOtpButton).toHaveTextContent('Send OTP');
+      expect(sendOtpButton).not.toBeDisabled();
     });
   });
 
- test('disables register button initially and enables after OTP input', async () => {
+  test('disables register button initially and enables after OTP input', async () => {
     render(
       <BrowserRouter>
         <WriterAuth />
       </BrowserRouter>
     );
-     await waitFor(() => {
-       expect(screen.getByPlaceholderText('Enter your email')).toHaveValue(mockUserEmail);
-     });
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('Enter your email')).toHaveValue(mockUserEmail);
+    });
     const registerButton = screen.getByRole('button', { name: 'Register to be a Yushan author' });
     const otpInput = screen.getByPlaceholderText('Enter OTP code');
     expect(registerButton).toBeDisabled();
     fireEvent.change(otpInput, { target: { value: '123456' } });
     expect(registerButton).not.toBeDisabled();
-     fireEvent.change(otpInput, { target: { value: '' } });
-     expect(registerButton).toBeDisabled();
+    fireEvent.change(otpInput, { target: { value: '' } });
+    expect(registerButton).toBeDisabled();
   });
 
   test('handles registration successfully', async () => {
@@ -189,9 +189,9 @@ describe('WriterAuth Component', () => {
         <WriterAuth />
       </BrowserRouter>
     );
-     await waitFor(() => {
-        expect(screen.getByPlaceholderText('Enter your email')).toHaveValue(mockUserEmail);
-      });
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('Enter your email')).toHaveValue(mockUserEmail);
+    });
     const otpInput = screen.getByPlaceholderText('Enter OTP code');
     const registerButton = screen.getByRole('button', { name: 'Register to be a Yushan author' });
     const testOtp = '123456';
@@ -212,7 +212,7 @@ describe('WriterAuth Component', () => {
       </BrowserRouter>
     );
     await waitFor(() => {
-        expect(screen.getByPlaceholderText('Enter your email')).toHaveValue(mockUserEmail);
+      expect(screen.getByPlaceholderText('Enter your email')).toHaveValue(mockUserEmail);
     });
     const otpInput = screen.getByPlaceholderText('Enter OTP code');
     const registerButton = screen.getByRole('button', { name: 'Register to be a Yushan author' });
@@ -223,15 +223,15 @@ describe('WriterAuth Component', () => {
       expect(userService.upgradeToAuthor).toHaveBeenCalledWith(testOtp);
     });
     await waitFor(() => {
-        const modal = screen.getByTestId('mock-modal');
-        expect(modal).toBeInTheDocument();
-        expect(modal).toHaveTextContent(errorMessage);
+      const modal = screen.getByTestId('mock-modal');
+      expect(modal).toBeInTheDocument();
+      expect(modal).toHaveTextContent(errorMessage);
     });
-      const confirmButton = screen.getByRole('button', { name: 'Confirm' });
-      fireEvent.click(confirmButton);
-     await waitFor(() => {
-         expect(screen.queryByTestId('mock-modal')).not.toBeInTheDocument();
-     });
+    const confirmButton = screen.getByRole('button', { name: 'Confirm' });
+    fireEvent.click(confirmButton);
+    await waitFor(() => {
+      expect(screen.queryByTestId('mock-modal')).not.toBeInTheDocument();
+    });
   });
 
   test('register button remains disabled if clicked without OTP', async () => {
@@ -240,38 +240,37 @@ describe('WriterAuth Component', () => {
         <WriterAuth />
       </BrowserRouter>
     );
-     await waitFor(() => {
-       expect(screen.getByPlaceholderText('Enter your email')).toHaveValue(mockUserEmail);
-     });
-     const registerButton = screen.getByRole('button', { name: 'Register to be a Yushan author' });
-     expect(registerButton).toBeDisabled();
-     fireEvent.click(registerButton);
-     expect(screen.queryByTestId('mock-modal')).not.toBeInTheDocument();
-     expect(userService.upgradeToAuthor).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('Enter your email')).toHaveValue(mockUserEmail);
+    });
+    const registerButton = screen.getByRole('button', { name: 'Register to be a Yushan author' });
+    expect(registerButton).toBeDisabled();
+    fireEvent.click(registerButton);
+    expect(screen.queryByTestId('mock-modal')).not.toBeInTheDocument();
+    expect(userService.upgradeToAuthor).not.toHaveBeenCalled();
   });
 
-   test('clears countdown timer on unmount', async () => {
+  test('clears countdown timer on unmount', async () => {
     const clearIntervalSpy = jest.spyOn(window, 'clearInterval');
     const { unmount } = render(
       <BrowserRouter>
         <WriterAuth />
       </BrowserRouter>
     );
-     await waitFor(() => {
-        expect(screen.getByPlaceholderText('Enter your email')).toHaveValue(mockUserEmail);
-      });
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('Enter your email')).toHaveValue(mockUserEmail);
+    });
 
     const sendOtpButton = screen.getByRole('button', { name: 'Send OTP' });
     fireEvent.click(sendOtpButton);
 
     await waitFor(() => {
-        expect(userService.upgradeToAuthorEmail).toHaveBeenCalled();
-        expect(sendOtpButton).toHaveTextContent(/Resend OTP \(05:00\)/i);
+      expect(userService.upgradeToAuthorEmail).toHaveBeenCalled();
+      expect(sendOtpButton).toHaveTextContent(/Resend OTP \(05:00\)/i);
     });
 
     unmount();
     expect(clearIntervalSpy).toHaveBeenCalled();
     clearIntervalSpy.mockRestore();
-   });
-
+  });
 });

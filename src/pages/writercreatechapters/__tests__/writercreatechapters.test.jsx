@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MemoryRouter } from 'react-router-dom';
@@ -15,11 +14,11 @@ jest.mock('react-router-dom', () => ({
 }));
 
 jest.mock('@tinymce/tinymce-react', () => ({
-  Editor: ({ value, onEditorChange, init }) => (
+  Editor: ({ value, onEditorChange }) => (
     <textarea
       data-testid="mock-editor"
       value={value || ''}
-      onChange={e => onEditorChange(e.target.value)}
+      onChange={(e) => onEditorChange(e.target.value)}
     />
   ),
 }));
@@ -45,7 +44,9 @@ jest.mock('antd', () => {
       return (
         <div>
           <button onClick={onCancel}>Cancel</button>
-          <button onClick={onOk} data-testid="modal-confirm-button">OK</button>
+          <button onClick={onOk} data-testid="modal-confirm-button">
+            OK
+          </button>
         </div>
       );
     };
@@ -64,7 +65,7 @@ jest.mock('antd', () => {
     // If spinning is undefined, treat it as true (default Spin behavior)
     const isSpinning = spinning !== false;
     return isSpinning ? (
-      <div data-testid={dataTestId || "spinner"} {...props}>
+      <div data-testid={dataTestId || 'spinner'} {...props}>
         {tip || 'Loading...'}
       </div>
     ) : (
@@ -107,11 +108,10 @@ describe('WriterCreateChapters Component', () => {
 
   // Test 1: renders loading spinner initially
   test('renders loading spinner initially', () => {
-    chapterService.getNextChapterNumber.mockImplementation(() => new Promise(() => { }));
+    chapterService.getNextChapterNumber.mockImplementation(() => new Promise(() => {}));
     renderComponent('?novelid=1');
     expect(screen.getByTestId('spinner')).toBeInTheDocument();
   });
-
 
   // Test 2: renders chapter number and name input in create mode
   test('renders chapter number and name input in create mode', async () => {
@@ -168,7 +168,9 @@ describe('WriterCreateChapters Component', () => {
     const confirmationModal = screen.getByTestId('mock-modal');
 
     // 3. Find the "Publish" button *within* that modal
-    const publishConfirmButton = within(confirmationModal).getByRole('button', { name: /Publish/i });
+    const publishConfirmButton = within(confirmationModal).getByRole('button', {
+      name: /Publish/i,
+    });
     fireEvent.click(publishConfirmButton);
 
     await waitFor(() => {
@@ -194,10 +196,10 @@ describe('WriterCreateChapters Component', () => {
     });
 
     fireEvent.change(screen.getByPlaceholderText('Enter chapter name'), {
-      target: { value: 'Chapter 1' }
+      target: { value: 'Chapter 1' },
     });
     fireEvent.change(screen.getByTestId('mock-editor'), {
-      target: { value: 'Content here' }
+      target: { value: 'Content here' },
     });
 
     const publishButton = screen.getByRole('button', { name: /PUBLISH/i });
@@ -208,7 +210,9 @@ describe('WriterCreateChapters Component', () => {
     });
 
     const confirmationModal = screen.getByTestId('mock-modal');
-    const publishConfirmButton = within(confirmationModal).getByRole('button', { name: /Publish/i });
+    const publishConfirmButton = within(confirmationModal).getByRole('button', {
+      name: /Publish/i,
+    });
     fireEvent.click(publishConfirmButton);
 
     await waitFor(() => {
@@ -235,10 +239,10 @@ describe('WriterCreateChapters Component', () => {
     });
 
     fireEvent.change(screen.getByPlaceholderText('Enter chapter name'), {
-      target: { value: 'Chapter 2' }
+      target: { value: 'Chapter 2' },
     });
     fireEvent.change(screen.getByTestId('mock-editor'), {
-      target: { value: 'Some content' }
+      target: { value: 'Some content' },
     });
 
     const publishButton = screen.getByRole('button', { name: /PUBLISH/i });
@@ -249,7 +253,9 @@ describe('WriterCreateChapters Component', () => {
     });
 
     const confirmationModal = screen.getByTestId('mock-modal');
-    const publishConfirmButton = within(confirmationModal).getByRole('button', { name: /Publish/i });
+    const publishConfirmButton = within(confirmationModal).getByRole('button', {
+      name: /Publish/i,
+    });
     fireEvent.click(publishConfirmButton);
 
     await waitFor(() => {
@@ -275,7 +281,7 @@ describe('WriterCreateChapters Component', () => {
     const initialData = {
       chapterNumber: 7,
       title: 'Edit Chapter',
-      content: 'Edit Content'
+      content: 'Edit Content',
     };
     chapterService.getChapterByChapterId.mockResolvedValue({ data: initialData });
 
@@ -304,7 +310,7 @@ describe('WriterCreateChapters Component', () => {
     const initialData = {
       chapterNumber: 7,
       title: 'Edit Chapter',
-      content: 'Edit Content'
+      content: 'Edit Content',
     };
     chapterService.getChapterByChapterId.mockResolvedValue({ data: initialData });
     chapterService.editChapters.mockResolvedValue({});
@@ -316,10 +322,10 @@ describe('WriterCreateChapters Component', () => {
     });
 
     fireEvent.change(screen.getByTestId('mock-editor'), {
-      target: { value: 'Updated Content' }
+      target: { value: 'Updated Content' },
     });
     fireEvent.change(screen.getByPlaceholderText('Enter chapter name'), {
-      target: { value: 'Updated Chapter Title' }
+      target: { value: 'Updated Chapter Title' },
     });
 
     const publishButton = screen.getByRole('button', { name: /PUBLISH/i });
@@ -330,7 +336,9 @@ describe('WriterCreateChapters Component', () => {
     });
 
     const confirmationModal = screen.getByTestId('mock-modal');
-    const publishConfirmButton = within(confirmationModal).getByRole('button', { name: /Publish/i });
+    const publishConfirmButton = within(confirmationModal).getByRole('button', {
+      name: /Publish/i,
+    });
     fireEvent.click(publishConfirmButton);
 
     await waitFor(() => {
@@ -377,7 +385,7 @@ describe('WriterCreateChapters Component', () => {
     const initialData = {
       chapterNumber: 8,
       title: 'Another Chapter',
-      content: 'More Content'
+      content: 'More Content',
     };
     const errorMsg = 'Failed to save edits.';
     chapterService.getChapterByChapterId.mockResolvedValue({ data: initialData });
@@ -392,7 +400,7 @@ describe('WriterCreateChapters Component', () => {
     expect(screen.getByTestId('mock-editor')).toHaveValue('More Content');
 
     fireEvent.change(screen.getByTestId('mock-editor'), {
-      target: { value: 'Failed Update Content' }
+      target: { value: 'Failed Update Content' },
     });
 
     const publishButton = screen.getByRole('button', { name: /PUBLISH/i });
@@ -403,7 +411,9 @@ describe('WriterCreateChapters Component', () => {
     });
 
     const confirmationModal = screen.getByTestId('mock-modal');
-    const publishConfirmButton = within(confirmationModal).getByRole('button', { name: /Publish/i });
+    const publishConfirmButton = within(confirmationModal).getByRole('button', {
+      name: /Publish/i,
+    });
     fireEvent.click(publishConfirmButton);
 
     await waitFor(() => {
@@ -434,7 +444,7 @@ describe('WriterCreateChapters Component', () => {
     });
 
     fireEvent.change(screen.getByPlaceholderText('Enter chapter name'), {
-      target: { value: 'Test Chapter' }
+      target: { value: 'Test Chapter' },
     });
 
     const publishButton = screen.getByRole('button', { name: /PUBLISH/i });
@@ -465,10 +475,10 @@ describe('WriterCreateChapters Component', () => {
     });
 
     fireEvent.change(screen.getByPlaceholderText('Enter chapter name'), {
-      target: { value: '  Chapter Title  ' }
+      target: { value: '  Chapter Title  ' },
     });
     fireEvent.change(screen.getByTestId('mock-editor'), {
-      target: { value: 'Content' }
+      target: { value: 'Content' },
     });
 
     const publishButton = screen.getByRole('button', { name: /PUBLISH/i });
@@ -479,7 +489,9 @@ describe('WriterCreateChapters Component', () => {
     });
 
     const confirmationModal = screen.getByTestId('mock-modal');
-    const publishConfirmButton = within(confirmationModal).getByRole('button', { name: /Publish/i });
+    const publishConfirmButton = within(confirmationModal).getByRole('button', {
+      name: /Publish/i,
+    });
     fireEvent.click(publishConfirmButton);
 
     await waitFor(() => {
@@ -545,7 +557,7 @@ describe('WriterCreateChapters Component', () => {
     const initialData = {
       chapterNumber: 5,
       title: 'Test',
-      content: 'Test content'
+      content: 'Test content',
     };
     chapterService.getChapterByChapterId.mockResolvedValue({ data: initialData });
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MemoryRouter } from 'react-router-dom';
@@ -27,7 +26,7 @@ jest.mock('antd', () => {
     return Mock;
   };
 
-  const MockModal = ({ children, open, onCancel, footer }) => {
+  const MockModal = ({ children, open, footer }) => {
     if (!open) return null;
     const renderFooter = () => {
       if (footer === null) return null;
@@ -48,7 +47,7 @@ jest.mock('antd', () => {
   const MockSpin = ({ children, spinning, tip, 'data-testid': dataTestId, ...props }) => {
     const isSpinning = spinning !== false;
     return isSpinning ? (
-      <div data-testid={dataTestId || "spinner"} {...props}>
+      <div data-testid={dataTestId || 'spinner'} {...props}>
         {tip || 'Loading...'}
       </div>
     ) : (
@@ -64,9 +63,7 @@ jest.mock('antd', () => {
   );
   MockButton.displayName = 'MockButton';
 
-  const MockText = ({ children, ...props }) => (
-    <span {...props}>{children}</span>
-  );
+  const MockText = ({ children, ...props }) => <span {...props}>{children}</span>;
   MockText.displayName = 'MockText';
   const MockTitle = ({ children, ...props }) => {
     const { level, ...rest } = props;
@@ -97,7 +94,6 @@ jest.mock('antd', () => {
   );
   MockSelect.displayName = 'MockSelect';
 
-
   return {
     ...antd,
     Modal: MockModal,
@@ -127,7 +123,8 @@ describe('WriterDashboard Component', () => {
       synopsis: 'This is the first novel',
       categoryName: 'Fantasy',
       status: 'PUBLISHED',
-      coverImgUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+      coverImgUrl:
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
       chapterCnt: 10,
       wordCnt: 50000,
       reviewCnt: 25,
@@ -165,16 +162,14 @@ describe('WriterDashboard Component', () => {
     novelService.getNovel.mockResolvedValue(mockNovels);
   });
 
-
   // Test 1: renders loading spinner initially
   test('renders loading spinner initially', () => {
-    userService.getMe.mockImplementation(() => new Promise(() => { }));
+    userService.getMe.mockImplementation(() => new Promise(() => {}));
     renderComponent();
 
     expect(screen.getByTestId('spinner')).toBeInTheDocument();
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
-
 
   // Test 2: renders navbar
   test('renders writer navbar', async () => {
@@ -286,7 +281,9 @@ describe('WriterDashboard Component', () => {
   test('handles switching between novels multiple times', async () => {
     renderComponent();
 
-    await waitFor(() => { expect(screen.getByRole('heading', { name: 'Novel One', level: 3 })).toBeInTheDocument(); });
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Novel One', level: 3 })).toBeInTheDocument();
+    });
 
     const select = screen.getByTestId('novel-select');
 
@@ -304,14 +301,18 @@ describe('WriterDashboard Component', () => {
 
     // Switch to Novel Two again
     fireEvent.change(select, { target: { value: '2' } });
-    await waitFor(() => { expect(screen.getByRole('heading', { name: 'Novel Two', level: 3 })).toBeInTheDocument(); });
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Novel Two', level: 3 })).toBeInTheDocument();
+    });
   });
 
   // Test 19: renders all stat labels
   test('renders all statistic labels', async () => {
     renderComponent();
 
-    await waitFor(() => { expect(screen.getByRole('heading', { name: 'Novel One', level: 3 })).toBeInTheDocument(); });
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Novel One', level: 3 })).toBeInTheDocument();
+    });
 
     expect(screen.getByText('Chapters')).toBeInTheDocument();
     expect(screen.getByText('Words')).toBeInTheDocument();
@@ -343,7 +344,9 @@ describe('WriterDashboard Component', () => {
     novelService.getNovel.mockResolvedValue([novelWithEmptySynopsis]);
     renderComponent();
 
-    await waitFor(() => { expect(screen.getByRole('heading', { name: 'Novel One', level: 3 })).toBeInTheDocument(); });
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Novel One', level: 3 })).toBeInTheDocument();
+    });
 
     // Synopsis should still render even if empty
     const synopsisElements = screen.queryAllByText('');
@@ -407,7 +410,9 @@ describe('WriterDashboard Component', () => {
     novelService.getNovel.mockResolvedValue([mockNovels[0]]);
     renderComponent();
 
-    await waitFor(() => { expect(screen.getByRole('heading', { name: 'Novel One', level: 3 })).toBeInTheDocument(); });
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Novel One', level: 3 })).toBeInTheDocument();
+    });
 
     const select = screen.getByTestId('novel-select');
     expect(select).toHaveValue('1');
@@ -417,7 +422,9 @@ describe('WriterDashboard Component', () => {
   test('renders card component with novel details', async () => {
     renderComponent();
 
-    await waitFor(() => { expect(screen.getByRole('heading', { name: 'Novel One', level: 3 })).toBeInTheDocument(); });
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Novel One', level: 3 })).toBeInTheDocument();
+    });
 
     // Check that card contains all key information
     expect(screen.getByText('This is the first novel')).toBeInTheDocument();

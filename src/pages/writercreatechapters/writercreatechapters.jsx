@@ -119,7 +119,7 @@ const WriterCreateChapters = () => {
         </div>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            <Spin size="large" tip="Loading..."/>
+            <Spin size="large" tip="Loading..." />
           </div>
         ) : (
           <div className="writercreatechapters-editor-area">

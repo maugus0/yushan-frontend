@@ -1,5 +1,3 @@
-// src/pages/writercreate/__tests__/writercreate.test.jsx
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MemoryRouter } from 'react-router-dom';
@@ -38,7 +36,7 @@ jest.mock('react-easy-crop', () => {
     React.useEffect(() => {
       onCropComplete(
         { x: 0, y: 0, width: 100, height: 100 }, // croppedArea
-        { x: 0, y: 0, width: 100, height: 100 }  // croppedAreaPixels
+        { x: 0, y: 0, width: 100, height: 100 } // croppedAreaPixels
       );
     }, [onCropComplete]);
     return <div data-testid="mock-cropper">Cropper</div>;
@@ -52,14 +50,6 @@ jest.mock('@ant-design/icons', () => ({
   ArrowLeftOutlined: () => <span data-testid="icon-arrow-left">Back</span>,
   PlusOutlined: () => <span data-testid="icon-plus">Upload</span>,
   BookOutlined: () => <span data-testid="icon-book">Book</span>,
-}));
-
-// Mock browser Canvas, FileReader, and Image APIs
-// These are necessary for handleCropFinish and handleCoverChange
-const mockToDataURL = jest.fn(() => 'data:image/jpeg;base64,mock-cropped-data');
-const mockDrawImage = jest.fn();
-const mockGetContext = jest.fn(() => ({
-  drawImage: mockDrawImage,
 }));
 
 // Mock Image.onload()
@@ -83,8 +73,9 @@ window.FileReader = jest.fn();
 
 // Mock Canvas
 window.HTMLCanvasElement.prototype.getContext = jest.fn();
-window.HTMLCanvasElement.prototype.toDataURL = jest.fn(() => 'data:image/jpeg;base64,mock-cropped-data');
-
+window.HTMLCanvasElement.prototype.toDataURL = jest.fn(
+  () => 'data:image/jpeg;base64,mock-cropped-data'
+);
 
 // Mock antd (Comprehensive Mock)
 jest.mock('antd', () => {
@@ -117,7 +108,7 @@ jest.mock('antd', () => {
     return (
       <div {...props}>
         <label>{label}</label>
-        {React.Children.map(children, child =>
+        {React.Children.map(children, (child) =>
           React.cloneElement(child, {
             ...child.props,
             'aria-label': label,
@@ -140,7 +131,7 @@ jest.mock('antd', () => {
     }, [form, initialValues]);
     // Patch children with initialValues for inputs
     const patchChildren = (children) => {
-      return React.Children.map(children, child => {
+      return React.Children.map(children, (child) => {
         if (!React.isValidElement(child)) return child;
         // For Form.Item, patch its children
         if (child.type && child.type.displayName === 'MockFormItem') {
@@ -212,11 +203,7 @@ jest.mock('antd', () => {
 
   // Select
   const MockSelect = ({ value, onChange, options, placeholder, ...props }) => (
-    <select
-      {...props}
-      value={value || ''}
-      onChange={(e) => onChange(e.target.value)}
-    >
+    <select {...props} value={value || ''} onChange={(e) => onChange(e.target.value)}>
       {placeholder && <option value="">{placeholder}</option>}
       {options?.map((opt) => (
         <option key={opt.value} value={opt.value}>
@@ -228,7 +215,17 @@ jest.mock('antd', () => {
   MockSelect.displayName = 'MockSelect';
 
   // Modal
-  const MockModal = ({ children, open, title, onCancel, onOk, okText, cancelText, footer, ...props }) => {
+  const MockModal = ({
+    children,
+    open,
+    title,
+    onCancel,
+    onOk,
+    okText,
+    cancelText,
+    footer,
+    ...props
+  }) => {
     if (!open) return null;
     return (
       <div data-testid="mock-modal" {...props}>
@@ -272,9 +269,7 @@ jest.mock('antd', () => {
   };
 });
 
-
 describe('WriterCreate Component', () => {
-
   // --- Mock Data ---
   const mockCategories = [
     { id: 1, name: 'Fantasy' },
@@ -332,24 +327,25 @@ describe('WriterCreate Component', () => {
       return {
         onload: null,
         onerror: null,
-        readAsDataURL: function (file) {
-          const self = this;
+        readAsDataURL: function () {
           // Use setImmediate to simulate async but execute immediately after current event loop
           if (this.onload) {
             this.onload({
               target: {
-                result: 'data:image/png;base64,mock-image-data'
-              }
+                result: 'data:image/png;base64,mock-image-data',
+              },
             });
           }
-        }
+        },
       };
     });
 
     window.HTMLCanvasElement.prototype.getContext.mockReturnValue({
       drawImage: jest.fn(),
     });
-    window.HTMLCanvasElement.prototype.toDataURL.mockReturnValue('data:image/jpeg;base64,mock-cropped-data');
+    window.HTMLCanvasElement.prototype.toDataURL.mockReturnValue(
+      'data:image/jpeg;base64,mock-cropped-data'
+    );
 
     // Default successful service Mocks
     categoriesService.getCategories.mockResolvedValue(mockCategories);
@@ -362,42 +358,12 @@ describe('WriterCreate Component', () => {
     mockUseLocation.mockReturnValue({ search: '' });
   });
 
-  // Helper function: simulate cover upload and crop
-  const uploadAndCropCover = async () => {
-    fireEvent.click(screen.getByTestId('mock-upload'));
-
-    await waitFor(() => {
-      expect(screen.getByText('Crop Book Cover')).toBeInTheDocument();
-    });
-
-    expect(screen.getByTestId('mock-cropper')).toBeInTheDocument();
-
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 10));
-    });
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Crop' }));
-      await new Promise(resolve => setTimeout(resolve, 0));
-    });
-
-    await waitFor(() => {
-      expect(screen.queryByText('Crop Book Cover')).not.toBeInTheDocument();
-    });
-
-    await waitFor(() => {
-      expect(screen.getByAltText('cover')).toBeInTheDocument();
-    });
-
-    expect(screen.getByAltText('cover')).toHaveAttribute('src', 'data:image/jpeg;base64,mock-cropped-data');
-  };
-
   // --- Test Cases ---
 
   // Test 1: renders loading spinner initially while fetching categories
   test('renders loading spinner initially while fetching categories', () => {
     // Prevent the categories service from resolving immediately
-    categoriesService.getCategories.mockImplementation(() => new Promise(() => { }));
+    categoriesService.getCategories.mockImplementation(() => new Promise(() => {}));
     renderComponent();
     expect(screen.getByTestId('spinner')).toBeInTheDocument();
   });
@@ -455,7 +421,6 @@ describe('WriterCreate Component', () => {
     });
   });
 
-
   // Test 6: shows error modal if submitting without a cover
   test('shows error modal if submitting without a cover', async () => {
     renderComponent();
@@ -478,7 +443,6 @@ describe('WriterCreate Component', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
     });
-
 
     // Change form data
     await act(async () => {
@@ -550,7 +514,6 @@ describe('WriterCreate Component', () => {
 
   // Test 13: shows error modal if submitNovelForReview API fails
   test('shows error modal if submitNovelForReview API fails', async () => {
-
     const apiError = new Error('Failed to submit for review');
     novelService.submitNovelForReview.mockRejectedValue(apiError);
 

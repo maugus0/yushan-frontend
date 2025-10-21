@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import WriterInteraction from '../writerinteraction';
@@ -31,7 +30,6 @@ class MockIntersectionObserver {
     this.disconnect = mockDisconnect;
     this.unobserve = jest.fn();
   }
-  
 }
 
 window.IntersectionObserver = MockIntersectionObserver;
@@ -47,7 +45,7 @@ jest.mock('antd', () => {
   const antd = jest.requireActual('antd');
 
   // Mock Modal
-  const MockModal = ({ children, open, onCancel, footer }) => {
+  const MockModal = ({ children, open, footer }) => {
     if (!open) return null;
     return (
       <div data-testid="mock-modal">
@@ -66,7 +64,9 @@ jest.mock('antd', () => {
     const isSpinning = spinning !== false;
     if (!isSpinning) return null;
     // Differentiate between the full-page load and the list-bottom load
-    return <div data-testid={size === 'large' ? 'initial-spinner' : 'list-spinner'}>Loading...</div>;
+    return (
+      <div data-testid={size === 'large' ? 'initial-spinner' : 'list-spinner'}>Loading...</div>
+    );
   };
   MockSpin.displayName = 'MockSpin';
 
@@ -100,7 +100,7 @@ jest.mock('antd', () => {
   // Mock Tabs
   const MockTabs = ({ activeKey, onChange, items }) => (
     <div>
-      {items.map(item => (
+      {items.map((item) => (
         <button
           key={item.key}
           onClick={() => onChange(item.key)}
@@ -124,7 +124,6 @@ jest.mock('antd', () => {
     Tabs: MockTabs,
   };
 });
-
 
 // --- Test Suite ---
 describe('WriterInteraction Component', () => {
@@ -157,9 +156,6 @@ describe('WriterInteraction Component', () => {
       username: `Commenter ${i + 1}`,
       chapterTitle: `Chapter ${i + 1}`,
     })),
-  };
-  const mockCommentsPage2 = {
-    comments: [{ id: 'c-2-1', content: 'Final Comment', username: 'Commenter 16', chapterTitle: 'Chapter 16' }],
   };
 
   // Destructure service mocks for easy access
@@ -300,7 +296,6 @@ describe('WriterInteraction Component', () => {
     expect(screen.getByText(errorMsg)).toBeInTheDocument();
   });
 
-
   // Test 8: shows error modal if commentService.getCommentsByNovelId fails
   test('shows error modal if commentService.getCommentsByNovelId fails', async () => {
     const errorMsg = 'Failed to fetch comments.';
@@ -349,7 +344,7 @@ describe('WriterInteraction Component', () => {
     triggerIntersection();
 
     // Wait briefly to ensure no new calls are made
-    await (async () => new Promise(res => setTimeout(res, 50)))();
+    await (async () => new Promise((res) => setTimeout(res, 50)))();
 
     // No new API calls should be made
     expect(getReviewsByNovelId).not.toHaveBeenCalled();
