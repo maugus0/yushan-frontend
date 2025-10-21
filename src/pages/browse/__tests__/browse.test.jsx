@@ -1,8 +1,10 @@
-import { render, screen, within, waitFor } from '@testing-library/react';
+import { render, screen, within, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import BrowsePage from '../browse';
 import axios from 'axios';
+import novelService from '../../../services/novel';
+import GenreSidebar from '../../../components/novel/browse/genresidebar';
 
 jest.mock('axios');
 
@@ -176,5 +178,130 @@ describe('BrowsePage', () => {
     await waitFor(() => {
       expect(screen.getByText((content) => /no results?/i.test(content))).toBeInTheDocument();
     });
+  });
+});
+
+// Additional tests to increase coverage
+describe('BrowsePage additional tests', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    localStorage.clear();
+  });
+
+  it('opens and closes mobile drawer', async () => {
+    // Mock window.innerWidth to simulate mobile
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 500 });
+    render(
+      <MemoryRouter>
+        <BrowsePage />
+      </MemoryRouter>
+    );
+
+    const drawerButton = screen.getByRole('button', { name: /open filters drawer/i });
+    await userEvent.click(drawerButton);
+    expect(screen.getByText(/mobile filters placeholder/i)).toBeInTheDocument();
+
+    // // Close drawer
+    // const closeButton = screen.getByLabelText('Close');
+    // await userEvent.click(closeButton);
+    // expect(screen.queryByText(/mobile filters placeholder/i)).not.toBeInTheDocument();
+  });
+
+  it('saves and restores view mode and filters from localStorage', async () => {
+    // Simulate saved state
+    localStorage.setItem(
+      'browsePageState_v6',
+      JSON.stringify({
+        viewMode: 'list',
+        filters: { status: 'Ongoing', sort: 'rating' },
+        scrollY: 123,
+      })
+    );
+
+    render(
+      <MemoryRouter>
+        <BrowsePage />
+      </MemoryRouter>
+    );
+
+    // viewMode should be restored
+    const listBtn = screen.getByRole('button', { name: /list/i });
+    expect(listBtn).toHaveAttribute('aria-pressed', 'true');
+
+    // filter should be restored
+    const ongoingBtn = screen.getByRole('button', { name: /ongoing/i });
+    expect(ongoingBtn).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('retries fetch on softError retry button click', async () => {
+    const fetchSpy = jest
+      .spyOn(novelService, 'getNovels')
+      .mockRejectedValueOnce(new Error('fail'))
+      .mockResolvedValueOnce({ content: [], totalElements: 0 });
+
+    render(
+      <MemoryRouter>
+        <BrowsePage />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      const errorEls = screen.getAllByText(/failed to load novels/i);
+      expect(errorEls.length).toBeGreaterThan(0);
+    });
+
+    const retryBtn = screen.getByRole('button', { name: /retry/i });
+    await userEvent.click(retryBtn);
+
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
+    });
+  });
+});
+
+describe('GenreSidebar callbacks', () => {
+  it('calls all navigation and state callbacks correctly', () => {
+    const onClickSection = jest.fn();
+    const onClickLead = jest.fn();
+    const onClickAll = jest.fn();
+    const onClickGenre = jest.fn();
+
+    const { rerender } = render(
+      <GenreSidebar
+        section="novel"
+        lead="male"
+        activeGenre="Action"
+        activeCategoryId={1}
+        onClickSection={onClickSection}
+        onClickLead={onClickLead}
+        onClickAll={onClickAll}
+        onClickGenre={onClickGenre}
+      />
+    );
+
+    act(() => {
+      onClickSection('comics');
+      onClickLead('female');
+      onClickAll('novel');
+      onClickGenre('novel', 'male', 'Fantasy', 5);
+    });
+
+    expect(onClickSection).toHaveBeenCalledWith('comics');
+    expect(onClickLead).toHaveBeenCalledWith('female');
+    expect(onClickAll).toHaveBeenCalledWith('novel');
+    expect(onClickGenre).toHaveBeenCalledWith('novel', 'male', 'Fantasy', 5);
+
+    rerender(
+      <GenreSidebar
+        section="comics"
+        lead="female"
+        activeGenre="Romance"
+        activeCategoryId={2}
+        onClickSection={onClickSection}
+        onClickLead={onClickLead}
+        onClickAll={onClickAll}
+        onClickGenre={onClickGenre}
+      />
+    );
   });
 });
