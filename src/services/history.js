@@ -103,6 +103,27 @@ const historyApi = {
         {},
         { headers: authHeader() }
       );
+
+      // After successfully recording reading history, if the novel is in user's library
+      // update the library progress (PATCH /api/library/{novelId}/progress).
+      // We keep this best-effort and swallow any errors here so history recording
+      // does not fail due to library-related issues.
+      try {
+        const checkRes = await http.get(`/library/check/${novelId}`, {
+          headers: authHeader(),
+        });
+        const inLibrary = checkRes?.data?.data === true;
+        if (inLibrary) {
+          await http.patch(
+            `/library/${novelId}/progress`,
+            { progress: chapterId }, // progress is chapter id according to API note
+            { headers: authHeader() }
+          );
+        }
+      } catch (libErr) {
+        // ignore library update errors (network/auth etc.) — history recording succeeded already
+      }
+
       return res?.data?.data;
     } catch (error) {
       handleError(error, {
