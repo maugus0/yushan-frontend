@@ -19,6 +19,10 @@ import './navbar.css';
 import ContentPopover from '../contentpopover/contentpopover';
 import userService from '../../../services/user';
 import categoriesService from '../../../services/categories';
+import searchService from '../../../services/search';
+import { processImageUrl, processUserAvatar } from '../../../utils/imageUtils';
+import novelDefaultImg from '../../../assets/images/novel_default.png';
+import userDefaultImg from '../../../assets/images/user.png';
 
 const { Header } = Layout;
 
@@ -49,6 +53,9 @@ const Navbar = ({ isAuthenticated, user }) => {
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  const [searchResults, setSearchResults] = useState({ users: [], novels: [] });
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const [categories, setCategories] = useState([]);
   const searchInputRef = useRef(null);
   const navigate = useNavigate();
@@ -101,6 +108,31 @@ const Navbar = ({ isAuthenticated, user }) => {
     fetchCategories();
   }, []);
 
+  // Real-time search with debouncing
+  useEffect(() => {
+    const performSearch = async () => {
+      if (!searchValue.trim()) {
+        setSearchResults({ users: [], novels: [] });
+        setShowSearchResults(false);
+        return;
+      }
+
+      if (!finalIsAuthenticated) {
+        setShowSearchResults(false);
+        return;
+      }
+
+      setIsSearching(true);
+      const results = await searchService.searchAll(searchValue, 1, 10);
+      setSearchResults(results);
+      setShowSearchResults(true);
+      setIsSearching(false);
+    };
+
+    const debounceTimer = setTimeout(performSearch, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchValue, finalIsAuthenticated]);
+
   const handleCreate = async () => {
     if (!finalIsAuthenticated) {
       navigate('/login');
@@ -112,6 +144,17 @@ const Navbar = ({ isAuthenticated, user }) => {
     } else {
       navigate('/writerauth');
     }
+  };
+
+  const handleSearchResultClick = (result, type) => {
+    if (type === 'user') {
+      navigate(`/profile?userId=${result.uuid}`);
+    } else if (type === 'novel') {
+      navigate(`/novel/${result.id}`);
+    }
+    setSearchExpanded(false);
+    setSearchValue('');
+    setShowSearchResults(false);
   };
 
   const browseMenuData = useMemo(
@@ -317,13 +360,87 @@ const Navbar = ({ isAuthenticated, user }) => {
     },
   ];
 
-  const handleSearch = (value) => {
-    if (value.trim()) {
-      navigate(`/search?q=${encodeURIComponent(value)}`);
-      setSearchExpanded(false);
-      setSearchValue('');
-      setMobileMenuVisible(false);
+  const SearchResultsDropdown = () => {
+    if (!showSearchResults || (!searchResults.users.length && !searchResults.novels.length)) {
+      return null;
     }
+
+    if (!finalIsAuthenticated) {
+      return (
+        <div className="search-results-dropdown login-prompt">
+          <div className="search-result-item">
+            Please{' '}
+            <span onClick={() => navigate('/login')} className="login-link">
+              login
+            </span>{' '}
+            to search
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="search-results-dropdown">
+        {searchResults.novels.length > 0 && (
+          <div className="search-section">
+            <div className="search-section-title">Novels</div>
+            {searchResults.novels.slice(0, 5).map((novel) => (
+              <div
+                key={novel.uuid}
+                className="search-result-item novel-result"
+                onClick={() => handleSearchResultClick(novel, 'novel')}
+              >
+                <div className="result-cover">
+                  <img
+                    src={processImageUrl(novel.coverImgUrl, '', novelDefaultImg)}
+                    alt={novel.title}
+                    onError={(e) => {
+                      e.target.src = novelDefaultImg;
+                    }}
+                  />
+                </div>
+                <div className="result-content">
+                  <div className="result-title">{novel.title}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {searchResults.users.length > 0 && (
+          <div className="search-section">
+            <div className="search-section-title">Users</div>
+            {searchResults.users.slice(0, 5).map((resultUser) => (
+              <div
+                key={resultUser.uuid || resultUser.email}
+                className="search-result-item user-result"
+                onClick={() => handleSearchResultClick(resultUser, 'user')}
+              >
+                <Avatar
+                  size={32}
+                  src={processUserAvatar(resultUser.avatarUrl, resultUser.gender)}
+                  icon={<UserOutlined />}
+                  style={{ flexShrink: 0 }}
+                  onError={(e) => {
+                    e.target.src = userDefaultImg;
+                  }}
+                />
+                <div className="result-content">
+                  <div className="result-title">{resultUser.username}</div>
+                  <div className="result-subtitle">{resultUser.email}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {isSearching && (
+          <div className="search-result-item loading">
+            <span>Searching...</span>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -358,26 +475,34 @@ const Navbar = ({ isAuthenticated, user }) => {
                 ref={searchInputRef}
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                onPressEnter={() => handleSearch(searchValue)}
-                placeholder="Search novels, comics, fan-fics..."
+                placeholder="Search novels, users, comics..."
                 className="search-input"
                 suffix={
                   <div className="search-actions">
                     <Button
                       type="text"
                       icon={<SearchOutlined />}
-                      onClick={() => handleSearch(searchValue)}
+                      onClick={() => {
+                        setSearchExpanded(false);
+                        setSearchValue('');
+                        setShowSearchResults(false);
+                      }}
                       className="search-submit"
                     />
                     <Button
                       type="text"
                       icon={<CloseOutlined />}
-                      onClick={() => setSearchExpanded(false)}
+                      onClick={() => {
+                        setSearchExpanded(false);
+                        setSearchValue('');
+                        setShowSearchResults(false);
+                      }}
                       className="search-close"
                     />
                   </div>
                 }
               />
+              <SearchResultsDropdown />
             </div>
           ) : (
             <Button
@@ -471,7 +596,8 @@ const Navbar = ({ isAuthenticated, user }) => {
             <Input
               placeholder="Search novels, comics, fan-fics..."
               prefix={<SearchOutlined />}
-              onPressEnter={(e) => handleSearch(e.target.value)}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
               className="mobile-search"
             />
           </div>
