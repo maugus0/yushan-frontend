@@ -134,6 +134,7 @@ const WriterStoryProfile = () => {
             type="text"
             icon={<ArrowLeftOutlined />}
             className="writerstoryprofile-back-btn"
+            data-testid="back-button"
             onClick={() => navigate('/writerworkspace')}
           />
           <h2 className="writerstoryprofile-title">Story</h2>
@@ -175,7 +176,9 @@ const WriterStoryProfile = () => {
                       <div className="storyprofile-stat-label">Comments</div>
                     </div>
                     <div className="storyprofile-stats-row">
-                      <div className="storyprofile-stat-value">{story.chapterCnt}</div>
+                      <div className="storyprofile-stat-value" data-testid="chapter-count">
+                        {story.chapterCnt}
+                      </div>
                       <div className="storyprofile-stat-value">{story.wordCnt}</div>
                       <div className="storyprofile-stat-value">{story.reviewCnt}</div>
                     </div>
