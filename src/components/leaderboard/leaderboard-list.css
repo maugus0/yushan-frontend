@@ -18,9 +18,11 @@
 }
 
 .lb-row--novel {
-  /* rank | avatar | full content (2 rows: line1, line2) */
-  grid-template-columns: 40px 56px max-content;
-  grid-template-rows: auto auto;
+  /* 3 rows & 3 columns: rank | avatar | content */
+  display: grid;
+  grid-template-columns: 40px 56px 1fr;
+  grid-template-rows: auto auto auto;
+  gap: 8px 12px;
 }
 
 /* Rank cell at the far left, vertically centered in the row */
@@ -33,7 +35,7 @@
 
 /* For 2-line novel rows, span both lines to keep true vertical centering */
 .lb-row--novel .lb-cell--rank {
-  grid-row: 1 / span 2;
+  grid-row: 1 / span 3;
 }
 
 /* Rank number formatting: 001, 002... with tabular alignment */
@@ -56,7 +58,7 @@
 
 /* In novel rows, make avatar span two lines */
 .lb-row--novel .lb-cell--avatar {
-  grid-row: 1 / span 2;
+  grid-row: 1 / span 3;
 }
 
 .lb-cell--content-line1 {
@@ -70,9 +72,49 @@
   width: 100%;
 }
 
+.lb-row--novel .lb-cell--content-line1 {
+  grid-column: 3;
+  grid-row: 1;
+  white-space: nowrap;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.lb-cell--synopsis {
+  color: #8c98a9;
+  font-size: 13px;
+  margin: 2px 0 2px 0;
+  line-height: 1.5;
+  word-break: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+.lb-row--novel .lb-cell--synopsis {
+  grid-column: 3;
+  grid-row: 2;
+  color: #8c98a9;
+  font-size: 13px;
+  margin: 2px 0 2px 0;
+  line-height: 1.5;
+  word-break: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
 .lb-cell--content-line2 {
   grid-column: 3; /* second line also in the 3rd column */
   grid-row: 2;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.lb-row--novel .lb-cell--content-line2 {
+  grid-column: 3;
+  grid-row: 3;
   min-width: 0;
   display: inline-flex;
   align-items: center;
@@ -232,6 +274,25 @@
   white-space: nowrap;
 }
 
+/* Synopsis cell - additional styles for novel synopsis */
+.lb-cell--synopsis {
+  color: #8c98a9;
+  font-size: 13px;
+  margin: 2px 0 2px 0;
+  line-height: 1.5;
+  word-break: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+@media (max-width: 700px) {
+  .lb-cell--synopsis {
+    font-size: 12px;
+    margin: 2px 0 2px 0;
+    padding: 0;
+  }
+}
+
 /* Responsive: keep the same 3 columns on mobile */
 @media (max-width: 992px) {
   .lb-row--novel {
@@ -241,5 +302,66 @@
   .tag-pill {
     font-size: 10px;
     padding: 1px 4px;
+  }
+}
+
+/* Mobile: stack leaderboard row content, never scroll horizontally */
+@media (max-width: 700px) {
+  .lb-list {
+    overflow-x: hidden !important;
+    padding: 0 !important;
+  }
+  .lb-row,
+  .lb-row--novel {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+    gap: 4px 0 !important;
+    margin-bottom: 8px;
+  }
+  .lb-cell--rank,
+  .lb-cell--avatar,
+  .lb-cell--content-line1,
+  .lb-cell--content-line2,
+  .lb-cell--content {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: block !important;
+    text-align: left !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .lb-cell--rank {
+    margin-bottom: 2px !important;
+  }
+  .lb-cell--avatar {
+    margin-bottom: 2px !important;
+  }
+  .lb-cell--content-line1,
+  .lb-cell--content {
+    margin-bottom: 2px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+  .lb-cell--content-line2,
+  .row-desc {
+    white-space: normal !important;
+    word-break: break-word !important;
+    font-size: 13px !important;
+  }
+  .novel-tags,
+  .row-title {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+  .title-link,
+  .category-pill,
+  .tag-pill {
+    white-space: normal !important;
+    word-break: break-word !important;
+    font-size: 14px !important;
   }
 }

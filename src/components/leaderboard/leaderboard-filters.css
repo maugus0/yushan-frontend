@@ -13,6 +13,42 @@
   scrollbar-width: thin;
 }
 
+/* Mobile: filter bar stack to two rows */
+@media (max-width: 700px) {
+  .lb-filters-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+    padding: 8px 4px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+  }
+  .lb-filter-group {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .lb-pills {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+}
+
+/* Mobile: keep time filter pills in one row */
+@media (max-width: 700px) {
+  .lb-filter-group:first-child {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 5px !important;
+    display: flex !important;
+  }
+  .lb-filter-group:first-child .lb-pills {
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    gap: 5px !important;
+  }
+}
+
 .lb-filter-group {
   display: flex;
   align-items: center;
