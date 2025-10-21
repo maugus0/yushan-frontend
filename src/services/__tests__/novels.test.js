@@ -23,7 +23,9 @@ describe('novelsApi service', () => {
 
     const result = await novelsApi.getDetail(1);
 
-    expect(http.get).toHaveBeenCalledWith('/novels/1', { headers: { Authorization: 'Bearer token' } });
+    expect(http.get).toHaveBeenCalledWith('/novels/1', {
+      headers: { Authorization: 'Bearer token' },
+    });
     expect(result).toEqual(mockData);
   });
 
@@ -33,7 +35,11 @@ describe('novelsApi service', () => {
 
     const result = await novelsApi.vote(1);
 
-    expect(http.post).toHaveBeenCalledWith('/novels/1/vote', {}, { headers: { Authorization: 'Bearer token' } });
+    expect(http.post).toHaveBeenCalledWith(
+      '/novels/1/vote',
+      {},
+      { headers: { Authorization: 'Bearer token' } }
+    );
     expect(result).toEqual(mockVote);
   });
 
@@ -60,7 +66,10 @@ describe('novelsApi service', () => {
   });
 
   test('getChaptersFull calls http.get and returns all chapters', async () => {
-    const mockChapters = [{ id: 1, title: 'Chapter 1' }, { id: 2, title: 'Chapter 2' }];
+    const mockChapters = [
+      { id: 1, title: 'Chapter 1' },
+      { id: 2, title: 'Chapter 2' },
+    ];
     http.get.mockResolvedValue({ data: { data: mockChapters } });
 
     const result = await novelsApi.getChaptersFull(1);
@@ -78,10 +87,9 @@ describe('novelsApi service', () => {
 
     const result = await novelsApi.getChapterContent(1, 1);
 
-    expect(http.get).toHaveBeenCalledWith(
-      '/chapters/novel/1/number/1',
-      { headers: { Authorization: 'Bearer token' } }
-    );
+    expect(http.get).toHaveBeenCalledWith('/chapters/novel/1/number/1', {
+      headers: { Authorization: 'Bearer token' },
+    });
     expect(result).toEqual(mockContent);
   });
 
@@ -91,10 +99,9 @@ describe('novelsApi service', () => {
 
     const result = await novelsApi.getChapterByUuid('uuid-123');
 
-    expect(http.get).toHaveBeenCalledWith(
-      '/chapters/uuid-123',
-      { headers: { Authorization: 'Bearer token' } }
-    );
+    expect(http.get).toHaveBeenCalledWith('/chapters/uuid-123', {
+      headers: { Authorization: 'Bearer token' },
+    });
     expect(result).toEqual(mockChapter);
   });
 });

@@ -1,5 +1,4 @@
 // src/pages/register/__tests__/register.test.jsx
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { message } from 'antd';
 import { MemoryRouter } from 'react-router-dom';
@@ -22,30 +21,36 @@ jest.mock('../../../services/auth', () => ({
 }));
 
 // Mock AuthForm to call onSuccess immediately
-jest.mock('../../../components/auth/auth-form', () => ({ onSuccess, registerError }) => (
-  <form
-    onSubmit={(e) => {
-      e.preventDefault();
-      onSuccess({
-        email: 'test@example.com',
-        password: '123456',
-        username: 'testuser',
-        gender: 'male',
-        birthday: '1990-01-01',
-        otp: '123456',
-      });
-    }}
-  >
-    <input type="email" value="test@example.com" readOnly />
-    <input type="password" value="123456" readOnly />
-    <input type="text" value="testuser" readOnly />
-    <input type="text" value="male" readOnly />
-    <input type="text" value="1990-01-01" readOnly />
-    <input type="text" value="123456" readOnly />
-    <button type="submit">Register</button>
-    {registerError && <div data-testid="error-message">{registerError}</div>}
-  </form>
-));
+jest.mock('../../../components/auth/auth-form', () => {
+  const MockAuthForm = ({ onSuccess, registerError }) => (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSuccess({
+          email: 'test@example.com',
+          password: '123456',
+          username: 'testuser',
+          gender: 'male',
+          birthday: '1990-01-01',
+          otp: '123456',
+        });
+      }}
+    >
+      <input type="email" value="test@example.com" readOnly />
+      <input type="password" value="123456" readOnly />
+      <input type="text" value="testuser" readOnly />
+      <input type="text" value="male" readOnly />
+      <input type="text" value="1990-01-01" readOnly />
+      <input type="text" value="123456" readOnly />
+      <button type="submit">Register</button>
+      {registerError && <div data-testid="error-message">{registerError}</div>}
+    </form>
+  );
+
+  MockAuthForm.displayName = 'MockAuthForm';
+
+  return MockAuthForm;
+});
 
 const mockStore = configureStore([]);
 const store = mockStore({});
