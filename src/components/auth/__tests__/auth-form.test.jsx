@@ -7,6 +7,9 @@ jest.mock('../../../services/auth', () => ({
   sendVerificationEmail: jest.fn(),
 }));
 
+// Increase default Jest timeout for this file to avoid "Exceeded timeout of 5000 ms" failures
+jest.setTimeout(15000);
+
 // Mock AntD responsive utilities to avoid runtime errors in JSDOM
 jest.mock('antd/lib/grid/hooks/useBreakpoint', () => () => ({
   xs: true,

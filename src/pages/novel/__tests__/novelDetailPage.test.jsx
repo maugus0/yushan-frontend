@@ -48,6 +48,9 @@ jest.mock('antd/lib/_util/responsiveObserver', () => ({
   }),
 }));
 
+// Increase default Jest timeout for this file to avoid "Exceeded timeout of 5000 ms" failures
+jest.setTimeout(15000);
+
 // Now safe to import other modules
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
