@@ -1,0 +1,170 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TermsOfService page matches snapshot structure 1`] = `
+<div>
+  <div
+    class="terms-page"
+  >
+    <div
+      class="terms-container"
+    >
+      <div
+        class="ant-row ant-row-center css-dev-only-do-not-override-1odpy5d"
+      >
+        <div
+          class="ant-col ant-col-xs-24 ant-col-sm-22 ant-col-md-20 ant-col-lg-16 ant-col-xl-14 css-dev-only-do-not-override-1odpy5d"
+        >
+          <div
+            class="ant-card ant-card-bordered terms-card css-dev-only-do-not-override-1odpy5d"
+          >
+            <div
+              class="ant-card-body"
+            >
+              <div
+                class="terms-header"
+              >
+                <h1
+                  class="ant-typography terms-title css-dev-only-do-not-override-1odpy5d"
+                >
+                  Terms of Service
+                </h1>
+                <span
+                  class="ant-typography terms-updated css-dev-only-do-not-override-1odpy5d"
+                >
+                  Last updated: October 12, 2025
+                </span>
+              </div>
+              <div
+                class="ant-divider css-dev-only-do-not-override-1odpy5d ant-divider-horizontal"
+                role="separator"
+              />
+              <div
+                class="terms-content"
+              >
+                <h2
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  1. Acceptance of Terms
+                </h2>
+                <div
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  By accessing and using Yushan, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
+                </div>
+                <h2
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  2. Description of Service
+                </h2>
+                <div
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  Yushan is a gamified platform for reading and writing web novels. We provide tools for authors to publish their stories and for readers to discover and engage with content. Our platform includes features such as user profiles, reading progress tracking, author dashboards, and community interaction tools.
+                </div>
+                <h2
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  3. User Accounts
+                </h2>
+                <div
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  To access certain features of our service, you may be required to create an account. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.
+                </div>
+                <h2
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  4. Content Guidelines
+                </h2>
+                <div
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  Users are responsible for the content they post on Yushan. Content must not violate any applicable laws or regulations. We reserve the right to remove content that violates our community guidelines or these terms of service.
+                </div>
+                <h2
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  5. Intellectual Property
+                </h2>
+                <div
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  Authors retain ownership of their original content posted on Yushan. However, by posting content, you grant Yushan a non-exclusive license to display, distribute, and promote your content on our platform.
+                </div>
+                <h2
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  6. Privacy Policy
+                </h2>
+                <div
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  Your privacy is important to us. Please review our Privacy Policy, which also governs your use of the service, to understand our practices.
+                </div>
+                <h2
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  7. Limitation of Liability
+                </h2>
+                <div
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  Yushan shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses.
+                </div>
+                <h2
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  8. Modifications to Service
+                </h2>
+                <div
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  We reserve the right to modify or discontinue, temporarily or permanently, the service (or any part thereof) with or without notice at any time.
+                </div>
+                <h2
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  9. Governing Law
+                </h2>
+                <div
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  These terms shall be interpreted and governed in accordance with the laws of Singapore, without regard to its conflict of law provisions.
+                </div>
+                <h2
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  10. Contact Information
+                </h2>
+                <div
+                  class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                >
+                  If you have any questions about these Terms of Service, please contact us at:
+                  <br />
+                  <span
+                    class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                  >
+                    <strong>
+                      Email:
+                    </strong>
+                  </span>
+                   support@yushan.com
+                  <br />
+                  <span
+                    class="ant-typography css-dev-only-do-not-override-1odpy5d"
+                  >
+                    <strong>
+                      Address:
+                    </strong>
+                  </span>
+                   Yushan Interactive Pte. Ltd., Singapore
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
