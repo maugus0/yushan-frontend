@@ -75,7 +75,7 @@ jest.mock('antd', () => {
   MockButton.displayName = 'MockButton';
 
   // Typography
-  const MockTypography = ({ children, level, type, className, ...props }) => {
+  const MockTypography = ({ children, level, className, ...props }) => {
     const Tag = level ? `h${level}` : 'span';
     return React.createElement(Tag, { className, ...props }, children);
   };
@@ -88,20 +88,11 @@ jest.mock('antd', () => {
     <span className={className} data-type={type} {...props}>
       {children}
     </span>
-  ); MockTypography.Text.displayName = 'MockText';
+  );
+  MockTypography.Text.displayName = 'MockText';
 
   // Modal
-  const MockModal = ({
-    children,
-    open,
-    onCancel,
-    footer,
-    centered,
-    closable,
-    maskClosable,
-    style,
-    ...props
-  }) => {
+  const MockModal = ({ children, open, footer, style, ...props }) => {
     if (!open) return null;
     return (
       <div data-testid="mock-modal" style={style} {...props}>
@@ -164,7 +155,7 @@ describe('Library Component', () => {
     ...mockLibraryNovels,
     { novelId: 'novel-4', novelTitle: 'Test Novel 4', chapterNumber: 1, chapterCnt: 10 },
     { novelId: 'novel-5', novelTitle: 'Test Novel 5', chapterNumber: 1, chapterCnt: 10 },
-  ]
+  ];
 
   const mockHistoryList = [
     {
@@ -196,7 +187,7 @@ describe('Library Component', () => {
     { historyId: 'history-3', id: 'history-3', novelId: 'novel-3', novelTitle: 'History Novel 3' },
     { historyId: 'history-4', id: 'history-4', novelId: 'novel-4', novelTitle: 'History Novel 4' },
     { historyId: 'history-5', id: 'history-5', novelId: 'novel-5', novelTitle: 'History Novel 5' },
-  ]
+  ];
 
   const mockLibraryResponse = {
     data: {
@@ -244,7 +235,7 @@ describe('Library Component', () => {
 
   //test1
   test('renders library page with initial loading state', () => {
-    libraryService.getLibraryNovels.mockImplementation(() => new Promise(() => { }));
+    libraryService.getLibraryNovels.mockImplementation(() => new Promise(() => {}));
     renderComponent();
 
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Library');
@@ -552,7 +543,8 @@ describe('Library Component', () => {
 
     libraryService.getLibraryNovels
       .mockResolvedValueOnce(mockLibraryResponse) // First load (page 0)
-      .mockResolvedValueOnce({ 					// Second load (page 1)
+      .mockResolvedValueOnce({
+        // Second load (page 1)
         data: {
           content: additionalNovels,
         },
@@ -591,7 +583,8 @@ describe('Library Component', () => {
 
     historyService.getHistoryNovels
       .mockResolvedValueOnce(mockHistoryResponse) // First load (page 0)
-      .mockResolvedValueOnce({ 					// Second load (page 1)
+      .mockResolvedValueOnce({
+        // Second load (page 1)
         content: additionalHistory,
       });
 
@@ -920,9 +913,7 @@ describe('Library Component', () => {
 
   //test31
   test('prevents intersection observer from triggering when list loading', async () => {
-    libraryService.getLibraryNovels.mockImplementation(
-      () => new Promise(() => { })
-    );
+    libraryService.getLibraryNovels.mockImplementation(() => new Promise(() => {}));
     renderComponent();
 
     expect(libraryService.getLibraryNovels).toHaveBeenCalledTimes(1);
