@@ -21,6 +21,15 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+// Mock responsive observer for Ant Design
+jest.mock('antd/lib/_util/responsiveObserver', () => ({
+  default: {
+    subscribe: jest.fn(),
+    unsubscribe: jest.fn(),
+    matchHandlers: {},
+  },
+}));
+
 // Mock ResizeObserver
 class ResizeObserver {
   observe() {}
