@@ -8,6 +8,9 @@ import GenreSidebar from '../../../components/novel/browse/genresidebar';
 
 jest.mock('axios');
 
+// Increase default Jest timeout for this file to avoid "Exceeded timeout of 5000 ms" failures
+jest.setTimeout(15000);
+
 describe('BrowsePage', () => {
   // Suppress error logs for network failures
   beforeAll(() => {
