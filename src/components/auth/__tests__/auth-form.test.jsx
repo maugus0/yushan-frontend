@@ -78,8 +78,8 @@ test('register mode shows required fields and password strength validation', asy
   await userEvent.type(screen.getByLabelText(/^Password$/i), 'weakpass'); // no caps/digit
   await userEvent.type(screen.getByLabelText(/Confirm Password/i), 'weakpass');
   // select gender
-  const gender =
-    screen.getByLabelText(/Gender/i).querySelector('input') || screen.getByText(/Select gender/i);
+  // const gender =
+  //   screen.getByLabelText(/Gender/i).querySelector('input') || screen.getByText(/Select gender/i);
   // AntD Select is complex; we can focus on triggering password validation by submitting
   const submit = screen.getByRole('button', { name: /Create Account/i });
   await userEvent.click(submit);
