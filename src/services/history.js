@@ -46,7 +46,8 @@ const historyApi = {
     try {
       // The API call is within this.list, so the try block wraps the entire logic.
       const data = await this.list({ page: 0, size: 50 });
-      const list = Array.isArray(data?.content) ? data.content : [];
+      const src = Array.isArray(data?.content) ? data.content : [];
+      const list = [...src];
       list.sort((a, b) => new Date(b.viewTime || 0) - new Date(a.viewTime || 0));
       return list.find((it) => Number(it.novelId) === Number(novelId)) || null;
     } catch (error) {
