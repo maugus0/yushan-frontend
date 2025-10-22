@@ -1,0 +1,476 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Homepage snapshot of rendered homepage (structure) 1`] = `
+<div>
+  <div
+    class="home-bg"
+  >
+    <section
+      class="home-hero-section"
+    >
+      <div
+        class="home-hero-flex"
+      >
+        <div
+          class="home-hero-flex-left"
+        >
+          <div
+            class="home-hero-carousel-wrapper"
+          >
+            <div
+              class="home-hero-carousel-title"
+            >
+              <h3
+                class="ant-typography home-hero-carousel-title-text css-dev-only-do-not-override-1odpy5d"
+              >
+                Newest Books
+              </h3>
+            </div>
+            <div
+              class="ant-carousel css-dev-only-do-not-override-1odpy5d"
+            >
+              <div
+                class="slick-slider home-hero-carousel slick-initialized"
+                dir="ltr"
+              >
+                <div
+                  class="slick-list"
+                >
+                  <div
+                    class="slick-track"
+                    style="opacity: 1; transform: translate3d(0px, 0px, 0px);"
+                  >
+                    <div
+                      aria-hidden="false"
+                      class="slick-slide slick-active slick-current"
+                      data-index="0"
+                      style="outline: none; width: 0px;"
+                      tabindex="-1"
+                    >
+                      <div>
+                        <div
+                          style="width: 100%; display: inline-block;"
+                          tabindex="-1"
+                        >
+                          <div
+                            class="home-hero-slide"
+                            style="position: relative; justify-content: flex-start; cursor: pointer;"
+                          >
+                            <div
+                              class="home-hero-blur-bg"
+                              style="opacity: 0.9;"
+                            />
+                            <div
+                              class="home-hero-slide-content home-hero-slide-content-left"
+                            >
+                              <div
+                                class="home-hero-img"
+                              >
+                                <img
+                                  alt="Newest A"
+                                  class="home-hero-img-el"
+                                  src="/cover-a.png"
+                                />
+                              </div>
+                              <div
+                                class="home-hero-content"
+                              >
+                                <h2
+                                  class="ant-typography home-hero-title home-hero-title-white css-dev-only-do-not-override-1odpy5d"
+                                >
+                                  Newest A
+                                </h2>
+                                <div
+                                  class="ant-typography home-hero-desc home-hero-desc-white css-dev-only-do-not-override-1odpy5d"
+                                >
+                                  desc A
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <ul
+                  class="slick-dots slick-dots-bottom"
+                  style="display: block;"
+                >
+                  <li
+                    class="slick-active"
+                  >
+                    <button>
+                      1
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="home-hero-flex-right"
+        >
+          <div
+            data-testid="mock-hero"
+          >
+            <div
+              data-testid="hero-title"
+            >
+              About Yushan
+            </div>
+            <button
+              aria-label="hero-item-click"
+            >
+              hero-click
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section
+      class="home-features-section"
+    >
+      <div
+        class="home-features-flex"
+      >
+        <div
+          class="home-feature-card-wrapper"
+        >
+          <div
+            class="ant-card ant-card-bordered ant-card-hoverable home-feature-card css-dev-only-do-not-override-1odpy5d"
+            style="padding: 32px 24px; background-color: rgb(240, 248, 255);"
+          >
+            <div
+              class="ant-card-body"
+            >
+              <div
+                class="ant-space css-dev-only-do-not-override-1odpy5d ant-space-vertical ant-space-gap-row-large ant-space-gap-col-large"
+                style="width: 100%;"
+              >
+                <div
+                  class="ant-space-item"
+                >
+                  <div>
+                    <span
+                      aria-label="book"
+                      class="anticon anticon-book"
+                      role="img"
+                      style="font-size: 48px; color: rgb(24, 144, 255);"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="book"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="64 64 896 896"
+                        width="1em"
+                      >
+                        <path
+                          d="M832 64H192c-17.7 0-32 14.3-32 32v832c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V96c0-17.7-14.3-32-32-32zm-260 72h96v209.9L621.5 312 572 347.4V136zm220 752H232V136h280v296.9c0 3.3 1 6.6 3 9.3a15.9 15.9 0 0022.3 3.7l83.8-59.9 81.4 59.4c2.7 2 6 3.1 9.4 3.1 8.8 0 16-7.2 16-16V136h64v752z"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+                <div
+                  class="ant-space-item"
+                >
+                  <h3
+                    class="ant-typography home-feature-title css-dev-only-do-not-override-1odpy5d"
+                  >
+                    Read Novels
+                  </h3>
+                </div>
+                <div
+                  class="ant-space-item"
+                >
+                  <div
+                    class="ant-typography home-feature-desc css-dev-only-do-not-override-1odpy5d"
+                  >
+                    Discover thousands of captivating web novels across all genres. From cultivation to romance, fantasy to sci-fi.
+                  </div>
+                </div>
+                <div
+                  class="ant-space-item"
+                >
+                  <button
+                    class="ant-btn css-dev-only-do-not-override-1odpy5d ant-btn-primary ant-btn-color-primary ant-btn-variant-solid ant-btn-lg home-feature-btn"
+                    type="button"
+                  >
+                    <span>
+                      Get Started
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="home-feature-card-wrapper"
+        >
+          <div
+            class="ant-card ant-card-bordered ant-card-hoverable home-feature-card css-dev-only-do-not-override-1odpy5d"
+            style="padding: 32px 24px; background-color: rgb(246, 255, 237);"
+          >
+            <div
+              class="ant-card-body"
+            >
+              <div
+                class="ant-space css-dev-only-do-not-override-1odpy5d ant-space-vertical ant-space-gap-row-large ant-space-gap-col-large"
+                style="width: 100%;"
+              >
+                <div
+                  class="ant-space-item"
+                >
+                  <div>
+                    <span
+                      aria-label="edit"
+                      class="anticon anticon-edit"
+                      role="img"
+                      style="font-size: 48px; color: rgb(82, 196, 26);"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="edit"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="64 64 896 896"
+                        width="1em"
+                      >
+                        <path
+                          d="M257.7 752c2 0 4-.2 6-.5L431.9 722c2-.4 3.9-1.3 5.3-2.8l423.9-423.9a9.96 9.96 0 000-14.1L694.9 114.9c-1.9-1.9-4.4-2.9-7.1-2.9s-5.2 1-7.1 2.9L256.8 538.8c-1.5 1.5-2.4 3.3-2.8 5.3l-29.5 168.2a33.5 33.5 0 009.4 29.8c6.6 6.4 14.9 9.9 23.8 9.9zm67.4-174.4L687.8 215l73.3 73.3-362.7 362.6-88.9 15.7 15.6-89zM880 836H144c-17.7 0-32 14.3-32 32v36c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-36c0-17.7-14.3-32-32-32z"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+                <div
+                  class="ant-space-item"
+                >
+                  <h3
+                    class="ant-typography home-feature-title css-dev-only-do-not-override-1odpy5d"
+                  >
+                    Write Novels
+                  </h3>
+                </div>
+                <div
+                  class="ant-space-item"
+                >
+                  <div
+                    class="ant-typography home-feature-desc css-dev-only-do-not-override-1odpy5d"
+                  >
+                    Share your stories with the world. Our platform provides all the tools you need to publish and promote your work.
+                  </div>
+                </div>
+                <div
+                  class="ant-space-item"
+                >
+                  <button
+                    class="ant-btn css-dev-only-do-not-override-1odpy5d ant-btn-primary ant-btn-color-primary ant-btn-variant-solid ant-btn-lg home-feature-btn"
+                    type="button"
+                  >
+                    <span>
+                      Get Started
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="home-feature-card-wrapper"
+        >
+          <div
+            class="ant-card ant-card-bordered ant-card-hoverable home-feature-card css-dev-only-do-not-override-1odpy5d"
+            style="padding: 32px 24px; background-color: rgb(255, 251, 230);"
+          >
+            <div
+              class="ant-card-body"
+            >
+              <div
+                class="ant-space css-dev-only-do-not-override-1odpy5d ant-space-vertical ant-space-gap-row-large ant-space-gap-col-large"
+                style="width: 100%;"
+              >
+                <div
+                  class="ant-space-item"
+                >
+                  <div>
+                    <span
+                      aria-label="trophy"
+                      class="anticon anticon-trophy"
+                      role="img"
+                      style="font-size: 48px; color: rgb(250, 173, 20);"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="trophy"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="64 64 896 896"
+                        width="1em"
+                      >
+                        <path
+                          d="M868 160h-92v-40c0-4.4-3.6-8-8-8H256c-4.4 0-8 3.6-8 8v40h-92a44 44 0 00-44 44v148c0 81.7 60 149.6 138.2 162C265.7 630.2 359 721.7 476 734.5v105.2H280c-17.7 0-32 14.3-32 32V904c0 4.4 3.6 8 8 8h512c4.4 0 8-3.6 8-8v-32.3c0-17.7-14.3-32-32-32H548V734.5C665 721.7 758.3 630.2 773.8 514 852 501.6 912 433.7 912 352V204a44 44 0 00-44-44zM184 352V232h64v207.6a91.99 91.99 0 01-64-87.6zm520 128c0 49.1-19.1 95.4-53.9 130.1-34.8 34.8-81 53.9-130.1 53.9h-16c-49.1 0-95.4-19.1-130.1-53.9-34.8-34.8-53.9-81-53.9-130.1V184h384v296zm136-128c0 41-26.9 75.8-64 87.6V232h64v120z"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+                <div
+                  class="ant-space-item"
+                >
+                  <h3
+                    class="ant-typography home-feature-title css-dev-only-do-not-override-1odpy5d"
+                  >
+                    Earn Yuan/XP and Level Up
+                  </h3>
+                </div>
+                <div
+                  class="ant-space-item"
+                >
+                  <div
+                    class="ant-typography home-feature-desc css-dev-only-do-not-override-1odpy5d"
+                  >
+                    Earn rewards for reading, writing, and engaging with the community. Level up your profile and unlock exclusive features.
+                  </div>
+                </div>
+                <div
+                  class="ant-space-item"
+                >
+                  <button
+                    class="ant-btn css-dev-only-do-not-override-1odpy5d ant-btn-primary ant-btn-color-primary ant-btn-variant-solid ant-btn-lg home-feature-btn"
+                    type="button"
+                  >
+                    <span>
+                      Get Started
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section
+      class="home-cta-section"
+      style="padding: 80px 0px;"
+    >
+      <div
+        class="ant-row ant-row-center css-dev-only-do-not-override-1odpy5d"
+      >
+        <div
+          class="ant-col ant-col-xs-24 ant-col-sm-20 ant-col-md-16 ant-col-lg-12 css-dev-only-do-not-override-1odpy5d"
+          style="text-align: center;"
+        >
+          <div
+            class="ant-card ant-card-bordered home-cta-card css-dev-only-do-not-override-1odpy5d"
+            style="background-color: rgba(255, 255, 255, 0.1);"
+          >
+            <div
+              class="ant-card-body"
+            >
+              <h2
+                class="ant-typography home-cta-title css-dev-only-do-not-override-1odpy5d"
+                style="color: rgb(26, 26, 26);"
+              >
+                Ready to Begin Your Journey?
+              </h2>
+              <div
+                class="ant-typography home-cta-desc css-dev-only-do-not-override-1odpy5d"
+                style="color: rgb(74, 85, 104);"
+              >
+                Join thousands of readers and writers in the Yushan community. Your next favorite story is just a click away.
+              </div>
+              <div
+                class="ant-space css-dev-only-do-not-override-1odpy5d ant-space-horizontal ant-space-align-center ant-space-gap-row-middle ant-space-gap-col-middle"
+                style="flex-wrap: wrap;"
+              >
+                <div
+                  class="ant-space-item"
+                >
+                  <button
+                    class="ant-btn css-dev-only-do-not-override-1odpy5d ant-btn-primary ant-btn-color-primary ant-btn-variant-solid ant-btn-lg home-cta-btn"
+                    style="background-color: rgb(102, 126, 234); border-color: #667eea; color: white;"
+                    type="button"
+                  >
+                    <span>
+                      Start Reading Now
+                    </span>
+                  </button>
+                </div>
+                <div
+                  class="ant-space-item"
+                >
+                  <button
+                    class="ant-btn css-dev-only-do-not-override-1odpy5d ant-btn-default ant-btn-color-default ant-btn-variant-outlined ant-btn-lg home-cta-link"
+                    style="background-color: transparent; border-color: #667eea; color: rgb(102, 126, 234);"
+                    type="button"
+                  >
+                    <span>
+                      Become an Author
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div
+      data-testid="mock-feature-Weekly Featured"
+    >
+      <div>
+        Weekly Featured
+      </div>
+      <button
+        aria-label="feature-click-Weekly Featured"
+      >
+        feature-click
+      </button>
+    </div>
+    <div
+      data-testid="mock-categories"
+    >
+      categories-mock
+    </div>
+    <div
+      data-testid="mock-feature-Ongoing Novels"
+    >
+      <div>
+        Ongoing Novels
+      </div>
+      <button
+        aria-label="feature-click-Ongoing Novels"
+      >
+        feature-click
+      </button>
+    </div>
+    <div
+      data-testid="mock-topnovels"
+    >
+      topnovels-mock
+    </div>
+    <div
+      data-testid="mock-feature-Completed Novels"
+    >
+      <div>
+        Completed Novels
+      </div>
+      <button
+        aria-label="feature-click-Completed Novels"
+      >
+        feature-click
+      </button>
+    </div>
+  </div>
+</div>
+`;
