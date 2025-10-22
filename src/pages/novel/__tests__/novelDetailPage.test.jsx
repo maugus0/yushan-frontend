@@ -22,6 +22,32 @@ jest.mock('axios', () => ({
   delete: jest.fn(),
 }));
 
+// Ensure AntD responsive hooks do not throw in JSDOM (fixes responsiveObserver errors)
+jest.mock('antd/lib/grid/hooks/useBreakpoint', () => () => ({
+  xs: true,
+  sm: true,
+  md: true,
+  lg: true,
+  xl: true,
+  xxl: true,
+}));
+
+jest.mock('antd/lib/_util/responsiveObserver', () => ({
+  __esModule: true,
+  default: () => ({
+    subscribe: (listener) => {
+      try {
+        listener({ xs: true, sm: true, md: true, lg: true, xl: true, xxl: true });
+      } catch (e) {
+        // ignore listener errors in test
+      }
+      return () => {};
+    },
+    unsubscribe: () => {},
+    dispatch: () => {},
+  }),
+}));
+
 // Now safe to import other modules
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
