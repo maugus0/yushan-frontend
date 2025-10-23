@@ -561,7 +561,7 @@ describe('EditProfile more coverage tests (safe)', () => {
 
   test('avatar onError handler returns false when called without event target', async () => {
     // render component and access Avatar element
-    const { container } = render(
+    render(
       <Provider store={store}>
         <EditProfile />
       </Provider>

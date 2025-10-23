@@ -4,8 +4,6 @@ import { Provider } from 'react-redux';
 // use require for redux-mock-store to avoid ESM interop issues in Jest environment
 const configureMockStoreImported = require('redux-mock-store');
 const configureMockStore = configureMockStoreImported.default || configureMockStoreImported;
-const thunkImported = require('redux-thunk');
-const thunk = thunkImported.default || thunkImported;
 import { MemoryRouter } from 'react-router-dom';
 import Profile from '../profile';
 import { message } from 'antd';
