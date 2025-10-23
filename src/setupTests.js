@@ -4,6 +4,11 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
+
+/* eslint-env node */
+
+process.env.REACT_APP_API_URL = '';
+
 import '@testing-library/jest-dom';
 
 // Mock window.matchMedia for Ant Design components

@@ -34,7 +34,7 @@ jest.mock('antd', () => {
 
   const MockRate = (props) => {
     const { value = 0, onChange, disabled } = props;
-    const [v, setV] = React.useState(value || 0);
+    const [, setV] = React.useState(value || 0);
     return React.createElement(
       'div',
       { 'data-testid': props['data-testid'] || 'mock-rate' },

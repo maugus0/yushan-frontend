@@ -26,7 +26,6 @@ jest.mock('../../assets/images/user_female.png', () => 'mock-female.png');
 jest.mock('../../assets/images/user.png', () => 'mock-default.png');
 
 // --- Mock window.Image and Timers ---
-let imageOnload, imageOnerror;
 const originalImage = window.Image; // Save the original Image constructor
 
 beforeAll(() => {
@@ -40,12 +39,12 @@ beforeAll(() => {
       // In a real browser, this would trigger a network request.
       // We will trigger onload/onerror manually in our tests.
     },
-    // Capture the onload and onerror handlers when they are set
+    // Store the onload handler on the mock instance (no external variable needed)
     set onload(fn) {
-      imageOnload = fn;
+      this._onload = fn;
     },
     set onerror(fn) {
-      imageOnerror = fn;
+      // No-op: we don't store the onerror handler because tests trigger errors directly.
     },
   }));
 });
@@ -59,10 +58,7 @@ afterAll(() => {
 beforeEach(() => {
   // Reset all mock function calls and handlers before each test
   jest.clearAllMocks();
-  imageOnload = null;
-  imageOnerror = null;
 });
-
 // --- Test Suites ---
 
 describe('handleImageError', () => {
