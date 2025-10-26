@@ -325,25 +325,33 @@
   font-size: 1rem;
 }
 .novel-chapter-list {
+  /* render as a single column, left aligned */
   display: flex;
-  flex-wrap: wrap;
-  gap: 9px 20px;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 18px;
-  max-width: 500px; /* 2 * 120px + gap */
+  max-width: 700px;
+  width: 100%;
   justify-content: flex-start;
   align-items: flex-start;
-  width: 100%;
-  overflow-x: visible;
+  overflow: visible;
   margin-left: 0;
   margin-right: 0;
   box-sizing: border-box;
+  padding-left: 0;
 }
 .novel-chapter-btn {
   font-size: 1rem;
-  padding: 0 7px;
-  min-width: 120px;
-  border-radius: 7px;
+  padding: 6px 0;
+  min-width: 0;
+  border-radius: 4px;
   color: #2c4db8;
+  display: block;
+  width: auto;
+  text-align: left;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .novel-chapter-btn:hover {
   background: #eaf3ff;

@@ -307,6 +307,9 @@ export default function NovelDetailPage() {
           payload: res.remainedYuan,
         });
       }
+      if (res?.voteCount !== undefined) {
+        setNovel((prev) => (prev ? { ...prev, votes: res.voteCount } : prev));
+      }
     } catch (e) {
       showTip(e?.response?.data?.message || e?.message || 'Vote failed', 'error');
     } finally {
