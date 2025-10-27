@@ -89,7 +89,7 @@ test('renders novels list and navigates on card click and author click stops pro
   mockNavigate.mockClear();
   const authorLink = screen.getByText(/by Alice/i);
   fireEvent.click(authorLink);
-  expect(mockNavigate).toHaveBeenCalledWith('/profile/a1');
+  expect(mockNavigate).toHaveBeenCalledWith('/profile?userId=a1');
   // Only one navigation should be triggered for author click
   expect(mockNavigate).toHaveBeenCalledTimes(1);
 });

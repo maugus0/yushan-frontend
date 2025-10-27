@@ -112,7 +112,25 @@ const TopNovels = () => {
                     style={{ cursor: 'pointer', color: '#1890ff' }}
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent novel card click
-                      navigate(`/profile/${novel.authorId || novel.userId}`);
+
+                      // pick the most likely user id field(s)
+                      const userId =
+                        novel.authorId ||
+                        novel.userId ||
+                        (novel.author &&
+                          (novel.author.id || novel.author.userId || novel.author.uuid)) ||
+                        novel.authorUuid ||
+                        novel.author_uuid ||
+                        novel.username ||
+                        novel.authorUsername ||
+                        novel.author;
+
+                      if (userId) {
+                        navigate(`/profile?userId=${encodeURIComponent(userId)}`);
+                      } else {
+                        // fallback to profile root if no id available
+                        navigate('/profile');
+                      }
                     }}
                   >
                     by {novel.authorUsername || novel.author || 'Unknown Author'}
