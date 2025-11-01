@@ -213,7 +213,7 @@ jobs:
 
   deploy-pages:
     name: Deploy GitHub Pages (gh-pages CLI)
-    if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main')
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: [docker-build]
     permissions:
@@ -397,6 +397,7 @@ jobs:
     name: Generate CI Summary & Collect Reports
     runs-on: ubuntu-latest
     needs: [zap-production-dast]
+    if: always()
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
