@@ -372,7 +372,7 @@ jobs:
           git push origin gh-pages --force
 
   zap-production-dast:
-    name: OWASP ZAP Production Scan
+    name: OWASP ZAP Baseline Scan
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: [deploy-pages]
